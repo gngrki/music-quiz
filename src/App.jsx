@@ -118,7 +118,7 @@ export default function App() {
   if (screen === "home") {
     return (
       <div style={{ padding: 20 }}>
-        <h1>🎵 Music Quiz</h1>
+        <h1>🎵 Music Quiz 🎶</h1>
         <p>What's your name?</p>
         <input
           value={playerName}
@@ -269,27 +269,6 @@ export default function App() {
               {answeredCount} / {room.players.length} answered
             </div>
 
-            {scores && (
-  <div style={{ marginBottom: "16px" }}>
-    {scores.players
-      .map(p => ({ ...p, score: scores.scores[p.id] || 0 }))
-      .sort((a, b) => b.score - a.score)
-      .map((p, i) => (
-        <div key={i} style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "4px 8px",
-          fontSize: "14px"
-        }}>
-          <span>{i + 1}. {p.name}</span>
-          <strong>{p.score} pts</strong>
-        </div>
-      ))
-    }
-  </div>
-)}
-
             <div style={{ marginBottom: "16px", height: "8px", background: "#eee", borderRadius: "4px" }}>
               <div style={{
                 height: "100%",
@@ -338,45 +317,58 @@ export default function App() {
             </div>
 
             {reveal && (
-  <div style={{ marginTop: "16px" }}>
-    <p>✅ Correct: <strong>{reveal.name}</strong> by {reveal.artist}</p>
-    {scores && results && (
-      <div style={{ marginTop: "12px" }}>
-        <h4 style={{ marginBottom: "8px" }}>Scoreboard</h4>
-        {scores.players
-          .map(p => ({ ...p, score: scores.scores[p.id] || 0 }))
-          .sort((a, b) => b.score - a.score)
-          .map((p, i) => (
-            <div key={i} style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "8px 12px",
-              marginBottom: "6px",
-              background: "#f5f5f5",
-              borderRadius: "8px",
-              fontSize: "16px"
-            }}>
-              <span>
-                {results[p.id]
-                  ? results[p.id].correct
-                    ? "✅"
-                    : results[p.id].answered
-                      ? "❌"
-                      : "⏱️"
-                  : "⏱️"
-                } {p.name}
-              </span>
-              <strong>{p.score} pts</strong>
-            </div>
-          ))
-        }
-      </div>
-    )}
-  </div>
-)}
+              <div style={{ marginTop: "16px" }}>
+                <p>✅ Correct: <strong>{reveal.name}</strong> by {reveal.artist}</p>
+              </div>
+            )}
           </div>
         )}
+
+        <div style={{ marginTop: "24px", borderTop: "1px solid #eee", paddingTop: "12px" }}>
+  <h4 style={{ marginBottom: "8px" }}>Scoreboard</h4>
+            {scores ? (
+              scores.players
+                .map(p => ({ ...p, score: scores.scores[p.id] || 0 }))
+                .sort((a, b) => b.score - a.score)
+                .map((p, i) => (
+                  <div key={i} style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "6px 12px",
+                    marginBottom: "4px",
+                    background: "#f5f5f5",
+                    borderRadius: "8px",
+                    fontSize: "15px"
+                  }}>
+                    <span>
+                      {results && results[p.id]
+                        ? results[p.id].correct ? "✅ " : results[p.id].answered ? "❌ " : "⏱️ "
+                        : ""
+                      }
+                      {i + 1}. {p.name}
+                    </span>
+                    <strong>{p.score} pts</strong>
+                  </div>
+                ))
+            ) : (
+              room.players.map((p, i) => (
+                <div key={i} style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  padding: "6px 12px",
+                  marginBottom: "4px",
+                  background: "#f5f5f5",
+                  borderRadius: "8px",
+                  fontSize: "15px"
+                }}>
+                  <span>{i + 1}. {p.name}</span>
+                  <strong>0 pts</strong>
+                </div>
+              ))
+            )}
+          </div>
       </div>
     )
   }
