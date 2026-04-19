@@ -243,19 +243,27 @@ io.on("connection", (socket) => {
 
   socket.on("rematch", ({ code }) => {
   const room = rooms[code]
-  if (!room) return
-  if (room.host !== socket.id) return
-  room.players.forEach(p => {
-    p.genre = null
-    p.tracks = null
+    if (!room) return
+    if (room.host !== socket.id) return
+    room.players.forEach(p => {
+      p.genre = null
+      p.tracks = null
+    })
+    room.currentQuestion = 0
+    room.tracks = []
+    room.scores = {}
+    room.answers = {}
+    room.usedTrackNames = new Set()
+    io.to(code).emit("rematch_starting")
   })
-  room.currentQuestion = 0
-  room.tracks = []
-  room.scores = {}
-  room.answers = {}
-  room.usedTrackNames = new Set()
-  io.to(code).emit("rematch_starting")
-})
+
+  socket.on("set_guess_mode", ({ code, guessMode }) => {
+    const room = rooms[code]
+    if (!room) return
+    if (room.host !== socket.id) return
+    room.guessMode = guessMode
+    socket.to(code).emit("guess_mode_updated", { guessMode })
+  })
 
   socket.on("disconnect", () => {
     for (const code in rooms) {
