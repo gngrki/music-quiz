@@ -26,6 +26,7 @@ export default function App() {
   const [timeLeft, setTimeLeft] = useState(30)
   const [answeredCount, setAnsweredCount] = useState(0)
   const [audioUnlocked, setAudioUnlocked] = useState(false)
+  const [allTimeScores, setAllTimeScores] = useState({})
   const timerRef = useRef(null)
   const audioRef = useRef(null)
 
@@ -79,6 +80,13 @@ export default function App() {
 
     socket.on("game_over", ({ scores, players }) => {
       setScores({ scores, players })
+      setAllTimeScores(prev => {
+        const updated = { ...prev }
+        players.forEach(p => {
+          updated[p.name] = (updated[p.name] || 0) + (scores[p.id] || 0)
+        })
+        return updated
+      })
       setScreen("gameover")
     })
 
@@ -374,23 +382,48 @@ export default function App() {
   }
 
   if (screen === "gameover") {
-    const sortedPlayers = scores.players
-      .map(p => ({ ...p, score: scores.scores[p.id] || 0 }))
-      .sort((a, b) => b.score - a.score)
+  const sortedPlayers = scores.players
+    .map(p => ({ ...p, score: scores.scores[p.id] || 0 }))
+    .sort((a, b) => b.score - a.score)
 
-    return (
-      <div style={{ padding: 20 }}>
-        <h1>🏆 Game Over!</h1>
-        {sortedPlayers.map((p, i) => (
-          <div key={i} style={{ padding: "10px", borderBottom: "1px solid #ccc", fontSize: "18px" }}>
-            {i + 1}. {p.name} — {p.score} points
-          </div>
-        ))}
-        <br />
-        <button onClick={() => window.location.reload()}>
-          Play Again
-        </button>
-      </div>
-    )
-  }
+  const sortedAllTime = Object.entries(allTimeScores)
+    .sort((a, b) => b[1] - a[1])
+
+  return (
+    <div style={{ padding: 20 }}>
+      <h1>🏆 Game Over!</h1>
+      {sortedPlayers.map((p, i) => (
+        <div key={i} style={{ padding: "10px", borderBottom: "1px solid #ccc", fontSize: "18px" }}>
+          {i + 1}. {p.name} — {p.score} points
+        </div>
+      ))}
+      <br />
+      <button onClick={() => window.location.reload()}>
+        Play Again
+      </button>
+
+      {sortedAllTime.length > 0 && (
+        <div style={{ marginTop: "32px" }}>
+          <h3>📊 All-time scores (this session)</h3>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "15px" }}>
+            <thead>
+              <tr style={{ borderBottom: "2px solid #ccc" }}>
+                <th style={{ textAlign: "left", padding: "8px" }}>Player</th>
+                <th style={{ textAlign: "right", padding: "8px" }}>Total pts</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedAllTime.map(([name, score], i) => (
+                <tr key={i} style={{ borderBottom: "1px solid #eee" }}>
+                  <td style={{ padding: "8px" }}>{i + 1}. {name}</td>
+                  <td style={{ textAlign: "right", padding: "8px" }}><strong>{score}</strong></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  )
+}
 }
