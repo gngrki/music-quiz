@@ -82,13 +82,22 @@ async function startQuestion(io, room) {
 
 function revealAnswer(io, room) {
   clearTimeout(room.questionTimer)
+  const results = {}
+  room.players.forEach(p => {
+    const answer = room.answers[p.id]
+    results[p.id] = {
+      answered: !!answer,
+      correct: answer === room.currentCorrect.name
+    }
+  })
   io.to(room.code).emit("reveal_answer", {
     correct: { name: room.currentCorrect.name, artist: room.currentCorrect.artist },
     scores: room.scores,
-    players: room.players
+    players: room.players,
+    results
   })
   room.currentQuestion++
-  setTimeout(() => startQuestion(io, room), 5000)
+  setTimeout(() => startQuestion(io, room), 3000)
 }
 
 io.on("connection", (socket) => {

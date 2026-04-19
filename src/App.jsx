@@ -5,7 +5,7 @@ const socket = io("https://music-quiz-production-b8f9.up.railway.app")
 const LASTFM_KEY = "5ae7aaa16891fc49403d389293103d97"
 
 async function getTopTracks(tag) {
-  const res = await fetch(`https://ws.audioscrobbler.com/2.0/?method=tag.gettoptracks&tag=${encodeURIComponent(tag)}&api_key=${LASTFM_KEY}&format=json&limit=50`)
+  const res = await fetch(`https://ws.audioscrobbler.com/2.0/?method=tag.gettoptracks&tag=${encodeURIComponent(tag)}&api_key=${LASTFM_KEY}&format=json&limit=200`)
   const data = await res.json()
   return data.tracks.track.map(t => ({ name: t.name, artist: t.artist.name }))
 }
@@ -22,6 +22,7 @@ export default function App() {
   const [selectedAnswer, setSelectedAnswer] = useState(null)
   const [reveal, setReveal] = useState(null)
   const [scores, setScores] = useState(null)
+  const [results, setResults] = useState(null)
   const [timeLeft, setTimeLeft] = useState(30)
   const [answeredCount, setAnsweredCount] = useState(0)
   const [audioUnlocked, setAudioUnlocked] = useState(false)
@@ -51,6 +52,7 @@ export default function App() {
       setQuestion(data)
       setSelectedAnswer(null)
       setReveal(null)
+      setResults(null)
       setTimeLeft(30)
       setAnsweredCount(0)
       if (data.previewUrl && audioRef.current) {
@@ -65,13 +67,14 @@ export default function App() {
       setAnsweredCount(count)
     })
 
-    socket.on("reveal_answer", ({ correct, scores, players }) => {
+    socket.on("reveal_answer", ({ correct, scores, players, results }) => {
       setReveal(correct)
       setScores({ scores, players })
+      setResults(results)
       if (timerRef.current) clearInterval(timerRef.current)
       if (audioRef.current) {
-        audioRef.current.pause()
-      }
+         audioRef.current.pause()
+        }
     })
 
     socket.on("game_over", ({ scores, players }) => {
@@ -191,9 +194,9 @@ export default function App() {
         )}
         {audioUnlocked && <p style={{ color: "#4caf50" }}>✅ Music enabled!</p>}
         {room.players.map((p, i) => (
-          <div key={i} style={{ padding: "8px", borderBottom: "1px solid #ccc" }}>
-            {p.name} {p.genre ? "✅" : "⏳"}
-          </div>
+         <div key={i} style={{ padding: "8px", borderBottom: "1px solid #ccc" }}>
+           {p.name} {p.genre ? `✅ ${p.genre}` : "⏳"}
+         </div>
         ))}
         <br />
         {!confirmedGenre && (
@@ -314,18 +317,43 @@ export default function App() {
             </div>
 
             {reveal && (
-              <div style={{ marginTop: "16px" }}>
-                <p>✅ Correct: <strong>{reveal.name}</strong> by {reveal.artist}</p>
-                {scores && (
-                  <div>
-                    <h4>Scores:</h4>
-                    {scores.players.map((p, i) => (
-                      <div key={i}>{p.name}: {scores.scores[p.id] || 0}</div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
+  <div style={{ marginTop: "16px" }}>
+    <p>✅ Correct: <strong>{reveal.name}</strong> by {reveal.artist}</p>
+    {scores && results && (
+      <div style={{ marginTop: "12px" }}>
+        <h4 style={{ marginBottom: "8px" }}>Scoreboard</h4>
+        {scores.players
+          .map(p => ({ ...p, score: scores.scores[p.id] || 0 }))
+          .sort((a, b) => b.score - a.score)
+          .map((p, i) => (
+            <div key={i} style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              padding: "8px 12px",
+              marginBottom: "6px",
+              background: "#f5f5f5",
+              borderRadius: "8px",
+              fontSize: "16px"
+            }}>
+              <span>
+                {results[p.id]
+                  ? results[p.id].correct
+                    ? "✅"
+                    : results[p.id].answered
+                      ? "❌"
+                      : "⏱️"
+                  : "⏱️"
+                } {p.name}
+              </span>
+              <strong>{p.score} pts</strong>
+            </div>
+          ))
+        }
+      </div>
+    )}
+  </div>
+)}
           </div>
         )}
       </div>
