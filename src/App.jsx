@@ -89,7 +89,19 @@ export default function App() {
       })
       setScreen("gameover")
     })
-
+    socket.on("rematch_starting", () => {
+      setScreen("lobby")
+      setQuestion(null)
+      setSelectedAnswer(null)
+      setReveal(null)
+      setResults(null)
+      setScores(null)
+      setConfirmedGenre(false)
+      setGenre("")
+      setAudioUnlocked(false)
+      setTimeLeft(30)
+      setAnsweredCount(0)
+    })
     socket.on("error", ({ message }) => {
       setError(message)
     })
@@ -103,6 +115,7 @@ export default function App() {
       socket.off("answer_count")
       socket.off("reveal_answer")
       socket.off("game_over")
+      socket.off("rematch_starting")
       socket.off("error")
     }
   }, [])
@@ -398,8 +411,18 @@ export default function App() {
         </div>
       ))}
       <br />
-      <button onClick={() => window.location.reload()}>
-        Play Again
+       {room.players[0].id === socket.id ? (
+        <button onClick={() => socket.emit("rematch", { code: room.code })}>
+          🔄 Rematch (same players)
+        </button>
+      ) : (
+        <p>⏳ Waiting for host to start rematch...</p>
+      )}
+      <button 
+        style={{ marginLeft: "8px" }}
+        onClick={() => window.location.reload()}
+      >
+        Leave
       </button>
 
       {sortedAllTime.length > 0 && (
