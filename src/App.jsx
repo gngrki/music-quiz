@@ -25,6 +25,7 @@ export default function App() {
   const [scores, setScores] = useState(null)
   const [timeLeft, setTimeLeft] = useState(30)
   const [answeredCount, setAnsweredCount] = useState(0)
+  const [audioUnlocked, setAudioUnlocked] = useState(false)
   const timerRef = useRef(null)
   const audioRef = useRef(null)
 
@@ -59,9 +60,11 @@ export default function App() {
       }
       if (data.previewUrl) {
         const audio = new Audio(data.previewUrl)
-        audio.play()
-        audioRef.current = audio
-      }
+        audio.play().catch(() => {
+        document.addEventListener("click", () => audio.play(), { once: true })
+    })
+    audioRef.current = audio
+  }
     })
 
     socket.on("answer_count", ({ count }) => {
@@ -179,6 +182,19 @@ export default function App() {
         <h1>Lobby</h1>
         <p>Room code: <strong>{room.code}</strong></p>
         <h3>Players ({room.players.length}/6)</h3>
+        {!audioUnlocked && (
+        <button
+         style={{ padding: "12px 24px", fontSize: "16px", marginBottom: "16px", background: "#4caf50", color: "white", border: "none", borderRadius: "8px", cursor: "pointer" }}
+         onClick={() => {
+         const audio = new Audio()
+        audio.play().catch(() => {})
+        setAudioUnlocked(true)
+        }}
+        >
+        🎵 Tap to enable music
+      </button>
+)}
+{audioUnlocked && <p style={{ color: "#4caf50" }}>✅ Music enabled!</p>}
         {room.players.map((p, i) => (
           <div key={i} style={{ padding: "8px", borderBottom: "1px solid #ccc" }}>
             {p.name} {p.genre ? "✅" : "⏳"}
