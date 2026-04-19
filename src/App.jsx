@@ -269,6 +269,27 @@ export default function App() {
               {answeredCount} / {room.players.length} answered
             </div>
 
+            {scores && (
+  <div style={{ marginBottom: "16px" }}>
+    {scores.players
+      .map(p => ({ ...p, score: scores.scores[p.id] || 0 }))
+      .sort((a, b) => b.score - a.score)
+      .map((p, i) => (
+        <div key={i} style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "4px 8px",
+          fontSize: "14px"
+        }}>
+          <span>{i + 1}. {p.name}</span>
+          <strong>{p.score} pts</strong>
+        </div>
+      ))
+    }
+  </div>
+)}
+
             <div style={{ marginBottom: "16px", height: "8px", background: "#eee", borderRadius: "4px" }}>
               <div style={{
                 height: "100%",
