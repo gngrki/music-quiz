@@ -19,6 +19,10 @@ export default function App() {
   const [genre, setGenre] = useState("")
   const [confirmedGenre, setConfirmedGenre] = useState(false)
   const [error, setError] = useState("")
+    function showError(msg) {
+      setError(msg)
+      setTimeout(() => setError(""), 3000)
+    }
   const [question, setQuestion] = useState(null)
   const [selectedAnswer, setSelectedAnswer] = useState(null)
   const [reveal, setReveal] = useState(null)
@@ -105,7 +109,7 @@ export default function App() {
       setAnsweredCount(0)
     })
     socket.on("error", ({ message }) => {
-      setError(message)
+      showError(message)
     })
 
     return () => {
@@ -153,7 +157,7 @@ export default function App() {
         <button
           style={{ marginRight: "8px" }}
           onClick={() => {
-            if (!playerName.trim()) return setError("Enter your name first!")
+            if (!playerName.trim()) return showError("Enter your name first!")
             socket.emit("create_room", { playerName })
           }}
         >
@@ -161,7 +165,7 @@ export default function App() {
         </button>
         <button
           onClick={() => {
-            if (!playerName.trim()) return setError("Enter your name first!")
+            if (!playerName.trim()) return showError("Enter your name first!")
             setScreen("join")
           }}
         >
@@ -183,7 +187,7 @@ export default function App() {
           style={{ padding: "8px", marginRight: "8px" }}
         />
         <button onClick={() => {
-          if (!roomCode.trim()) return setError("Enter a room code!")
+          if (!roomCode.trim()) return showError("Enter a room code!")
           socket.emit("join_room", { code: roomCode, playerName })
         }}>
           Join
@@ -233,10 +237,10 @@ export default function App() {
             />
             <button
               onClick={async () => {
-                if (!genre.trim()) return setError("Enter a genre or artist!")
+                if (!genre.trim()) return showError("Enter a genre or artist!")
                 setError("")
                 const tracks = await getTopTracks(genre)
-                if (!tracks || tracks.length < 4) return setError("Couldn't find enough tracks! Try a different genre.")
+                if (!tracks || tracks.length < 4) return showError("Couldn't find enough tracks! Try a different genre.")
                 socket.emit("select_genre", {
                   code: room.code,
                   genre,
