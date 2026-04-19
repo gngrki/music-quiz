@@ -49,23 +49,22 @@ export default function App() {
     })
 
     socket.on("new_question", (data) => {
-      setQuestion(data)
-      setSelectedAnswer(null)
-      setReveal(null)
-      setTimeLeft(30)
-      setAnsweredCount(0)
-      if (audioRef.current) {
-        audioRef.current.pause()
-        audioRef.current = null
-      }
-      if (data.previewUrl) {
-        const audio = new Audio(data.previewUrl)
-        audio.play().catch(() => {
-        document.addEventListener("click", () => audio.play(), { once: true })
-    })
-    audioRef.current = audio
+  setQuestion(data)
+  setSelectedAnswer(null)
+  setReveal(null)
+  setTimeLeft(30)
+  setAnsweredCount(0)
+  if (audioRef.current) {
+    audioRef.current.pause()
   }
-    })
+  if (data.previewUrl) {
+    if (!audioRef.current) {
+      audioRef.current = new Audio()
+    }
+    audioRef.current.src = data.previewUrl
+    audioRef.current.play().catch(() => {})
+  }
+})
 
     socket.on("answer_count", ({ count }) => {
       setAnsweredCount(count)
@@ -186,9 +185,9 @@ export default function App() {
         <button
          style={{ padding: "12px 24px", fontSize: "16px", marginBottom: "16px", background: "#4caf50", color: "white", border: "none", borderRadius: "8px", cursor: "pointer" }}
          onClick={() => {
-         const audio = new Audio()
-        audio.play().catch(() => {})
-        setAudioUnlocked(true)
+         audioRef.current = new Audio()
+         audioRef.current.play().catch(() => {})
+         setAudioUnlocked(true)
         }}
         >
         🎵 Tap to enable music
