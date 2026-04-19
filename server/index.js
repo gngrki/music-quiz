@@ -2,11 +2,14 @@ const express = require("express")
 const http = require("http")
 const { Server } = require("socket.io")
 const cors = require("cors")
+const rateLimit = require("express-rate-limit")
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args))
 
 const app = express()
-app.use(cors({
-  origin: "*"
+app.use(cors({ origin: "*" }))
+app.use(rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100
 }))
 
 const server = http.createServer(app)
@@ -20,7 +23,7 @@ const io = new Server(server, {
 const rooms = {}
 
 function generateRoomCode() {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ"
   let code = ""
   for (let i = 0; i < 4; i++) {
     code += chars.charAt(Math.floor(Math.random() * chars.length))
@@ -112,10 +115,20 @@ function revealAnswer(io, room) {
   setTimeout(() => startQuestion(io, room), 3000)
 }
 
+setInterval(() => {
+  for (const code in rooms) {
+    const room = rooms[code]
+    if (room.players.length === 0) {
+      delete rooms[code]
+    }
+  }
+}, 60 * 60 * 1000)
+
 io.on("connection", (socket) => {
   console.log("player connected:", socket.id)
 
   socket.on("create_room", ({ playerName }) => {
+    if (!playerName || playerName.length > 20) return
     let code = generateRoomCode()
     while (rooms[code]) code = generateRoomCode()
     rooms[code] = {
