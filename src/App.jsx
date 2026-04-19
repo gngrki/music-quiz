@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react"
 import { io } from "socket.io-client"
 
-const socket = io("http://127.0.0.1:3001")
+const socket = io("https://music-quiz-production-b8f9.up.railway.app")
 const LASTFM_KEY = "5ae7aaa16891fc49403d389293103d97"
 const YOUTUBE_KEY = "AIzaSyDeLLVuCkJWoqCOkWepuZvypqZc0zOp3jI"
 
