@@ -225,27 +225,6 @@ export default function App() {
         {!confirmedGenre && (
           <div>
             <h3>Pick a music genre or artist</h3>
-            <h3>What to guess?</h3>
-              <div style={{ marginBottom: "12px" }}>
-                <button
-                  onClick={() => setGuessMode("both")}
-                  style={{ marginRight: "8px", padding: "6px 12px", background: guessMode === "both" ? "#4caf50" : "#eee", color: guessMode === "both" ? "white" : "black", border: "none", borderRadius: "6px", cursor: "pointer" }}
-                >
-                  🎵 Song + Artist 🎤
-                </button>
-                <button
-                  onClick={() => setGuessMode("song")}
-                  style={{ marginRight: "8px", padding: "6px 12px", background: guessMode === "song" ? "#4caf50" : "#eee", color: guessMode === "song" ? "white" : "black", border: "none", borderRadius: "6px", cursor: "pointer" }}
-                >
-                  🎵 Song only
-                </button>
-                <button
-                  onClick={() => setGuessMode("artist")}
-                  style={{ padding: "6px 12px", background: guessMode === "artist" ? "#4caf50" : "#eee", color: guessMode === "artist" ? "white" : "black", border: "none", borderRadius: "6px", cursor: "pointer" }}
-                >
-                  🎤 Artist only
-                </button>
-              </div>
             <input
               value={genre}
               onChange={e => setGenre(e.target.value)}
@@ -269,6 +248,27 @@ export default function App() {
               Confirm
             </button>
             {error && <p style={{ color: "red" }}>{error}</p>}
+            <h3>What to guess?</h3>
+              <div style={{ marginBottom: "12px" }}>
+                <button
+                  onClick={() => setGuessMode("both")}
+                  style={{ marginRight: "8px", padding: "6px 12px", background: guessMode === "both" ? "#4caf50" : "#eee", color: guessMode === "both" ? "white" : "black", border: "none", borderRadius: "6px", cursor: "pointer" }}
+                >
+                  🎵 Song + Artist 🎤
+                </button>
+                <button
+                  onClick={() => setGuessMode("song")}
+                  style={{ marginRight: "8px", padding: "6px 12px", background: guessMode === "song" ? "#4caf50" : "#eee", color: guessMode === "song" ? "white" : "black", border: "none", borderRadius: "6px", cursor: "pointer" }}
+                >
+                  🎵 Song only
+                </button>
+                <button
+                  onClick={() => setGuessMode("artist")}
+                  style={{ padding: "6px 12px", background: guessMode === "artist" ? "#4caf50" : "#eee", color: guessMode === "artist" ? "white" : "black", border: "none", borderRadius: "6px", cursor: "pointer" }}
+                >
+                  🎤 Artist only
+                </button>
+              </div>
           </div>
         )}
         {confirmedGenre && (
