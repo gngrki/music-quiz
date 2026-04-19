@@ -5,7 +5,9 @@ const cors = require("cors")
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args))
 
 const app = express()
-app.use(cors())
+app.use(cors({
+  origin: "*"
+}))
 
 const server = http.createServer(app)
 const io = new Server(server, {
@@ -127,7 +129,7 @@ io.on("connection", (socket) => {
     }
   })
 
-  socket.on("start_game", ({ code }) => {
+  socket.on("start_game", ({ code, questionCount }) => {
     const room = rooms[code]
     if (!room) return
     if (room.host !== socket.id) return
@@ -162,7 +164,7 @@ io.on("connection", (socket) => {
     room.scores = {}
     room.players.forEach(p => room.scores[p.id] = 0)
     room.currentQuestion = 0
-    room.totalQuestions = 20
+    room.totalQuestions = questionCount && questionCount > 0 ? Math.min(questionCount, 50) : 20
 
     io.to(code).emit("game_starting")
     setTimeout(() => startQuestion(io, room), 3000)
