@@ -46,6 +46,10 @@ export default function App() {
       setScreen("lobby")
     })
 
+    socket.on("guess_mode_updated", ({ guessMode }) => {
+      setGuessMode(guessMode)
+    })
+
     socket.on("room_updated", ({ players }) => {
       setRoom(prev => ({ ...prev, players }))
     })
@@ -116,6 +120,7 @@ export default function App() {
       socket.off("room_created")
       socket.off("room_joined")
       socket.off("room_updated")
+      socket.off("guess_mode_updated")
       socket.off("game_starting")
       socket.off("new_question")
       socket.off("answer_count")
@@ -251,33 +256,53 @@ export default function App() {
             >
               Confirm
             </button>
-            
+          </div>
+        )}
+
+        {confirmedGenre && (
+          <p>✅ Genre confirmed: <strong>{genre}</strong></p>
+        )}
+         {room.players.every(p => p.genre) && (
+          <div style={{ marginBottom: "12px" }}>
             <h3>What to guess?</h3>
+            {room.players[0].id === socket.id ? (
               <div style={{ marginBottom: "12px" }}>
                 <button
-                  onClick={() => setGuessMode("both")}
+                  onClick={() => {
+                    setGuessMode("both")
+                    socket.emit("set_guess_mode", { code: room.code, guessMode: "both" })
+                  }}
                   style={{ marginRight: "8px", padding: "6px 12px", background: guessMode === "both" ? "#4caf50" : "#eee", color: guessMode === "both" ? "white" : "black", border: "none", borderRadius: "6px", cursor: "pointer" }}
                 >
-                  🎵 Song + Artist 🎤
+                  🎵 Song + Artist
                 </button>
                 <button
-                  onClick={() => setGuessMode("song")}
+                  onClick={() => {
+                    setGuessMode("song")
+                    socket.emit("set_guess_mode", { code: room.code, guessMode: "song" })
+                  }}
                   style={{ marginRight: "8px", padding: "6px 12px", background: guessMode === "song" ? "#4caf50" : "#eee", color: guessMode === "song" ? "white" : "black", border: "none", borderRadius: "6px", cursor: "pointer" }}
                 >
                   🎵 Song only
                 </button>
                 <button
-                  onClick={() => setGuessMode("artist")}
+                  onClick={() => {
+                    setGuessMode("artist")
+                    socket.emit("set_guess_mode", { code: room.code, guessMode: "artist" })
+                  }}
                   style={{ padding: "6px 12px", background: guessMode === "artist" ? "#4caf50" : "#eee", color: guessMode === "artist" ? "white" : "black", border: "none", borderRadius: "6px", cursor: "pointer" }}
                 >
                   🎤 Artist only
                 </button>
-                {error && <p style={{ color: "red" }}>{error}</p>}
               </div>
+            ) : (
+              <p style={{ color: "#666" }}>
+                Mode: <strong>
+                  {guessMode === "both" ? "🎵 Song + Artist" : guessMode === "song" ? "🎵 Song only" : "🎤 Artist only"}
+                </strong> (set by host)
+              </p>
+            )}
           </div>
-        )}
-        {confirmedGenre && (
-          <p>✅ Genre confirmed: <strong>{genre}</strong></p>
         )}
         <br />
         {room.players[0].id === socket.id && (
