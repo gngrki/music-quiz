@@ -1,0 +1,345 @@
+import { useState, useEffect, useRef } from "react"
+import { io } from "socket.io-client"
+
+const socket = io("http://127.0.0.1:3001")
+const LASTFM_KEY = "5ae7aaa16891fc49403d389293103d97"
+const YOUTUBE_KEY = "AIzaSyDeLLVuCkJWoqCOkWepuZvypqZc0zOp3jI"
+
+async function getTopTracks(tag) {
+  const res = await fetch(`https://ws.audioscrobbler.com/2.0/?method=tag.gettoptracks&tag=${encodeURIComponent(tag)}&api_key=${LASTFM_KEY}&format=json&limit=50`)
+  const data = await res.json()
+  return data.tracks.track.map(t => ({ name: t.name, artist: t.artist.name }))
+}
+
+export default function App() {
+  const [screen, setScreen] = useState("home")
+  const [playerName, setPlayerName] = useState("")
+  const [roomCode, setRoomCode] = useState("")
+  const [room, setRoom] = useState(null)
+  const [genre, setGenre] = useState("")
+  const [confirmedGenre, setConfirmedGenre] = useState(false)
+  const [error, setError] = useState("")
+  const [question, setQuestion] = useState(null)
+  const [selectedAnswer, setSelectedAnswer] = useState(null)
+  const [reveal, setReveal] = useState(null)
+  const [scores, setScores] = useState(null)
+  const [timeLeft, setTimeLeft] = useState(30)
+  const [answeredCount, setAnsweredCount] = useState(0)
+  const timerRef = useRef(null)
+  const audioRef = useRef(null)
+
+  useEffect(() => {
+    socket.on("room_created", ({ code, players }) => {
+      setRoom({ code, players })
+      setScreen("lobby")
+    })
+
+    socket.on("room_joined", ({ code, players }) => {
+      setRoom({ code, players })
+      setScreen("lobby")
+    })
+
+    socket.on("room_updated", ({ players }) => {
+      setRoom(prev => ({ ...prev, players }))
+    })
+
+    socket.on("game_starting", () => {
+      setScreen("game")
+    })
+
+    socket.on("new_question", (data) => {
+      setQuestion(data)
+      setSelectedAnswer(null)
+      setReveal(null)
+      setTimeLeft(30)
+      setAnsweredCount(0)
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current = null
+      }
+      if (data.previewUrl) {
+        const audio = new Audio(data.previewUrl)
+        audio.play()
+        audioRef.current = audio
+      }
+    })
+
+    socket.on("answer_count", ({ count }) => {
+      setAnsweredCount(count)
+    })
+
+    socket.on("reveal_answer", ({ correct, scores, players }) => {
+      setReveal(correct)
+      setScores({ scores, players })
+      if (timerRef.current) clearInterval(timerRef.current)
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current = null
+      }
+    })
+
+    socket.on("game_over", ({ scores, players }) => {
+      setScores({ scores, players })
+      setScreen("gameover")
+    })
+
+    socket.on("error", ({ message }) => {
+      setError(message)
+    })
+
+    return () => {
+      socket.off("room_created")
+      socket.off("room_joined")
+      socket.off("room_updated")
+      socket.off("game_starting")
+      socket.off("new_question")
+      socket.off("answer_count")
+      socket.off("reveal_answer")
+      socket.off("game_over")
+      socket.off("error")
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!question || reveal) return
+    if (timerRef.current) clearInterval(timerRef.current)
+    setTimeLeft(30)
+    timerRef.current = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(timerRef.current)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+    return () => clearInterval(timerRef.current)
+  }, [question])
+
+  if (screen === "home") {
+    return (
+      <div style={{ padding: 20 }}>
+        <h1>🎵 Music Quiz</h1>
+        <p>What's your name?</p>
+        <input
+          value={playerName}
+          onChange={e => setPlayerName(e.target.value)}
+          placeholder="Enter your name"
+          style={{ padding: "8px", marginRight: "8px" }}
+        />
+        <br /><br />
+        <button
+          style={{ marginRight: "8px" }}
+          onClick={() => {
+            if (!playerName.trim()) return setError("Enter your name first!")
+            socket.emit("create_room", { playerName })
+          }}
+        >
+          Create Room
+        </button>
+        <button
+          onClick={() => {
+            if (!playerName.trim()) return setError("Enter your name first!")
+            setScreen("join")
+          }}
+        >
+          Join Room
+        </button>
+        {error && <p style={{ color: "red" }}>{error}</p>}
+      </div>
+    )
+  }
+
+  if (screen === "join") {
+    return (
+      <div style={{ padding: 20 }}>
+        <h1>Join a Room</h1>
+        <input
+          value={roomCode}
+          onChange={e => setRoomCode(e.target.value.toUpperCase())}
+          placeholder="Enter room code"
+          style={{ padding: "8px", marginRight: "8px" }}
+        />
+        <button onClick={() => {
+          if (!roomCode.trim()) return setError("Enter a room code!")
+          socket.emit("join_room", { code: roomCode, playerName })
+        }}>
+          Join
+        </button>
+        <br /><br />
+        <button onClick={() => setScreen("home")}>Back</button>
+        {error && <p style={{ color: "red" }}>{error}</p>}
+      </div>
+    )
+  }
+
+  if (screen === "lobby") {
+    return (
+      <div style={{ padding: 20 }}>
+        <h1>Lobby</h1>
+        <p>Room code: <strong>{room.code}</strong></p>
+        <h3>Players ({room.players.length}/6)</h3>
+        {room.players.map((p, i) => (
+          <div key={i} style={{ padding: "8px", borderBottom: "1px solid #ccc" }}>
+            {p.name} {p.genre ? "✅" : "⏳"}
+          </div>
+        ))}
+        <br />
+        {!confirmedGenre && (
+          <div>
+            <h3>Pick a music genre or artist</h3>
+            <input
+              value={genre}
+              onChange={e => setGenre(e.target.value)}
+              placeholder="e.g. pop, rock, taylor swift"
+              style={{ padding: "8px", marginRight: "8px", width: "250px" }}
+            />
+            <button
+              onClick={async () => {
+                if (!genre.trim()) return setError("Enter a genre or artist!")
+                setError("")
+                const tracks = await getTopTracks(genre)
+                if (!tracks || tracks.length < 4) return setError("Couldn't find enough tracks! Try a different genre.")
+                socket.emit("select_genre", {
+                  code: room.code,
+                  genre,
+                  tracks
+                })
+                setConfirmedGenre(true)
+              }}
+            >
+              Confirm
+            </button>
+            {error && <p style={{ color: "red" }}>{error}</p>}
+          </div>
+        )}
+        {confirmedGenre && (
+          <p>✅ Genre confirmed: <strong>{genre}</strong></p>
+        )}
+        <br />
+        
+        {room.players[0].id === socket.id && (
+          <button onClick={() => {
+            setError("")
+            socket.emit("start_game", { code: room.code })
+          }}>
+            Start Game
+          </button>
+        )}
+        {error && <p style={{ color: "red" }}>{error}</p>}
+      </div>
+    )
+  }
+
+  if (screen === "game") {
+    return (
+      <div style={{ padding: 20 }}>
+        {!question && <h1>🎮 Get ready...</h1>}
+        {question && (
+          <div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+              <h3 style={{ margin: 0 }}>Question {question.questionNumber} of {question.total}</h3>
+              <div style={{
+                fontSize: "24px",
+                fontWeight: "bold",
+                color: timeLeft <= 5 ? "red" : timeLeft <= 10 ? "orange" : "green"
+              }}>
+                ⏱ {timeLeft}s
+              </div>
+            </div>
+
+            <div style={{ marginBottom: "8px", color: "#666" }}>
+              🎵 {question.previewUrl ? "Now playing..." : "No preview available for this track"}
+            </div>
+
+            <div style={{ marginBottom: "8px", color: "#666", fontSize: "14px" }}>
+              {answeredCount} / {room.players.length} answered
+            </div>
+
+            <div style={{ marginBottom: "16px", height: "8px", background: "#eee", borderRadius: "4px" }}>
+              <div style={{
+                height: "100%",
+                width: `${(timeLeft / 30) * 100}%`,
+                background: timeLeft <= 5 ? "red" : timeLeft <= 10 ? "orange" : "green",
+                borderRadius: "4px",
+                transition: "width 1s linear"
+              }} />
+            </div>
+
+            <div>
+              {question.options.map((opt, i) => (
+                <button
+                  key={i}
+                  disabled={!!selectedAnswer}
+                  onClick={() => {
+                    setSelectedAnswer(opt.name)
+                    socket.emit("submit_answer", {
+                      code: room.code,
+                      answer: opt.name
+                    })
+                  }}
+                  style={{
+                    display: "block",
+                    width: "100%",
+                    padding: "12px",
+                    marginBottom: "8px",
+                    background: reveal
+                      ? opt.name === reveal.name
+                        ? "#4caf50"
+                        : selectedAnswer === opt.name
+                          ? "#f44336"
+                          : "#eee"
+                      : selectedAnswer === opt.name
+                        ? "#ddd"
+                        : "white",
+                    border: "1px solid #ccc",
+                    cursor: selectedAnswer ? "default" : "pointer",
+                    fontSize: "16px",
+                    textAlign: "left"
+                  }}
+                >
+                  {opt.name} — {opt.artist}
+                </button>
+              ))}
+            </div>
+
+            {reveal && (
+              <div style={{ marginTop: "16px" }}>
+                <p>✅ Correct: <strong>{reveal.name}</strong> by {reveal.artist}</p>
+                {scores && (
+                  <div>
+                    <h4>Scores:</h4>
+                    {scores.players.map((p, i) => (
+                      <div key={i}>{p.name}: {scores.scores[p.id] || 0}</div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  if (screen === "gameover") {
+    const sortedPlayers = scores.players
+      .map(p => ({ ...p, score: scores.scores[p.id] || 0 }))
+      .sort((a, b) => b.score - a.score)
+
+    return (
+      <div style={{ padding: 20 }}>
+        <h1>🏆 Game Over!</h1>
+        {sortedPlayers.map((p, i) => (
+          <div key={i} style={{ padding: "10px", borderBottom: "1px solid #ccc", fontSize: "18px" }}>
+            {i + 1}. {p.name} — {p.score} points
+          </div>
+        ))}
+        <br />
+        <button onClick={() => window.location.reload()}>
+          Play Again
+        </button>
+      </div>
+    )
+  }
+}
