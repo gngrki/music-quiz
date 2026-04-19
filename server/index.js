@@ -40,8 +40,32 @@ async function startQuestion(io, room) {
     room.usedTrackNames = new Set()
   }
   const pool = available.length >= 4 ? available : tracks
-  const correct = pool[Math.floor(Math.random() * pool.length)]
-  room.usedTrackNames.add(correct.name)
+  let correct = null
+let previewUrl = null
+const attempted = new Set()
+
+while (!previewUrl && attempted.size < pool.length) {
+  const candidate = pool[Math.floor(Math.random() * pool.length)]
+  if (attempted.has(candidate.name)) continue
+  attempted.add(candidate.name)
+  try {
+    const q = encodeURIComponent(`${candidate.name} ${candidate.artist}`)
+    const res = await fetch(`https://api.deezer.com/search?q=${q}&limit=1`)
+    const data = await res.json()
+    if (data.data && data.data.length > 0 && data.data[0].preview) {
+      correct = candidate
+      previewUrl = data.data[0].preview
+    }
+  } catch(e) {
+    console.error("Deezer fetch failed", e)
+  }
+}
+
+if (!correct) {
+  correct = pool[Math.floor(Math.random() * pool.length)]
+}
+
+room.usedTrackNames.add(correct.name)
   const wrong = tracks
     .filter(t => t.name !== correct.name)
     .sort(() => Math.random() - 0.5)
@@ -52,18 +76,6 @@ async function startQuestion(io, room) {
   room.currentCorrect = correct
   room.questionStartTime = Date.now()
   room.answers = {}
-
-  let previewUrl = null
-  try {
-    const q = encodeURIComponent(`${correct.name} ${correct.artist}`)
-    const res = await fetch(`https://api.deezer.com/search?q=${q}&limit=1`)
-    const data = await res.json()
-    if (data.data && data.data.length > 0) {
-      previewUrl = data.data[0].preview
-    }
-  } catch(e) {
-    console.error("Deezer fetch failed", e)
-  }
 
   console.log(`Q${room.currentQuestion + 1}: ${correct.name} - preview: ${previewUrl ? "found" : "none"}`)
 
