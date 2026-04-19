@@ -85,9 +85,17 @@ room.usedTrackNames.add(correct.name)
   io.to(room.code).emit("new_question", {
     questionNumber: room.currentQuestion + 1,
     total: room.totalQuestions,
-    correct: { name: correct.name, artist: correct.artist },
+     correct: { 
+      name: correct.name, 
+      artist: correct.artist,
+      display: room.guessMode === "song" ? correct.name : room.guessMode === "artist" ? correct.artist : `${correct.name} — ${correct.artist}`
+    },
     previewUrl,
-    options: options.map(t => ({ name: t.name, artist: t.artist }))
+    options: options.map(t => ({
+  name: t.name,
+  artist: t.artist,
+  display: room.guessMode === "song" ? t.name : room.guessMode === "artist" ? t.artist : `${t.name} — ${t.artist}`
+}))
   })
 
   room.questionTimer = setTimeout(() => {
@@ -169,7 +177,7 @@ io.on("connection", (socket) => {
     }
   })
 
-  socket.on("start_game", ({ code, questionCount }) => {
+  socket.on("start_game", ({ code, questionCount, guessMode }) => {
     const room = rooms[code]
     if (!room) return
     if (room.host !== socket.id) return
@@ -209,7 +217,8 @@ io.on("connection", (socket) => {
       room.currentQuestion = 0
       room.totalQuestions = Math.min(questionCount && questionCount > 0 ? questionCount : 20, unique.length)
 
-    io.to(code).emit("game_starting")
+    room.guessMode = guessMode || "both"
+    io.to(code).emit("game_starting", { guessMode: room.guessMode })
     setTimeout(() => startQuestion(io, room), 3000)
   })
 

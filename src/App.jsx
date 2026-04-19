@@ -15,6 +15,7 @@ export default function App() {
   const [playerName, setPlayerName] = useState("")
   const [roomCode, setRoomCode] = useState("")
   const [room, setRoom] = useState(null)
+  const [guessMode, setGuessMode] = useState("both")
   const [genre, setGenre] = useState("")
   const [confirmedGenre, setConfirmedGenre] = useState(false)
   const [error, setError] = useState("")
@@ -45,7 +46,8 @@ export default function App() {
       setRoom(prev => ({ ...prev, players }))
     })
 
-    socket.on("game_starting", () => {
+    socket.on("game_starting", ({ guessMode }) => {
+      setGuessMode(guessMode)
       setScreen("game")
     })
 
@@ -223,6 +225,27 @@ export default function App() {
         {!confirmedGenre && (
           <div>
             <h3>Pick a music genre or artist</h3>
+            <h3>What to guess?</h3>
+              <div style={{ marginBottom: "12px" }}>
+                <button
+                  onClick={() => setGuessMode("both")}
+                  style={{ marginRight: "8px", padding: "6px 12px", background: guessMode === "both" ? "#4caf50" : "#eee", color: guessMode === "both" ? "white" : "black", border: "none", borderRadius: "6px", cursor: "pointer" }}
+                >
+                  🎵 Song + Artist 🎤
+                </button>
+                <button
+                  onClick={() => setGuessMode("song")}
+                  style={{ marginRight: "8px", padding: "6px 12px", background: guessMode === "song" ? "#4caf50" : "#eee", color: guessMode === "song" ? "white" : "black", border: "none", borderRadius: "6px", cursor: "pointer" }}
+                >
+                  🎵 Song only
+                </button>
+                <button
+                  onClick={() => setGuessMode("artist")}
+                  style={{ padding: "6px 12px", background: guessMode === "artist" ? "#4caf50" : "#eee", color: guessMode === "artist" ? "white" : "black", border: "none", borderRadius: "6px", cursor: "pointer" }}
+                >
+                  🎤 Artist only
+                </button>
+              </div>
             <input
               value={genre}
               onChange={e => setGenre(e.target.value)}
@@ -255,7 +278,7 @@ export default function App() {
         {room.players[0].id === socket.id && (
           <button onClick={() => {
             setError("")
-            socket.emit("start_game", { code: room.code })
+            socket.emit("start_game", { code: room.code, guessMode })
           }}>
             Start Game
           </button>
@@ -332,7 +355,7 @@ export default function App() {
                     textAlign: "left"
                   }}
                 >
-                  {opt.name} — {opt.artist}
+                  {opt.display || `${opt.name} — ${opt.artist}`}
                 </button>
               ))}
             </div>
