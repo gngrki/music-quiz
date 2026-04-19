@@ -247,7 +247,7 @@ export default function App() {
             >
               Confirm
             </button>
-            {error && <p style={{ color: "red" }}>{error}</p>}
+            
             <h3>What to guess?</h3>
               <div style={{ marginBottom: "12px" }}>
                 <button
@@ -268,6 +268,7 @@ export default function App() {
                 >
                   🎤 Artist only
                 </button>
+                {error && <p style={{ color: "red" }}>{error}</p>}
               </div>
           </div>
         )}
