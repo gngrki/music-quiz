@@ -3,7 +3,6 @@ import { io } from "socket.io-client"
 
 const socket = io("https://music-quiz-production-b8f9.up.railway.app")
 const LASTFM_KEY = "5ae7aaa16891fc49403d389293103d97"
-const YOUTUBE_KEY = "AIzaSyDeLLVuCkJWoqCOkWepuZvypqZc0zOp3jI"
 
 async function getTopTracks(tag) {
   const res = await fetch(`https://ws.audioscrobbler.com/2.0/?method=tag.gettoptracks&tag=${encodeURIComponent(tag)}&api_key=${LASTFM_KEY}&format=json&limit=50`)
@@ -49,22 +48,18 @@ export default function App() {
     })
 
     socket.on("new_question", (data) => {
-  setQuestion(data)
-  setSelectedAnswer(null)
-  setReveal(null)
-  setTimeLeft(30)
-  setAnsweredCount(0)
-  if (audioRef.current) {
-    audioRef.current.pause()
-  }
-  if (data.previewUrl) {
-    if (!audioRef.current) {
-      audioRef.current = new Audio()
-    }
-    audioRef.current.src = data.previewUrl
-    audioRef.current.play().catch(() => {})
-  }
-})
+      setQuestion(data)
+      setSelectedAnswer(null)
+      setReveal(null)
+      setTimeLeft(30)
+      setAnsweredCount(0)
+      if (data.previewUrl && audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current.src = data.previewUrl
+        audioRef.current.load()
+        audioRef.current.play().catch(e => console.log("play failed:", e))
+      }
+    })
 
     socket.on("answer_count", ({ count }) => {
       setAnsweredCount(count)
@@ -76,7 +71,6 @@ export default function App() {
       if (timerRef.current) clearInterval(timerRef.current)
       if (audioRef.current) {
         audioRef.current.pause()
-        audioRef.current = null
       }
     })
 
@@ -182,18 +176,20 @@ export default function App() {
         <p>Room code: <strong>{room.code}</strong></p>
         <h3>Players ({room.players.length}/6)</h3>
         {!audioUnlocked && (
-        <button
-         style={{ padding: "12px 24px", fontSize: "16px", marginBottom: "16px", background: "#4caf50", color: "white", border: "none", borderRadius: "8px", cursor: "pointer" }}
-         onClick={() => {
-         audioRef.current = new Audio()
-         audioRef.current.play().catch(() => {})
-         setAudioUnlocked(true)
-        }}
-        >
-        🎵 Tap to enable music
-      </button>
-)}
-{audioUnlocked && <p style={{ color: "#4caf50" }}>✅ Music enabled!</p>}
+          <button
+            style={{ padding: "12px 24px", fontSize: "16px", marginBottom: "16px", background: "#4caf50", color: "white", border: "none", borderRadius: "8px", cursor: "pointer" }}
+            onClick={() => {
+              const audio = new Audio()
+              audio.volume = 1
+              audioRef.current = audio
+              audio.play().catch(() => {})
+              setAudioUnlocked(true)
+            }}
+          >
+            🎵 Tap to enable music
+          </button>
+        )}
+        {audioUnlocked && <p style={{ color: "#4caf50" }}>✅ Music enabled!</p>}
         {room.players.map((p, i) => (
           <div key={i} style={{ padding: "8px", borderBottom: "1px solid #ccc" }}>
             {p.name} {p.genre ? "✅" : "⏳"}
@@ -232,7 +228,6 @@ export default function App() {
           <p>✅ Genre confirmed: <strong>{genre}</strong></p>
         )}
         <br />
-        
         {room.players[0].id === socket.id && (
           <button onClick={() => {
             setError("")
