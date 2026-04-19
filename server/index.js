@@ -35,7 +35,13 @@ async function startQuestion(io, room) {
   }
 
   const tracks = room.tracks
-  const correct = tracks[Math.floor(Math.random() * tracks.length)]
+  const available = tracks.filter(t => !room.usedTrackNames.has(t.name))
+  if (available.length < 4) {
+    room.usedTrackNames = new Set()
+  }
+  const pool = available.length >= 4 ? available : tracks
+  const correct = pool[Math.floor(Math.random() * pool.length)]
+  room.usedTrackNames.add(correct.name)
   const wrong = tracks
     .filter(t => t.name !== correct.name)
     .sort(() => Math.random() - 0.5)
@@ -160,11 +166,14 @@ io.on("connection", (socket) => {
       return
     }
 
-    room.tracks = unique
-    room.scores = {}
-    room.players.forEach(p => room.scores[p.id] = 0)
-    room.currentQuestion = 0
-    room.totalQuestions = questionCount && questionCount > 0 ? Math.min(questionCount, 50) : 20
+    // Shuffle tracks randomly
+      const shuffled = unique.sort(() => Math.random() - 0.5)
+      room.tracks = shuffled
+      room.usedTrackNames = new Set()
+      room.scores = {}
+      room.players.forEach(p => room.scores[p.id] = 0)
+      room.currentQuestion = 0
+      room.totalQuestions = Math.min(questionCount && questionCount > 0 ? questionCount : 20, unique.length)
 
     io.to(code).emit("game_starting")
     setTimeout(() => startQuestion(io, room), 3000)
