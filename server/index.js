@@ -203,6 +203,6 @@ io.on("connection", (socket) => {
   })
 })
 
-server.listen(3001, () => {
+server.listen(process.env.PORT || 3001, () => {
   console.log("server running on http://127.0.0.1:3001")
 })
