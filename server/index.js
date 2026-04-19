@@ -6,7 +6,7 @@ const rateLimit = require("express-rate-limit")
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args))
 
 const app = express()
-app.use(cors({ origin: "*" }))
+app.use(cors({ origin: "https://music-quiz-zeta.vercel.app" }))
 app.use(rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100
@@ -15,7 +15,7 @@ app.use(rateLimit({
 const server = http.createServer(app)
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: "https://music-quiz-zeta.vercel.app",
     methods: ["GET", "POST"]
   }
 })
