@@ -472,6 +472,31 @@ export default function App() {
         >
           Leave
         </button>
+        <button
+  style={{ marginLeft: "8px" }}
+  onClick={() => window.location.reload()}
+>
+  Leave
+</button>
+<div style={{ marginTop: "20px" }}>
+  
+    <a href="https://ko-fi.com/chromakala"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          display: "inline-block",
+          padding: "10px 20px",
+          background: "#FF5E5B",
+          color: "white",
+          borderRadius: "8px",
+          textDecoration: "none",
+          fontSize: "15px",
+          fontWeight: "500"
+        }}
+  >
+        ☕ Support me on Ko-fi
+      </a>
+</div>
         {sortedAllTime.length > 0 && (
           <div style={{ marginTop: "32px" }}>
             <h3>📊 All-time scores (this session)</h3>
