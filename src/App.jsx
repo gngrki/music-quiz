@@ -21,7 +21,7 @@ const s = {
   input: { display: "block", width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1.5px solid #d0d0d0", background: "white", color: "var(--color-text-primary)", fontSize: "15px", marginBottom: "10px", outline: "none", boxSizing: "border-box" },
   btnPrimary: { display: "block", width: "100%", padding: "12px", borderRadius: "10px", border: "1.5px solid #1D9E75", fontSize: "15px", fontWeight: "500", cursor: "pointer", background: "#1D9E75", color: "white", marginBottom: "8px" },
   btnSecondary: { display: "block", width: "100%", padding: "12px", borderRadius: "10px", border: "1.5px solid #979595ff", fontSize: "15px", fontWeight: "500", cursor: "pointer", background: "white", color: "var(--color-text-primary)", marginBottom: "8px" },
-  btnDisabled: { display: "block", width: "100%", padding: "12px", borderRadius: "10px", border: "1.5px solid #979595ff", fontSize: "15px", fontWeight: "500", cursor: "not-allowed", background: "#f5f5f5", color: "#aaa", marginBottom: "8px", opacity: 0.5 },
+  btnDisabled: { display: "block", width: "100%", padding: "12px", borderRadius: "10px", border: "1.5px solid #d0d0d0", fontSize: "15px", fontWeight: "500", cursor: "not-allowed", background: "#f5f5f5", color: "#aaa", marginBottom: "8px", opacity: 0.5 },
   card: { background: "white", border: "1.5px solid #d0d0d0", borderRadius: "12px", padding: "16px", marginBottom: "16px" },
   playerRow: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1.5px solid #979595ff", fontSize: "14px" },
   tag: { fontSize: "12px", background: "#E1F5EE", color: "#0F6E56", borderRadius: "20px", padding: "3px 10px" },
