@@ -98,7 +98,6 @@ export default function App() {
         audioRef.current.pause()
         audioRef.current.src = data.previewUrl
         audioRef.current.load()
-        audioRef.current.volume = data.mode === "lyrics" ? 0.2 : 1
         audioRef.current.play().catch(e => console.log("play failed:", e))
       }
       if (beatRef.current) {
