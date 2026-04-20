@@ -8,8 +8,8 @@ const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch
 const app = express()
 app.use(cors({ origin: "https://music-quiz-zeta.vercel.app" }))
 app.use(rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100
+  windowMs: 15 * 60 * 1000,
+  max: 100
 }))
 
 const server = http.createServer(app)
@@ -44,9 +44,8 @@ async function startQuestion(io, room) {
   }
   const pool = available.length >= 4 ? available : tracks
   const correct = pool[Math.floor(Math.random() * pool.length)]
-}
+  room.usedTrackNames.add(correct.name)
 
-room.usedTrackNames.add(correct.name)
   const wrong = tracks
     .filter(t => t.name !== correct.name)
     .sort(() => Math.random() - 0.5)
@@ -58,26 +57,27 @@ room.usedTrackNames.add(correct.name)
   room.questionStartTime = Date.now()
   room.answers = {}
 
-  console.log(`Q${room.currentQuestion + 1}: ${correct.name} - preview: ${previewUrl ? "found" : "none"}`)
+  console.log(`Q${room.currentQuestion + 1}: ${correct.name} by ${correct.artist}`)
 
   io.to(room.code).emit("new_question", {
     questionNumber: room.currentQuestion + 1,
     total: room.totalQuestions,
-     correct: { 
-      name: correct.name, 
+    correct: {
+      name: correct.name,
       artist: correct.artist,
       display: room.guessMode === "song" ? correct.name : room.guessMode === "artist" ? correct.artist : `${correct.name} — ${correct.artist}`
     },
     options: options.map(t => ({
-  name: t.name,
-  artist: t.artist,
-  display: room.guessMode === "song" ? t.name : room.guessMode === "artist" ? t.artist : `${t.name} — ${t.artist}`
-}))
+      name: t.name,
+      artist: t.artist,
+      display: room.guessMode === "song" ? t.name : room.guessMode === "artist" ? t.artist : `${t.name} — ${t.artist}`
+    }))
   })
 
   room.questionTimer = setTimeout(() => {
     revealAnswer(io, room)
   }, 30000)
+}
 
 function revealAnswer(io, room) {
   clearTimeout(room.questionTimer)
@@ -143,6 +143,8 @@ io.on("connection", (socket) => {
   })
 
   socket.on("select_genre", ({ code, genre, tracks }) => {
+    if (!genre || genre.length > 50) return
+    if (!tracks || tracks.length > 200) return
     const room = rooms[code]
     if (!room) return
     const player = room.players.find(p => p.id === socket.id)
@@ -184,16 +186,15 @@ io.on("connection", (socket) => {
       return
     }
 
-    // Shuffle tracks randomly
-      const shuffled = unique.sort(() => Math.random() - 0.5)
-      room.tracks = shuffled
-      room.usedTrackNames = new Set()
-      room.scores = {}
-      room.players.forEach(p => room.scores[p.id] = 0)
-      room.currentQuestion = 0
-      room.totalQuestions = Math.min(questionCount && questionCount > 0 ? questionCount : 20, unique.length)
-
+    const shuffled = unique.sort(() => Math.random() - 0.5)
+    room.tracks = shuffled
+    room.usedTrackNames = new Set()
+    room.scores = {}
+    room.players.forEach(p => room.scores[p.id] = 0)
+    room.currentQuestion = 0
+    room.totalQuestions = Math.min(questionCount && questionCount > 0 ? questionCount : 20, unique.length)
     room.guessMode = guessMode || "both"
+
     io.to(code).emit("game_starting", { guessMode: room.guessMode })
     setTimeout(() => startQuestion(io, room), 3000)
   })
@@ -218,7 +219,7 @@ io.on("connection", (socket) => {
   })
 
   socket.on("rematch", ({ code }) => {
-  const room = rooms[code]
+    const room = rooms[code]
     if (!room) return
     if (room.host !== socket.id) return
     room.players.forEach(p => {

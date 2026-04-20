@@ -343,7 +343,7 @@ export default function App() {
             </div>
 
             <div style={{ marginBottom: "8px", color: "#666" }}>
-              🎵 {question.previewUrl ? "Now playing..." : "No preview available for this track"}
+              🎵 Now playing...
             </div>
 
             <div style={{ marginBottom: "8px", color: "#666", fontSize: "14px" }}>
