@@ -147,12 +147,16 @@ function revealAnswer(io, room) {
   clearTimeout(room.questionTimer)
   const results = {}
   room.players.forEach(p => {
-    const answer = room.answers[p.id]
-    results[p.id] = {
-      answered: !!answer,
-      correct: answer === room.currentCorrect.name
-    }
-  })
+  const answer = room.answers[p.id]
+  results[p.id] = {
+    answered: !!answer,
+    correct: room.currentCorrect.lyricsAnswer 
+      ? answer === room.currentCorrect.lyricsAnswer 
+      : answer === room.currentCorrect.name,
+    answer: answer || null
+  }
+})
+
   io.to(room.code).emit("reveal_answer", {
     correct: { name: room.currentCorrect.name, artist: room.currentCorrect.artist },
     scores: room.scores,
