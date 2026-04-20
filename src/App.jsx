@@ -22,8 +22,7 @@ const s = {
   btnPrimary: { display: "block", width: "100%", padding: "12px", borderRadius: "10px", border: "none", fontSize: "15px", fontWeight: "500", cursor: "pointer", background: "#1D9E75", color: "white", marginBottom: "8px" },
   btnSecondary: { display: "block", width: "100%", padding: "12px", borderRadius: "10px", border: "0.5px solid var(--color-border-secondary)", fontSize: "15px", fontWeight: "500", cursor: "pointer", background: "var(--color-background-secondary)", color: "var(--color-text-primary)", marginBottom: "8px" },
   btnDisabled: { display: "block", width: "100%", padding: "12px", borderRadius: "10px", border: "0.5px solid var(--color-border-secondary)", fontSize: "15px", fontWeight: "500", cursor: "not-allowed", background: "var(--color-background-secondary)", color: "var(--color-text-tertiary)", marginBottom: "8px", opacity: 0.5 },
-  card: { background: "var(--color-background-primary)", border: "0.5px solid var(--color-border-tertiary)", borderRadius: "12px", padding: "16px", marginBottom: "16px" },
-  playerRow: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "0.5px solid var(--color-border-tertiary)", fontSize: "14px" },
+  card: { background: "var(--color-background-secondary)", border: "1px solid var(--color-border-secondary)", borderRadius: "12px", padding: "16px", marginBottom: "16px" },  playerRow: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "0.5px solid var(--color-border-tertiary)", fontSize: "14px" },
   tag: { fontSize: "12px", background: "#E1F5EE", color: "#0F6E56", borderRadius: "20px", padding: "3px 10px" },
   codeBox: { background: "var(--color-background-secondary)", borderRadius: "8px", padding: "8px 16px", fontSize: "26px", fontWeight: "500", letterSpacing: "0.15em", color: "var(--color-text-primary)", display: "inline-block", marginBottom: "16px" },
   muted: { fontSize: "13px", color: "var(--color-text-tertiary)" },
@@ -209,8 +208,7 @@ export default function App() {
       </div>
 
       {!audioUnlocked ? (
-        <button style={{ ...s.btnPrimary, marginBottom: "16px" }} onClick={() => {
-          const audio = new Audio()
+        <button style={{ ...s.btnPrimary, marginBottom: "16px", background: "#7F77DD", border: "none" }} onClick={() => {          const audio = new Audio()
           audio.volume = 1
           audioRef.current = audio
           audio.play().catch(() => {})
@@ -235,12 +233,12 @@ export default function App() {
 
       {!confirmedGenre && (
         <div style={s.card}>
-          <div style={{ fontSize: "13px", fontWeight: "500", color: "var(--color-text-secondary)", marginBottom: "8px" }}>Your genre or artist</div>
+          <div style={{ fontSize: "13px", fontWeight: "500", color: "var(--color-text-secondary)", marginBottom: "8px" }}>Pick a genre or artist</div>
           <input
             style={s.input}
             value={genre}
             onChange={e => setGenre(e.target.value)}
-            placeholder="e.g. pop, rock, taylor swift"
+            placeholder="..pop, rock, abba, 80s"
           />
           <button
             style={{ ...s.btnPrimary, opacity: loadingGenre ? 0.6 : 1, cursor: loadingGenre ? "not-allowed" : "pointer" }}
@@ -266,7 +264,7 @@ export default function App() {
         <div style={s.card}>
           <div style={{ fontSize: "13px", fontWeight: "500", color: "var(--color-text-secondary)", marginBottom: "10px" }}>What to guess?</div>
           {room.players[0].id === socket.id ? (
-            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", justifyContent: "center" }}>
               {[["both", "🎵 Song + Artist"], ["song", "🎵 Song only"], ["artist", "🎤 Artist only"]].map(([mode, label]) => (
                 <button key={mode}
                   onClick={() => { setGuessMode(mode); socket.emit("set_guess_mode", { code: room.code, guessMode: mode }) }}
