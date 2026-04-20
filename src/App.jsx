@@ -261,9 +261,13 @@ export default function App() {
     return (
       <div style={{ padding: "80px 20px 24px", maxWidth: "400px", margin: "0 auto" }}>
 
-        <h1 style={{ fontSize: "26px", marginBottom: "4px" }}>Lobby</h1>
-        <p style={{ fontSize: "13px", color: "#999", marginBottom: "4px" }}>Room code</p>
-        <div style={{ fontSize: "28px", fontWeight: "600", letterSpacing: "0.15em", marginBottom: "20px" }}>{room.code}</div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+          <h1 style={{ fontSize: "26px", margin: 0 }}>Lobby</h1>
+          <div style={{ textAlign: "right" }}>
+            <p style={{ fontSize: "12px", color: "#999", margin: 0 }}>Room code</p>
+            <div style={{ fontSize: "20px", fontWeight: "600", letterSpacing: "0.15em" }}>{room.code}</div>
+          </div>
+        </div>
 
         {!audioUnlocked ? (
           <button
@@ -301,7 +305,7 @@ export default function App() {
             <input
               value={genre}
               onChange={e => setGenre(e.target.value)}
-              placeholder="e.g. pop, rock, 80s, taylor swift"
+              placeholder="..80s, ABBA, pop, rock.."
               style={{ display: "block", width: "100%", padding: "10px 12px", fontSize: "15px", border: "1px solid #ccc", borderRadius: "8px", marginBottom: "10px", boxSizing: "border-box" }}
             />
             <button
