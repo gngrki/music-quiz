@@ -259,8 +259,7 @@ export default function App() {
   // LOBBY SCREEN
   if (screen === "lobby") {
     return (
-      <div style={{ padding: "80px 20px 24px", maxWidth: "400px", margin: "0 auto" }}>
-
+    <div style={{ padding: "80px 20px 24px", width: "400px", maxWidth: "100%", margin: "0 auto", boxSizing: "border-box" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
           <h1 style={{ fontSize: "26px", margin: 0 }}>Lobby</h1>
           <div style={{ textAlign: "right" }}>
