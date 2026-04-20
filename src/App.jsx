@@ -187,7 +187,7 @@ export default function App() {
         <h1>Join a Room</h1>
         <input
           value={roomCode}
-          onChange={e => setRoomCode(e.target.value.toUpperCase())}
+          onChange={e => setRoomCode(e.target.value.toLowerCase())}
           placeholder="Enter room code"
           style={{ padding: "8px", marginRight: "8px" }}
         />
