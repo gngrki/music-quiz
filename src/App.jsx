@@ -259,7 +259,7 @@ export default function App() {
             <input
               value={genre}
               onChange={e => setGenre(e.target.value)}
-              placeholder="e.g. pop, rock, taylor swift"
+              placeholder="e.g. pop, rock, 80s, taylor swift"
               style={{ display: "block", width: "100%", padding: "10px 12px", fontSize: "15px", border: "1px solid #ccc", borderRadius: "8px", marginBottom: "10px", boxSizing: "border-box" }}
             />
             <button
@@ -442,7 +442,7 @@ export default function App() {
 
         {sortedAllTime.length > 0 && (
           <div>
-            <p style={{ fontSize: "13px", color: "#999", marginBottom: "10px" }}>📊 All-time this session</p>
+            <p style={{ fontSize: "16px", color: "#999", marginBottom: "10px" }}>📊 All-time scores this session</p>
             <div>
               {sortedAllTime.map(([name, score], i) => (
                 <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid #eee", fontSize: "14px" }}>
