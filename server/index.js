@@ -117,7 +117,8 @@ async function startQuestion(io, room) {
     correct: { name: correct.name, artist: correct.artist },
     mode: "lyrics",
     lyricLine: lyrics.line,
-    answer: lyrics.answer
+    answer: lyrics.answer,
+    previewUrl
   })
   room.questionTimer = setTimeout(() => {
     revealAnswer(io, room)
