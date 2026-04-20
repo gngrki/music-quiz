@@ -60,9 +60,9 @@ export default function App() {
   const [answeredCount, setAnsweredCount] = useState(0)
   const [audioUnlocked, setAudioUnlocked] = useState(false)
   const [allTimeScores, setAllTimeScores] = useState({})
-  const [roomCodeSaved, setRoomCodeSaved] = useState(null)
-  const [playerNameSaved, setPlayerNameSaved] = useState(null)
   const [lyricsInput, setLyricsInput] = useState("")
+  const roomCodeRef = useRef(null)
+  const playerNameRef = useRef(null)
   const timerRef = useRef(null)
   const audioRef = useRef(null)
 
@@ -71,21 +71,21 @@ export default function App() {
       setPlayerCount(count)
     })
     socket.on("connect", () => {
-      if (roomCodeSaved && playerNameSaved) {
-        socket.emit("rejoin_room", { code: roomCodeSaved, playerName: playerNameSaved })
+      if (roomCodeRef.current && playerNameRef.current) {
+        socket.emit("rejoin_room", { code: roomCodeRef.current, playerName: playerNameRef.current })
       }
     })
     socket.on("room_created", ({ code, players }) => {
       setRoom({ code, players })
-      setRoomCodeSaved(code)
-      setPlayerNameSaved(playerName)
+      roomCodeRef.current = code
+      playerNameRef.current = playerName
       setScreen("lobby")
     })
 
     socket.on("room_joined", ({ code, players }) => {
       setRoom({ code, players })
-      setRoomCodeSaved(code)
-      setPlayerNameSaved(playerName)
+      roomCodeRef.current = code
+      playerNameRef.current = playerName
       setScreen("lobby")
     })
     socket.on("guess_mode_updated", ({ guessMode }) => { setGuessMode(guessMode) })
@@ -130,9 +130,7 @@ export default function App() {
       setConfirmedGenre(false); setGenre(""); setAudioUnlocked(false)
       setTimeLeft(30); setAnsweredCount(0)
     })
-    socket.on("connect", () => {
-      console.log("reconnected!")
-    })
+    
     socket.on("disconnect", () => {
       console.log("disconnected!")
     })
