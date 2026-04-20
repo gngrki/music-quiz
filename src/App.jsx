@@ -133,13 +133,12 @@ export default function App() {
       <div style={{ padding: "24px 20px", maxWidth: "400px", margin: "0 auto" }}>
 
         {/* title */}
-        <div style={{ textAlign: "center", marginBottom: "32px" }}>
-          <div style={{ fontSize: "40px", marginBottom: "8px" }}>🎵</div>
-          <h1 style={{ margin: 0, fontSize: "26px" }}>Music Quiz</h1>
+        <div style={{ textAlign: "center", marginBottom: "20px" }}>
+          <div style={{ fontSize: "35px", marginBottom: "8px" }}>🎵🎶</div>
+          <h1 style={{ margin: 0, fontSize: "28px" }}>Music Quiz</h1>
         </div>
 
         {/* name input */}
-        <p style={{ marginBottom: "6px", fontSize: "14px", color: "#666" }}>What's your name?</p>
         <input
           value={playerName}
           onChange={e => setPlayerName(e.target.value)}
@@ -172,7 +171,7 @@ export default function App() {
         {error && <p style={{ color: "red", fontSize: "13px", marginTop: "8px", textAlign: "center" }}>{error}</p>}
 
         {/* footer */}
-        <p style={{ marginTop: "40px", fontSize: "12px", color: "#999", lineHeight: "1.8", textAlign: "center" }}>
+        <p style={{ marginTop: "25px", fontSize: "12px", color: "#999", lineHeight: "1.8", textAlign: "center" }}>
           🎵 no ads, ever, but you can<br />
           <a href="https://ko-fi.com/chromakala" target="_blank" rel="noopener noreferrer" style={{ color: "#999", textDecoration: "underline" }}>buy me a coffee ☕</a>
         </p>
