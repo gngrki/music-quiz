@@ -287,16 +287,24 @@ io.on("connection", (socket) => {
 })
 
   socket.on("disconnect", () => {
-    for (const code in rooms) {
-      const room = rooms[code]
-      room.players = room.players.filter(p => p.id !== socket.id)
-      if (room.players.length === 0) {
-        delete rooms[code]
-        console.log(`room ${code} deleted`)
-      } else {
-        io.to(code).emit("room_updated", { players: room.players })
+    setTimeout(() => {
+      for (const code in rooms) {
+        const room = rooms[code]
+        const stillInRoom = room.players.find(p => p.id === socket.id)
+        if (stillInRoom) {
+          room.players = room.players.filter(p => p.id !== socket.id)
+          if (room.players.length === 0) {
+            delete rooms[code]
+            console.log(`room ${code} deleted`)
+          } else {
+            if (room.host === socket.id) {
+              room.host = room.players[0].id
+            }
+            io.to(code).emit("room_updated", { players: room.players })
+          }
+        }
       }
-    }
+    }, 10000)
   })
 })
 
