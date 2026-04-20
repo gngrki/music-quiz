@@ -33,6 +33,24 @@ function playSound(type) {
     oscillator.stop(ctx.currentTime + 0.4)
   }
 }
+function startBackgroundBeat(audioCtx) {
+  const notes = [261, 293, 329, 349]
+  let step = 0
+  const interval = setInterval(() => {
+    const osc = audioCtx.createOscillator()
+    const gain = audioCtx.createGain()
+    osc.connect(gain)
+    gain.connect(audioCtx.destination)
+    osc.frequency.value = notes[step % notes.length]
+    osc.type = "sine"
+    gain.gain.setValueAtTime(0.05, audioCtx.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3)
+    osc.start(audioCtx.currentTime)
+    osc.stop(audioCtx.currentTime + 0.3)
+    step++
+  }, 500)
+  return interval
+}
 
 export default function App() {
   const [screen, setScreen] = useState("home")
@@ -62,6 +80,8 @@ export default function App() {
   const [roomCodeSaved, setRoomCodeSaved] = useState(null)
   const [playerNameSaved, setPlayerNameSaved] = useState(null)
   const [lyricsInput, setLyricsInput] = useState("")
+  const beatRef = useRef(null)
+  const beatCtxRef = useRef(null)
   const timerRef = useRef(null)
   const audioRef = useRef(null)
 
@@ -96,12 +116,23 @@ export default function App() {
         audioRef.current.load()
         audioRef.current.play().catch(e => console.log("play failed:", e))
       }
+      if (data.mode === "lyrics") {
+        if (!beatCtxRef.current) {
+          beatCtxRef.current = new (window.AudioContext || window.webkitAudioContext)()
+        }
+        if (beatRef.current) clearInterval(beatRef.current)
+        beatRef.current = startBackgroundBeat(beatCtxRef.current)
+      }
     })
     socket.on("answer_count", ({ count }) => { setAnsweredCount(count) })
     socket.on("reveal_answer", ({ correct, scores, players, results }) => {
       setReveal(correct); setScores({ scores, players }); setResults(results)
       if (timerRef.current) clearInterval(timerRef.current)
       if (audioRef.current) audioRef.current.pause()
+      if (beatRef.current) {
+      clearInterval(beatRef.current)
+        beatRef.current = null
+      }
     })
     socket.on("game_over", ({ scores, players }) => {
       setScores({ scores, players })
