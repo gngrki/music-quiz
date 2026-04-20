@@ -179,7 +179,7 @@ export default function App() {
 
   // EMOJI BUTTONS component
   const EmojiButtons = () => (
-    <div style={{ display: "flex", justifyContent: "center", gap: "16px", marginTop: "16px" }}>
+    <div style={{ display: "flex", justifyContent: "center", gap: "16px", marginTop: "8px", marginBottom: "0px" }}>
       {["💩", "😎", "🤣", "🤬"].map(emoji => (
         <button key={emoji} onClick={() => sendEmoji(emoji)} style={{ fontSize: "28px", background: "none", border: "none", cursor: "pointer", padding: "4px" }}>
           {emoji}
@@ -190,25 +190,28 @@ export default function App() {
 
   // FLOATING EMOJIS component
   const FloatingEmojis = () => (
-    <>
-      {floatingEmojis.map(e => (
-        <div key={e.id} style={{
-          position: "fixed",
-          left: `${e.x}%`,
-          bottom: "20%",
-          fontSize: "36px",
-          animation: "floatUp 2.5s ease-out forwards",
-          pointerEvents: "none",
-          zIndex: 999,
-          textAlign: "center"
-        }}>
-          {e.emoji}
-          <div style={{ fontSize: "10px", color: "#666", background: "white", borderRadius: "8px", padding: "1px 4px" }}>{e.playerName}</div>
-        </div>
-      ))}
-    </>
-  )
-
+  <>
+    {floatingEmojis.map(e => (
+      <div key={e.id} style={{
+        position: "fixed",
+        left: `${e.x}%`,
+        bottom: "20%",
+        fontSize: "36px",
+        animationName: "floatUp",
+        animationDuration: "2.5s",
+        animationTimingFunction: "ease-out",
+        animationFillMode: "forwards",
+        animationIterationCount: 1,
+        pointerEvents: "none",
+        zIndex: 999,
+        textAlign: "center"
+      }}>
+        {e.emoji}
+        <div style={{ fontSize: "10px", color: "#666", background: "white", borderRadius: "8px", padding: "1px 4px" }}>{e.playerName}</div>
+      </div>
+    ))}
+  </>
+)
   // HOME SCREEN
   if (screen === "home") {
     return (
@@ -326,7 +329,7 @@ export default function App() {
               setAudioUnlocked(true)
             }}
           >
-            🎵 Tap to enable music
+            🎵 Tap to enable music 🎵
           </button>
         ) : (
           <p style={{ color: "#1D9E75", fontSize: "13px", marginBottom: "12px" }}>✅ Music enabled!</p>
@@ -504,7 +507,7 @@ export default function App() {
 
             <EmojiButtons />
 
-            <div style={{ minHeight: "52px", marginBottom: "16px", marginTop: "16px" }}>
+            <div style={{ minHeight: "52px", marginBottom: "8px", marginTop: "8px" }}>
               {reveal && (
                 <div style={{ padding: "12px 14px", background: "#E1F5EE", border: "1px solid #1D9E75", borderRadius: "10px" }}>
                   <p style={{ fontSize: "13px", color: "#0F6E56", margin: 0 }}>
