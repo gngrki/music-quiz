@@ -18,6 +18,7 @@ export default function App() {
   const [guessMode, setGuessMode] = useState("both")
   const [genre, setGenre] = useState("")
   const [confirmedGenre, setConfirmedGenre] = useState(false)
+  const [loadingGenre, setLoadingGenre] = useState(false)
   const [error, setError] = useState("")
   function showError(msg) {
     setError(msg)
@@ -248,10 +249,13 @@ export default function App() {
               style={{ padding: "8px", marginRight: "8px", width: "250px" }}
             />
             <button
+              disabled={loadingGenre}
               onClick={async () => {
                 if (!genre.trim()) return showError("Enter a genre or artist!")
                 setError("")
+                setLoadingGenre(true)
                 const tracks = await getTopTracks(genre)
+                setLoadingGenre(false)
                 if (!tracks || tracks.length < 4) return showError("Couldn't find enough tracks! Try a different genre.")
                 socket.emit("select_genre", {
                   code: room.code,
@@ -260,8 +264,9 @@ export default function App() {
                 })
                 setConfirmedGenre(true)
               }}
+              style={{ opacity: loadingGenre ? 0.6 : 1 }}
             >
-              Confirm
+              {loadingGenre ? "⟳ Loading tracks..." : "Confirm"}
             </button>
           </div>
         )}
