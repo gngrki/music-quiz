@@ -366,7 +366,7 @@ io.on("connection", (socket) => {
       }
       io.emit("player_count", { count: countActivePlayers() })
       delete disconnectTimers[socket.id]
-    }, 15000)
+    }, 60000)
   })
 })
 
