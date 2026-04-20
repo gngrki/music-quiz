@@ -65,6 +65,7 @@ export default function App() {
   const playerNameRef = useRef(null)
   const timerRef = useRef(null)
   const audioRef = useRef(null)
+  const [debugMsg, setDebugMsg] = useState("")
 
   useEffect(() => {
   playerNameRef.current = playerName
@@ -274,7 +275,7 @@ export default function App() {
             <div style={{ fontSize: "20px", fontWeight: "600", letterSpacing: "0.15em" }}>{room.code}</div>
           </div>
         </div>
-
+{debugMsg && <p style={{ fontSize: "11px", color: "red" }}>{debugMsg}</p>}
         {!audioUnlocked ? (
           <button
             style={{ display: "block", width: "100%", padding: "12px", fontSize: "15px", background: "#7F77DD", color: "white", border: "none", borderRadius: "10px", cursor: "pointer", marginBottom: "16px" }}
