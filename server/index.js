@@ -267,23 +267,24 @@ io.on("connection", (socket) => {
   })
 
   socket.on("rejoin_room", ({ code, playerName }) => {
-    const room = rooms[code]
-    if (!room) {
-      socket.emit("error", { message: "Room no longer exists!" })
-      return
-    }
-    const existingPlayer = room.players.find(p => p.name === playerName)
-    if (existingPlayer) {
-      existingPlayer.id = socket.id
-      if (room.host === existingPlayer.id) room.host = socket.id
-    } else {
-      room.players.push({ id: socket.id, name: playerName, genre: null })
-    }
-    socket.join(code)
-    io.to(code).emit("room_updated", { players: room.players })
-    socket.emit("room_joined", { code, players: room.players })
-    console.log(`${playerName} rejoined room ${code}`)
-  })
+  const room = rooms[code]
+  if (!room) {
+    socket.emit("error", { message: "Room no longer exists!" })
+    return
+  }
+  const existingPlayer = room.players.find(p => p.name === playerName)
+  if (existingPlayer) {
+    const wasHost = room.host === existingPlayer.id
+    existingPlayer.id = socket.id
+    if (wasHost) room.host = socket.id
+  } else {
+    room.players.push({ id: socket.id, name: playerName, genre: null })
+  }
+  socket.join(code)
+  io.to(code).emit("room_updated", { players: room.players })
+  socket.emit("room_joined", { code, players: room.players })
+  console.log(`${playerName} rejoined room ${code}`)
+})
 
   socket.on("disconnect", () => {
     for (const code in rooms) {
