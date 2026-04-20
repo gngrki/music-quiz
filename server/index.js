@@ -8,8 +8,8 @@ const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch
 const app = express()
 app.use(cors({ origin: "https://music-quiz-zeta.vercel.app" }))
 app.use(rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100
+    windowMs: 15 * 60 * 1000,
+    max: 100
 }))
 
 const server = http.createServer(app)
@@ -43,9 +43,32 @@ async function startQuestion(io, room) {
     room.usedTrackNames = new Set()
   }
   const pool = available.length >= 4 ? available : tracks
-  const correct = pool[Math.floor(Math.random() * pool.length)]
-  room.usedTrackNames.add(correct.name)
+  let correct = null
+  let previewUrl = null
+  const attempted = new Set()
 
+  while (!previewUrl && attempted.size < pool.length) {
+    const candidate = pool[Math.floor(Math.random() * pool.length)]
+    if (attempted.has(candidate.name)) continue
+    attempted.add(candidate.name)
+    try {
+      const q = encodeURIComponent(`${candidate.name} ${candidate.artist}`)
+      const res = await fetch(`https://api.deezer.com/search?q=${q}&limit=1`)
+      const data = await res.json()
+      if (data.data && data.data.length > 0 && data.data[0].preview) {
+        correct = candidate
+        previewUrl = data.data[0].preview
+      }
+    } catch(e) {
+      console.error("Deezer fetch failed", e)
+    }
+  }
+
+  if (!correct) {
+    correct = pool[Math.floor(Math.random() * pool.length)]
+  }
+
+  room.usedTrackNames.add(correct.name)
   const wrong = tracks
     .filter(t => t.name !== correct.name)
     .sort(() => Math.random() - 0.5)
@@ -57,7 +80,7 @@ async function startQuestion(io, room) {
   room.questionStartTime = Date.now()
   room.answers = {}
 
-  console.log(`Q${room.currentQuestion + 1}: ${correct.name} by ${correct.artist}`)
+  console.log(`Q${room.currentQuestion + 1}: ${correct.name} - preview: ${previewUrl ? "found" : "none"}`)
 
   io.to(room.code).emit("new_question", {
     questionNumber: room.currentQuestion + 1,
@@ -67,6 +90,7 @@ async function startQuestion(io, room) {
       artist: correct.artist,
       display: room.guessMode === "song" ? correct.name : room.guessMode === "artist" ? correct.artist : `${correct.name} — ${correct.artist}`
     },
+    previewUrl,
     options: options.map(t => ({
       name: t.name,
       artist: t.artist,

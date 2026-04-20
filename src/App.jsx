@@ -19,10 +19,10 @@ export default function App() {
   const [genre, setGenre] = useState("")
   const [confirmedGenre, setConfirmedGenre] = useState(false)
   const [error, setError] = useState("")
-    function showError(msg) {
-      setError(msg)
-      setTimeout(() => setError(""), 3000)
-    }
+  function showError(msg) {
+    setError(msg)
+    setTimeout(() => setError(""), 3000)
+  }
   const [question, setQuestion] = useState(null)
   const [selectedAnswer, setSelectedAnswer] = useState(null)
   const [reveal, setReveal] = useState(null)
@@ -59,25 +59,18 @@ export default function App() {
       setScreen("game")
     })
 
-    socket.on("new_question", async (data) => {
+    socket.on("new_question", (data) => {
       setQuestion(data)
       setSelectedAnswer(null)
       setReveal(null)
       setResults(null)
       setTimeLeft(30)
       setAnsweredCount(0)
-      try {
-        const q = encodeURIComponent(`${data.correct.name} ${data.correct.artist}`)
-        const res = await fetch(`https://api.deezer.com/search?q=${q}&limit=1`)
-        const json = await res.json()
-        if (json.data && json.data.length > 0 && json.data[0].preview && audioRef.current) {
-          audioRef.current.pause()
-          audioRef.current.src = json.data[0].preview
-          audioRef.current.load()
-          audioRef.current.play().catch(e => console.log("play failed:", e))
-        }
-      } catch(e) {
-        console.log("preview fetch failed:", e)
+      if (data.previewUrl && audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current.src = data.previewUrl
+        audioRef.current.load()
+        audioRef.current.play().catch(e => console.log("play failed:", e))
       }
     })
 
@@ -91,8 +84,8 @@ export default function App() {
       setResults(results)
       if (timerRef.current) clearInterval(timerRef.current)
       if (audioRef.current) {
-         audioRef.current.pause()
-        }
+        audioRef.current.pause()
+      }
     })
 
     socket.on("game_over", ({ scores, players }) => {
@@ -106,6 +99,7 @@ export default function App() {
       })
       setScreen("gameover")
     })
+
     socket.on("rematch_starting", () => {
       setScreen("lobby")
       setQuestion(null)
@@ -119,6 +113,7 @@ export default function App() {
       setTimeLeft(30)
       setAnsweredCount(0)
     })
+
     socket.on("error", ({ message }) => {
       showError(message)
     })
@@ -233,9 +228,9 @@ export default function App() {
         )}
         {audioUnlocked && <p style={{ color: "#4caf50" }}>✅ Music enabled!</p>}
         {room.players.map((p, i) => (
-         <div key={i} style={{ padding: "8px", borderBottom: "1px solid #ccc" }}>
-           {p.name} {p.genre ? `✅ ${p.genre}` : "⏳"}
-         </div>
+          <div key={i} style={{ padding: "8px", borderBottom: "1px solid #ccc" }}>
+            {p.name} {p.genre ? `✅ ${p.genre}` : "⏳"}
+          </div>
         ))}
         <br />
         {!confirmedGenre && (
@@ -265,11 +260,10 @@ export default function App() {
             </button>
           </div>
         )}
-
         {confirmedGenre && (
           <p>✅ Genre confirmed: <strong>{genre}</strong></p>
         )}
-         {room.players.every(p => p.genre) && (
+        {room.players.every(p => p.genre) && (
           <div style={{ marginBottom: "12px" }}>
             <h3>What to guess?</h3>
             {room.players[0].id === socket.id ? (
@@ -341,15 +335,12 @@ export default function App() {
                 ⏱ {timeLeft}s
               </div>
             </div>
-
             <div style={{ marginBottom: "8px", color: "#666" }}>
-              🎵 Now playing...
+              🎵 {question.previewUrl ? "Now playing..." : "No preview available for this track"}
             </div>
-
             <div style={{ marginBottom: "8px", color: "#666", fontSize: "14px" }}>
               {answeredCount} / {room.players.length} answered
             </div>
-
             <div style={{ marginBottom: "16px", height: "8px", background: "#eee", borderRadius: "4px" }}>
               <div style={{
                 height: "100%",
@@ -359,7 +350,6 @@ export default function App() {
                 transition: "width 1s linear"
               }} />
             </div>
-
             <div>
               {question.options.map((opt, i) => (
                 <button
@@ -396,7 +386,6 @@ export default function App() {
                 </button>
               ))}
             </div>
-
             {reveal && (
               <div style={{ marginTop: "16px" }}>
                 <p>✅ Correct: <strong>{reveal.name}</strong> by {reveal.artist}</p>
@@ -404,36 +393,13 @@ export default function App() {
             )}
           </div>
         )}
-
         <div style={{ marginTop: "24px", borderTop: "1px solid #eee", paddingTop: "12px" }}>
-  <h4 style={{ marginBottom: "8px" }}>Scoreboard</h4>
-            {scores ? (
-              scores.players
-                .map(p => ({ ...p, score: scores.scores[p.id] || 0 }))
-                .sort((a, b) => b.score - a.score)
-                .map((p, i) => (
-                  <div key={i} style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    padding: "6px 12px",
-                    marginBottom: "4px",
-                    background: "#f5f5f5",
-                    borderRadius: "8px",
-                    fontSize: "15px"
-                  }}>
-                    <span>
-                      {results && results[p.id]
-                        ? results[p.id].correct ? "✅ " : results[p.id].answered ? "❌ " : "⏱️ "
-                        : ""
-                      }
-                      {i + 1}. {p.name}
-                    </span>
-                    <strong>{p.score} pts</strong>
-                  </div>
-                ))
-            ) : (
-              room.players.map((p, i) => (
+          <h4 style={{ marginBottom: "8px" }}>Scoreboard</h4>
+          {scores ? (
+            scores.players
+              .map(p => ({ ...p, score: scores.scores[p.id] || 0 }))
+              .sort((a, b) => b.score - a.score)
+              .map((p, i) => (
                 <div key={i} style={{
                   display: "flex",
                   justifyContent: "space-between",
@@ -444,69 +410,90 @@ export default function App() {
                   borderRadius: "8px",
                   fontSize: "15px"
                 }}>
-                  <span>{i + 1}. {p.name}</span>
-                  <strong>0 pts</strong>
+                  <span>
+                    {results && results[p.id]
+                      ? results[p.id].correct ? "✅ " : results[p.id].answered ? "❌ " : "⏱️ "
+                      : ""
+                    }
+                    {i + 1}. {p.name}
+                  </span>
+                  <strong>{p.score} pts</strong>
                 </div>
               ))
-            )}
-          </div>
+          ) : (
+            room.players.map((p, i) => (
+              <div key={i} style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "6px 12px",
+                marginBottom: "4px",
+                background: "#f5f5f5",
+                borderRadius: "8px",
+                fontSize: "15px"
+              }}>
+                <span>{i + 1}. {p.name}</span>
+                <strong>0 pts</strong>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     )
   }
 
   if (screen === "gameover") {
-  const sortedPlayers = scores.players
-    .map(p => ({ ...p, score: scores.scores[p.id] || 0 }))
-    .sort((a, b) => b.score - a.score)
+    const sortedPlayers = scores.players
+      .map(p => ({ ...p, score: scores.scores[p.id] || 0 }))
+      .sort((a, b) => b.score - a.score)
 
-  const sortedAllTime = Object.entries(allTimeScores)
-    .sort((a, b) => b[1] - a[1])
+    const sortedAllTime = Object.entries(allTimeScores)
+      .sort((a, b) => b[1] - a[1])
 
-  return (
-    <div style={{ padding: 20 }}>
-      <h1>🏆 Game Over!</h1>
-      {sortedPlayers.map((p, i) => (
-        <div key={i} style={{ padding: "10px", borderBottom: "1px solid #ccc", fontSize: "18px" }}>
-          {i + 1}. {p.name} — {p.score} points
-        </div>
-      ))}
-      <br />
-       {room.players[0].id === socket.id ? (
-        <button onClick={() => socket.emit("rematch", { code: room.code })}>
-          🔄 Rematch (same players)
+    return (
+      <div style={{ padding: 20 }}>
+        <h1>🏆 Game Over!</h1>
+        {sortedPlayers.map((p, i) => (
+          <div key={i} style={{ padding: "10px", borderBottom: "1px solid #ccc", fontSize: "18px" }}>
+            {i + 1}. {p.name} — {p.score} points
+          </div>
+        ))}
+        <br />
+        {room.players[0].id === socket.id ? (
+          <button onClick={() => socket.emit("rematch", { code: room.code })}>
+            🔄 Rematch (same players)
+          </button>
+        ) : (
+          <p>⏳ Waiting for host to start rematch...</p>
+        )}
+        <button
+          style={{ marginLeft: "8px" }}
+          onClick={() => window.location.reload()}
+        >
+          Leave
         </button>
-      ) : (
-        <p>⏳ Waiting for host to start rematch...</p>
-      )}
-      <button 
-        style={{ marginLeft: "8px" }}
-        onClick={() => window.location.reload()}
-      >
-        Leave
-      </button>
-
-      {sortedAllTime.length > 0 && (
-        <div style={{ marginTop: "32px" }}>
-          <h3>📊 All-time scores (this session)</h3>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "15px" }}>
-            <thead>
-              <tr style={{ borderBottom: "2px solid #ccc" }}>
-                <th style={{ textAlign: "left", padding: "8px" }}>Player</th>
-                <th style={{ textAlign: "right", padding: "8px" }}>Total pts</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedAllTime.map(([name, score], i) => (
-                <tr key={i} style={{ borderBottom: "1px solid #eee" }}>
-                  <td style={{ padding: "8px" }}>{i + 1}. {name}</td>
-                  <td style={{ textAlign: "right", padding: "8px" }}><strong>{score}</strong></td>
+        {sortedAllTime.length > 0 && (
+          <div style={{ marginTop: "32px" }}>
+            <h3>📊 All-time scores (this session)</h3>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "15px" }}>
+              <thead>
+                <tr style={{ borderBottom: "2px solid #ccc" }}>
+                  <th style={{ textAlign: "left", padding: "8px" }}>Player</th>
+                  <th style={{ textAlign: "right", padding: "8px" }}>Total pts</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
-  )
-}
+              </thead>
+              <tbody>
+                {sortedAllTime.map(([name, score], i) => (
+                  <tr key={i} style={{ borderBottom: "1px solid #eee" }}>
+                    <td style={{ padding: "8px" }}>{i + 1}. {name}</td>
+                    <td style={{ textAlign: "right", padding: "8px" }}><strong>{score}</strong></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    )
+  }
 }
