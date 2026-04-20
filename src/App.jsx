@@ -190,7 +190,7 @@ export default function App() {
     return (
       <div style={{ padding: 20 }}>
         <div style={{ textAlign: "center", marginBottom: "20px" }}>
-          <div style={{ fontSize: "40px", marginBottom: "2px" }}>🎵🎶🎵</div>
+          <div style={{ fontSize: "40px", marginBottom: "5px" }}>🎵🎶🎵</div>
           <h1 style={{ margin: 0 }}>Music Quiz</h1>
         </div>
         <input
