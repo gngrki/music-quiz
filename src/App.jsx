@@ -59,18 +59,25 @@ export default function App() {
       setScreen("game")
     })
 
-    socket.on("new_question", (data) => {
+    socket.on("new_question", async (data) => {
       setQuestion(data)
       setSelectedAnswer(null)
       setReveal(null)
       setResults(null)
       setTimeLeft(30)
       setAnsweredCount(0)
-      if (data.previewUrl && audioRef.current) {
-        audioRef.current.pause()
-        audioRef.current.src = data.previewUrl
-        audioRef.current.load()
-        audioRef.current.play().catch(e => console.log("play failed:", e))
+      try {
+        const q = encodeURIComponent(`${data.correct.name} ${data.correct.artist}`)
+        const res = await fetch(`https://api.deezer.com/search?q=${q}&limit=1`)
+        const json = await res.json()
+        if (json.data && json.data.length > 0 && json.data[0].preview && audioRef.current) {
+          audioRef.current.pause()
+          audioRef.current.src = json.data[0].preview
+          audioRef.current.load()
+          audioRef.current.play().catch(e => console.log("play failed:", e))
+        }
+      } catch(e) {
+        console.log("preview fetch failed:", e)
       }
     })
 
