@@ -176,7 +176,16 @@ setInterval(() => {
   }
 }, 60 * 60 * 1000)
 
+function countActivePlayers() {
+  let count = 0
+  for (const code in rooms) {
+    count += rooms[code].players.length
+  }
+  return count
+}
+
 io.on("connection", (socket) => {
+  io.emit("player_count", { count: countActivePlayers() })
   console.log("player connected:", socket.id)
 
   socket.on("create_room", ({ playerName }) => {
@@ -354,6 +363,7 @@ io.on("connection", (socket) => {
           }
         }
       }
+      io.emit("player_count", { count: countActivePlayers() })
       delete disconnectTimers[socket.id]
     }, 15000)
   })

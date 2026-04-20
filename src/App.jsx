@@ -53,6 +53,7 @@ function startBackgroundBeat(audioCtx) {
 }
 
 export default function App() {
+  const [playerCount, setPlayerCount] = useState(0)
   const [screen, setScreen] = useState("home")
   const [playerName, setPlayerName] = useState("")
   const [roomCode, setRoomCode] = useState("")
@@ -86,6 +87,9 @@ export default function App() {
   const audioRef = useRef(null)
 
   useEffect(() => {
+    socket.on("player_count", ({ count }) => {
+      setPlayerCount(count)
+    })
     socket.on("connect", () => {
       if (roomCodeSaved && playerNameSaved) {
         socket.emit("rejoin_room", { code: roomCodeSaved, playerName: playerNameSaved })
@@ -161,6 +165,7 @@ export default function App() {
       socket.off("guess_mode_updated"); socket.off("game_starting"); socket.off("new_question")
       socket.off("answer_count"); socket.off("reveal_answer"); socket.off("game_over")
       socket.off("rematch_starting"); socket.off("error"); socket.off("connect"); socket.off("disconnect")
+      socket.off("player_count")
     }
   }, [])
 
@@ -227,7 +232,11 @@ export default function App() {
           🎵 no ads, ever, but you can<br />
           <a href="https://ko-fi.com/chromakala" target="_blank" rel="noopener noreferrer" style={{ color: "#999", textDecoration: "underline" }}>buy me a coffee ☕</a>
         </p>
-
+          {playerCount > 0 && (
+            <p style={{ marginTop: "16px", fontSize: "12px", color: "#999", textAlign: "center" }}>
+              🟢 {playerCount} {playerCount === 1 ? "person" : "people"} currently playing
+            </p>
+            )}
       </div>
     )
   }
