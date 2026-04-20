@@ -18,16 +18,17 @@ const s = {
   page: { padding: "24px 20px", maxWidth: "480px", margin: "0 auto" },
   title: { fontSize: "22px", fontWeight: "500", color: "var(--color-text-primary)", marginBottom: "4px" },
   subtitle: { fontSize: "14px", color: "var(--color-text-secondary)", marginBottom: "20px" },
-  input: { display: "block", width: "100%", padding: "10px 12px", borderRadius: "8px", border: "0.5px solid var(--color-border-secondary)", background: "var(--color-background-secondary)", color: "var(--color-text-primary)", fontSize: "15px", marginBottom: "10px", outline: "none", boxSizing: "border-box" },
+  input: { display: "block", width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border-secondary)", background: "var(--color-background-primary)", color: "var(--color-text-primary)", fontSize: "15px", marginBottom: "10px", outline: "none", boxSizing: "border-box" },
   btnPrimary: { display: "block", width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid #1D9E75", fontSize: "15px", fontWeight: "500", cursor: "pointer", background: "#1D9E75", color: "white", marginBottom: "8px" },
-  btnSecondary: { display: "block", width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid var(--color-border-secondary)", fontSize: "15px", fontWeight: "500", cursor: "pointer", background: "var(--color-background-secondary)", color: "var(--color-text-primary)", marginBottom: "8px" },
-  btnDisabled: { display: "block", width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid var(--color-border-secondary)", fontSize: "15px", fontWeight: "500", cursor: "not-allowed", background: "var(--color-background-secondary)", color: "var(--color-text-tertiary)", marginBottom: "8px", opacity: 0.5 },  
-  card: { background: "var(--color-background-secondary)", border: "1px solid var(--color-border-secondary)", borderRadius: "12px", padding: "16px", marginBottom: "16px" },
+  btnSecondary: { display: "block", width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid var(--color-border-secondary)", fontSize: "15px", fontWeight: "500", cursor: "pointer", background: "var(--color-background-primary)", color: "var(--color-text-primary)", marginBottom: "8px" },
+  btnDisabled: { display: "block", width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid var(--color-border-secondary)", fontSize: "15px", fontWeight: "500", cursor: "not-allowed", background: "var(--color-background-secondary)", color: "var(--color-text-tertiary)", marginBottom: "8px", opacity: 0.5 },
+  card: { background: "var(--color-background-primary)", border: "1px solid var(--color-border-secondary)", borderRadius: "12px", padding: "16px", marginBottom: "16px" },
   playerRow: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid var(--color-border-secondary)", fontSize: "14px" },
   tag: { fontSize: "12px", background: "#E1F5EE", color: "#0F6E56", borderRadius: "20px", padding: "3px 10px" },
-  codeBox: { background: "var(--color-background-secondary)", borderRadius: "8px", padding: "8px 16px", fontSize: "26px", fontWeight: "500", letterSpacing: "0.15em", color: "var(--color-text-primary)", display: "inline-block", marginBottom: "16px" },
+  codeBox: { background: "var(--color-background-secondary)", border: "1px solid var(--color-border-secondary)", borderRadius: "8px", padding: "8px 16px", fontSize: "26px", fontWeight: "500", letterSpacing: "0.15em", color: "var(--color-text-primary)", display: "inline-block", marginBottom: "16px" },
   muted: { fontSize: "13px", color: "var(--color-text-tertiary)" },
   scoreRow: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 12px", background: "var(--color-background-secondary)", border: "1px solid var(--color-border-secondary)", borderRadius: "8px", marginBottom: "6px", fontSize: "14px" },
+  answerBtn: { display: "block", width: "100%", padding: "12px 14px", borderRadius: "10px", marginBottom: "8px", fontSize: "14px", textAlign: "left", cursor: "pointer", border: "1px solid var(--color-border-secondary)", background: "var(--color-background-primary)", color: "var(--color-text-primary)" },
 }
 
 function playSound(type) {
@@ -209,7 +210,8 @@ export default function App() {
       </div>
 
       {!audioUnlocked ? (
-        <button style={{ ...s.btnPrimary, marginBottom: "16px", background: "#7F77DD", border: "none" }} onClick={() => {          const audio = new Audio()
+        <button style={{ ...s.btnPrimary, marginBottom: "16px", background: "#7F77DD", border: "1px solid #7F77DD" }} onClick={() => {
+          const audio = new Audio()
           audio.volume = 1
           audioRef.current = audio
           audio.play().catch(() => {})
@@ -222,7 +224,7 @@ export default function App() {
       <div style={s.card}>
         <div style={{ fontSize: "13px", fontWeight: "500", color: "var(--color-text-secondary)", marginBottom: "8px" }}>Players ({room.players.length}/6)</div>
         {room.players.map((p, i) => (
-          <div key={i} style={s.playerRow}>
+          <div key={i} style={{ ...s.playerRow, borderBottom: i === room.players.length - 1 ? "none" : "1px solid var(--color-border-secondary)" }}>
             <span>{p.name}</span>
             {p.genre
               ? <span style={s.tag}>{p.genre} ✓</span>
@@ -239,7 +241,7 @@ export default function App() {
             style={s.input}
             value={genre}
             onChange={e => setGenre(e.target.value)}
-            placeholder="..pop, rock, abba, 80s"
+            placeholder="e.g. pop, rock, taylor swift"
           />
           <button
             style={{ ...s.btnPrimary, opacity: loadingGenre ? 0.6 : 1, cursor: loadingGenre ? "not-allowed" : "pointer" }}
@@ -269,7 +271,7 @@ export default function App() {
               {[["both", "🎵 Song + Artist"], ["song", "🎵 Song only"], ["artist", "🎤 Artist only"]].map(([mode, label]) => (
                 <button key={mode}
                   onClick={() => { setGuessMode(mode); socket.emit("set_guess_mode", { code: room.code, guessMode: mode }) }}
-                  style={{ padding: "8px 14px", borderRadius: "8px", fontSize: "13px", cursor: "pointer", border: `0.5px solid ${guessMode === mode ? C.teal : "var(--color-border-secondary)"}`, background: guessMode === mode ? C.tealLight : "var(--color-background-secondary)", color: guessMode === mode ? C.tealDark : "var(--color-text-primary)" }}>
+                  style={{ padding: "8px 14px", borderRadius: "8px", fontSize: "13px", cursor: "pointer", border: `1px solid ${guessMode === mode ? C.teal : "var(--color-border-secondary)"}`, background: guessMode === mode ? C.tealLight : "var(--color-background-primary)", color: guessMode === mode ? C.tealDark : "var(--color-text-primary)" }}>
                   {label}
                 </button>
               ))}
@@ -323,11 +325,11 @@ export default function App() {
                     else playSound("wrong")
                   }}
                   style={{
-                    display: "block", width: "100%", padding: "12px 14px", borderRadius: "10px", marginBottom: "8px",
+                    ...s.answerBtn,
                     border: `1px solid ${isCorrect ? C.teal : isWrong ? C.red : "var(--color-border-secondary)"}`,
                     background: isCorrect ? C.tealLight : isWrong ? C.redLight : isSelected ? "var(--color-background-secondary)" : "var(--color-background-primary)",
                     color: isCorrect ? C.tealDark : isWrong ? C.redDark : "var(--color-text-primary)",
-                    fontSize: "14px", textAlign: "left", cursor: selectedAnswer ? "default" : "pointer"
+                    cursor: selectedAnswer ? "default" : "pointer"
                   }}>
                   {opt.display || `${opt.name} — ${opt.artist}`}
                 </button>
@@ -335,11 +337,11 @@ export default function App() {
             })}
           </div>
           {reveal && (
-            <div style={{ padding: "12px 14px", background: C.tealLight, borderRadius: "10px", marginBottom: "16px" }}>
+            <div style={{ padding: "12px 14px", background: C.tealLight, border: `1px solid ${C.teal}`, borderRadius: "10px", marginBottom: "16px" }}>
               <div style={{ fontSize: "13px", color: C.tealDark }}>✅ Correct: <strong>{reveal.name}</strong> by {reveal.artist}</div>
             </div>
           )}
-          <div style={{ borderTop: "0.5px solid var(--color-border-tertiary)", paddingTop: "14px" }}>
+          <div style={s.card}>
             <div style={{ fontSize: "13px", fontWeight: "500", color: "var(--color-text-secondary)", marginBottom: "8px" }}>Scoreboard</div>
             {(scores ? scores.players.map(p => ({ ...p, score: scores.scores[p.id] || 0 })) : room.players.map(p => ({ ...p, score: 0 })))
               .sort((a, b) => b.score - a.score)
@@ -364,7 +366,7 @@ export default function App() {
         <div style={s.title}>Game over!</div>
         <div style={{ ...s.card, marginTop: "16px" }}>
           {sortedPlayers.map((p, i) => (
-            <div key={i} style={s.playerRow}>
+            <div key={i} style={{ ...s.playerRow, borderBottom: i === sortedPlayers.length - 1 ? "none" : "1px solid var(--color-border-secondary)" }}>
               <span>{i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}.`} {p.name}</span>
               <strong>{p.score} pts</strong>
             </div>
@@ -388,7 +390,7 @@ export default function App() {
             <div style={{ fontSize: "13px", fontWeight: "500", color: "var(--color-text-secondary)", marginBottom: "10px" }}>📊 All-time this session</div>
             <div style={s.card}>
               {sortedAllTime.map(([name, score], i) => (
-                <div key={i} style={s.playerRow}>
+                <div key={i} style={{ ...s.playerRow, borderBottom: i === sortedAllTime.length - 1 ? "none" : "1px solid var(--color-border-secondary)" }}>
                   <span style={{ fontSize: "14px" }}>{i + 1}. {name}</span>
                   <strong>{score} pts</strong>
                 </div>
