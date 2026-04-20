@@ -323,51 +323,58 @@ io.on("connection", (socket) => {
   })
 
   socket.on("rejoin_room", ({ code, playerName }) => {
-    const room = rooms[code]
-    if (!room) {
-      socket.emit("error", { message: "Room no longer exists!" })
-      return
-    }
-    const existingPlayer = room.players.find(p => p.name === playerName)
-    if (existingPlayer) {
-      if (disconnectTimers[existingPlayer.id]) {
-        clearTimeout(disconnectTimers[existingPlayer.id])
-        delete disconnectTimers[existingPlayer.id]
-      }
-      const wasHost = room.host === existingPlayer.id
-      existingPlayer.id = socket.id
-      if (wasHost) room.host = socket.id
-    } else {
-      room.players.push({ id: socket.id, name: playerName, genre: null })
-    }
-    socket.join(code)
-    io.to(code).emit("room_updated", { players: room.players })
-    socket.emit("room_joined", { code, players: room.players })
-    console.log(`${playerName} rejoined room ${code}`)
-  })
+  const room = rooms[code]
+  if (!room) {
+    socket.emit("error", { message: "Room no longer exists!" })
+    return
+  }
+  const timerKey = `${code}:${playerName}`
+  if (disconnectTimers[timerKey]) {
+    clearTimeout(disconnectTimers[timerKey])
+    delete disconnectTimers[timerKey]
+  }
+  const existingPlayer = room.players.find(p => p.name === playerName)
+  if (existingPlayer) {
+    const wasHost = room.host === existingPlayer.id
+    existingPlayer.id = socket.id
+    if (wasHost) room.host = socket.id
+  } else {
+    room.players.push({ id: socket.id, name: playerName, genre: null })
+  }
+  socket.join(code)
+  io.to(code).emit("room_updated", { players: room.players })
+  socket.emit("room_joined", { code, players: room.players })
+  console.log(`${playerName} rejoined room ${code}`)
+})
 
   socket.on("disconnect", () => {
-    disconnectTimers[socket.id] = setTimeout(() => {
-      for (const code in rooms) {
-        const room = rooms[code]
-        const playerIndex = room.players.findIndex(p => p.id === socket.id)
-        if (playerIndex !== -1) {
-          room.players.splice(playerIndex, 1)
-          if (room.players.length === 0) {
+  for (const code in rooms) {
+    const room = rooms[code]
+    const player = room.players.find(p => p.id === socket.id)
+    if (player) {
+      const playerName = player.name
+      disconnectTimers[`${code}:${playerName}`] = setTimeout(() => {
+        const r = rooms[code]
+        if (!r) return
+        const idx = r.players.findIndex(p => p.name === playerName)
+        if (idx !== -1) {
+          r.players.splice(idx, 1)
+          if (r.players.length === 0) {
             delete rooms[code]
             console.log(`room ${code} deleted`)
           } else {
-            if (room.host === socket.id) {
-              room.host = room.players[0].id
+            if (r.host === socket.id) {
+              r.host = r.players[0].id
             }
-            io.to(code).emit("room_updated", { players: room.players })
+            io.to(code).emit("room_updated", { players: r.players })
           }
         }
-      }
-      io.emit("player_count", { count: countActivePlayers() })
-      delete disconnectTimers[socket.id]
-    }, 60000)
-  })
+        io.emit("player_count", { count: countActivePlayers() })
+        delete disconnectTimers[`${code}:${playerName}`]
+      }, 60000)
+    }
+  }
+})
 })
 
 server.listen(process.env.PORT || 3001, () => {
