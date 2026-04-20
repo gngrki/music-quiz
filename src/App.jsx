@@ -67,10 +67,15 @@ export default function App() {
   const audioRef = useRef(null)
 
   useEffect(() => {
+  playerNameRef.current = playerName
+  }, [playerName])
+
+  useEffect(() => {
     socket.on("player_count", ({ count }) => {
       setPlayerCount(count)
     })
     socket.on("connect", () => {
+      console.log("connect fired, room:", roomCodeRef.current, "name:", playerNameRef.current)
       if (roomCodeRef.current && playerNameRef.current) {
         socket.emit("rejoin_room", { code: roomCodeRef.current, playerName: playerNameRef.current })
       }
