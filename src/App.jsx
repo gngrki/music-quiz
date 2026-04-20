@@ -19,14 +19,15 @@ const s = {
   title: { fontSize: "22px", fontWeight: "500", color: "var(--color-text-primary)", marginBottom: "4px" },
   subtitle: { fontSize: "14px", color: "var(--color-text-secondary)", marginBottom: "20px" },
   input: { display: "block", width: "100%", padding: "10px 12px", borderRadius: "8px", border: "0.5px solid var(--color-border-secondary)", background: "var(--color-background-secondary)", color: "var(--color-text-primary)", fontSize: "15px", marginBottom: "10px", outline: "none", boxSizing: "border-box" },
-  btnPrimary: { display: "block", width: "100%", padding: "12px", borderRadius: "10px", border: "none", fontSize: "15px", fontWeight: "500", cursor: "pointer", background: "#1D9E75", color: "white", marginBottom: "8px" },
-  btnSecondary: { display: "block", width: "100%", padding: "12px", borderRadius: "10px", border: "0.5px solid var(--color-border-secondary)", fontSize: "15px", fontWeight: "500", cursor: "pointer", background: "var(--color-background-secondary)", color: "var(--color-text-primary)", marginBottom: "8px" },
-  btnDisabled: { display: "block", width: "100%", padding: "12px", borderRadius: "10px", border: "0.5px solid var(--color-border-secondary)", fontSize: "15px", fontWeight: "500", cursor: "not-allowed", background: "var(--color-background-secondary)", color: "var(--color-text-tertiary)", marginBottom: "8px", opacity: 0.5 },
-  card: { background: "var(--color-background-secondary)", border: "1px solid var(--color-border-secondary)", borderRadius: "12px", padding: "16px", marginBottom: "16px" },  playerRow: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "0.5px solid var(--color-border-tertiary)", fontSize: "14px" },
+  btnPrimary: { display: "block", width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid #1D9E75", fontSize: "15px", fontWeight: "500", cursor: "pointer", background: "#1D9E75", color: "white", marginBottom: "8px" },
+  btnSecondary: { display: "block", width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid var(--color-border-secondary)", fontSize: "15px", fontWeight: "500", cursor: "pointer", background: "var(--color-background-secondary)", color: "var(--color-text-primary)", marginBottom: "8px" },
+  btnDisabled: { display: "block", width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid var(--color-border-secondary)", fontSize: "15px", fontWeight: "500", cursor: "not-allowed", background: "var(--color-background-secondary)", color: "var(--color-text-tertiary)", marginBottom: "8px", opacity: 0.5 },  
+  card: { background: "var(--color-background-secondary)", border: "1px solid var(--color-border-secondary)", borderRadius: "12px", padding: "16px", marginBottom: "16px" },
+  playerRow: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid var(--color-border-secondary)", fontSize: "14px" },
   tag: { fontSize: "12px", background: "#E1F5EE", color: "#0F6E56", borderRadius: "20px", padding: "3px 10px" },
   codeBox: { background: "var(--color-background-secondary)", borderRadius: "8px", padding: "8px 16px", fontSize: "26px", fontWeight: "500", letterSpacing: "0.15em", color: "var(--color-text-primary)", display: "inline-block", marginBottom: "16px" },
   muted: { fontSize: "13px", color: "var(--color-text-tertiary)" },
-  scoreRow: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", background: "var(--color-background-secondary)", borderRadius: "8px", marginBottom: "6px", fontSize: "14px" },
+  scoreRow: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 12px", background: "var(--color-background-secondary)", border: "1px solid var(--color-border-secondary)", borderRadius: "8px", marginBottom: "6px", fontSize: "14px" },
 }
 
 function playSound(type) {
@@ -323,7 +324,7 @@ export default function App() {
                   }}
                   style={{
                     display: "block", width: "100%", padding: "12px 14px", borderRadius: "10px", marginBottom: "8px",
-                    border: `0.5px solid ${isCorrect ? C.teal : isWrong ? C.red : "var(--color-border-secondary)"}`,
+                    border: `1px solid ${isCorrect ? C.teal : isWrong ? C.red : "var(--color-border-secondary)"}`,
                     background: isCorrect ? C.tealLight : isWrong ? C.redLight : isSelected ? "var(--color-background-secondary)" : "var(--color-background-primary)",
                     color: isCorrect ? C.tealDark : isWrong ? C.redDark : "var(--color-text-primary)",
                     fontSize: "14px", textAlign: "left", cursor: selectedAnswer ? "default" : "pointer"
