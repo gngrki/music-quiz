@@ -130,15 +130,14 @@ export default function App() {
   // HOME SCREEN
   if (screen === "home") {
     return (
-      <div style={{ padding: "24px 20px", maxWidth: "400px", margin: "0 auto" }}>
+      <div style={{ padding: "60px 20px 24px", maxWidth: "400px", margin: "0 auto", minHeight: "100vh" }}>
 
-        {/* title */}
-        <div style={{ textAlign: "center", marginBottom: "20px" }}>
-          <div style={{ fontSize: "35px", marginBottom: "8px" }}>🎵🎶</div>
-          <h1 style={{ margin: 0, fontSize: "28px" }}>Music Quiz</h1>
+        <div style={{ textAlign: "center", marginBottom: "32px" }}>
+          <div style={{ fontSize: "40px", marginBottom: "8px" }}>🎵</div>
+          <h1 style={{ margin: 0, fontSize: "26px" }}>Music Quiz</h1>
         </div>
 
-        {/* name input */}
+        <p style={{ marginBottom: "6px", fontSize: "14px", color: "#666" }}>What's your name?</p>
         <input
           value={playerName}
           onChange={e => setPlayerName(e.target.value)}
@@ -146,7 +145,6 @@ export default function App() {
           style={{ display: "block", width: "100%", padding: "10px 12px", fontSize: "15px", border: "1px solid #ccc", borderRadius: "8px", marginBottom: "16px", boxSizing: "border-box" }}
         />
 
-        {/* buttons */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
           <button
             style={{ width: "200px", padding: "12px", fontSize: "15px", background: "#1D9E75", color: "white", border: "none", borderRadius: "10px", cursor: "pointer" }}
@@ -170,8 +168,7 @@ export default function App() {
 
         {error && <p style={{ color: "red", fontSize: "13px", marginTop: "8px", textAlign: "center" }}>{error}</p>}
 
-        {/* footer */}
-        <p style={{ marginTop: "25px", fontSize: "12px", color: "#999", lineHeight: "1.8", textAlign: "center" }}>
+        <p style={{ marginTop: "40px", fontSize: "12px", color: "#999", lineHeight: "1.8", textAlign: "center" }}>
           🎵 no ads, ever, but you can<br />
           <a href="https://ko-fi.com/chromakala" target="_blank" rel="noopener noreferrer" style={{ color: "#999", textDecoration: "underline" }}>buy me a coffee ☕</a>
         </p>
@@ -183,9 +180,9 @@ export default function App() {
   // JOIN SCREEN
   if (screen === "join") {
     return (
-      <div style={{ padding: "24px 20px", maxWidth: "400px", margin: "0 auto" }}>
+      <div style={{ padding: "60px 20px 24px", maxWidth: "400px", margin: "0 auto", minHeight: "100vh" }}>
 
-        <h1 style={{ fontSize: "22px", marginBottom: "4px" }}>Join a Room</h1>
+        <h1 style={{ fontSize: "26px", marginBottom: "4px" }}>Join a Room</h1>
         <p style={{ color: "#666", fontSize: "14px", marginBottom: "20px" }}>Enter the room code from your friend</p>
 
         <input
@@ -221,15 +218,12 @@ export default function App() {
   // LOBBY SCREEN
   if (screen === "lobby") {
     return (
-      <div style={{ padding: "24px 20px", maxWidth: "400px", margin: "0 auto" }}>
+      <div style={{ padding: "60px 20px 24px", maxWidth: "400px", margin: "0 auto", minHeight: "100vh" }}>
 
-        <h1 style={{ fontSize: "22px", marginBottom: "16px" }}>Lobby</h1>
-
-        {/* room code */}
+        <h1 style={{ fontSize: "26px", marginBottom: "4px" }}>Lobby</h1>
         <p style={{ fontSize: "13px", color: "#999", marginBottom: "4px" }}>Room code</p>
         <div style={{ fontSize: "28px", fontWeight: "600", letterSpacing: "0.15em", marginBottom: "20px" }}>{room.code}</div>
 
-        {/* enable music button */}
         {!audioUnlocked ? (
           <button
             style={{ display: "block", width: "100%", padding: "12px", fontSize: "15px", background: "#7F77DD", color: "white", border: "none", borderRadius: "10px", cursor: "pointer", marginBottom: "16px" }}
@@ -247,7 +241,6 @@ export default function App() {
           <p style={{ color: "#1D9E75", fontSize: "13px", marginBottom: "12px" }}>✅ Music enabled!</p>
         )}
 
-        {/* player list */}
         <p style={{ fontSize: "13px", color: "#999", marginBottom: "8px" }}>Players ({room.players.length}/6)</p>
         <div style={{ marginBottom: "16px" }}>
           {room.players.map((p, i) => (
@@ -261,7 +254,6 @@ export default function App() {
           ))}
         </div>
 
-        {/* genre picker */}
         {!confirmedGenre && (
           <div style={{ marginBottom: "16px" }}>
             <p style={{ fontSize: "13px", color: "#999", marginBottom: "8px" }}>Pick a genre or artist</p>
@@ -291,7 +283,6 @@ export default function App() {
         )}
         {confirmedGenre && <p style={{ color: "#1D9E75", fontSize: "13px", marginBottom: "16px" }}>✅ Genre confirmed: {genre}</p>}
 
-        {/* guess mode */}
         {room.players.every(p => p.genre) && (
           <div style={{ marginBottom: "16px" }}>
             <p style={{ fontSize: "13px", color: "#999", marginBottom: "8px" }}>What to guess?</p>
@@ -311,7 +302,6 @@ export default function App() {
           </div>
         )}
 
-        {/* start game */}
         {room.players[0].id === socket.id && (
           <button
             style={{ display: "block", width: "100%", padding: "12px", fontSize: "15px", background: room.players.every(p => p.genre) ? "#1D9E75" : "#ccc", color: "white", border: "none", borderRadius: "10px", cursor: room.players.every(p => p.genre) ? "pointer" : "not-allowed", opacity: room.players.every(p => p.genre) ? 1 : 0.6 }}
@@ -333,7 +323,7 @@ export default function App() {
   // GAME SCREEN
   if (screen === "game") {
     return (
-      <div style={{ padding: "24px 20px", maxWidth: "400px", margin: "0 auto" }}>
+      <div style={{ padding: "24px 20px", maxWidth: "400px", margin: "0 auto", minHeight: "100vh" }}>
 
         {!question && (
           <div style={{ textAlign: "center", paddingTop: "60px" }}>
@@ -345,23 +335,19 @@ export default function App() {
         {question && (
           <div>
 
-            {/* question header */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
               <span style={{ fontSize: "13px", color: "#999" }}>Question {question.questionNumber} of {question.total}</span>
               <span style={{ fontSize: "20px", fontWeight: "600", color: timeLeft <= 5 ? "#E24B4A" : timeLeft <= 10 ? "#EF9F27" : "#1D9E75" }}>{timeLeft}s</span>
             </div>
 
-            {/* timer bar */}
             <div style={{ height: "6px", background: "#eee", borderRadius: "4px", marginBottom: "12px", overflow: "hidden" }}>
               <div style={{ height: "100%", width: `${(timeLeft / 30) * 100}%`, background: timeLeft <= 5 ? "#E24B4A" : timeLeft <= 10 ? "#EF9F27" : "#1D9E75", borderRadius: "4px", transition: "width 1s linear" }} />
             </div>
 
-            {/* playing status */}
             <p style={{ fontSize: "13px", color: "#999", marginBottom: "14px" }}>
               🎵 {question.previewUrl ? "Now playing" : "No preview"} · {answeredCount}/{room.players.length} answered
             </p>
 
-            {/* answer buttons */}
             <div style={{ marginBottom: "16px" }}>
               {question.options.map((opt, i) => {
                 const isSelected = selectedAnswer === opt.name
@@ -391,14 +377,12 @@ export default function App() {
               })}
             </div>
 
-            {/* reveal */}
             {reveal && (
               <div style={{ padding: "12px 14px", background: "#E1F5EE", border: "1px solid #1D9E75", borderRadius: "10px", marginBottom: "16px" }}>
                 <p style={{ fontSize: "13px", color: "#0F6E56", margin: 0 }}>✅ Correct: <strong>{reveal.name}</strong> by {reveal.artist}</p>
               </div>
             )}
 
-            {/* scoreboard */}
             <div style={{ borderTop: "1px solid #eee", paddingTop: "14px" }}>
               <p style={{ fontSize: "13px", color: "#999", marginBottom: "8px" }}>Scoreboard</p>
               {(scores ? scores.players.map(p => ({ ...p, score: scores.scores[p.id] || 0 })) : room.players.map(p => ({ ...p, score: 0 })))
@@ -423,12 +407,11 @@ export default function App() {
     const sortedPlayers = scores.players.map(p => ({ ...p, score: scores.scores[p.id] || 0 })).sort((a, b) => b.score - a.score)
     const sortedAllTime = Object.entries(allTimeScores).sort((a, b) => b[1] - a[1])
     return (
-      <div style={{ padding: "24px 20px", maxWidth: "400px", margin: "0 auto" }}>
+      <div style={{ padding: "60px 20px 24px", maxWidth: "400px", margin: "0 auto", minHeight: "100vh" }}>
 
         <div style={{ fontSize: "40px", marginBottom: "8px" }}>🏆</div>
-        <h1 style={{ fontSize: "22px", marginBottom: "16px" }}>Game over!</h1>
+        <h1 style={{ fontSize: "26px", marginBottom: "16px" }}>Game over!</h1>
 
-        {/* results */}
         <div style={{ marginBottom: "16px" }}>
           {sortedPlayers.map((p, i) => (
             <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid #eee", fontSize: "16px" }}>
@@ -438,7 +421,6 @@ export default function App() {
           ))}
         </div>
 
-        {/* buttons */}
         <div style={{ display: "flex", gap: "8px", marginBottom: "20px" }}>
           {room.players[0].id === socket.id
             ? <button style={{ flex: 1, padding: "12px", fontSize: "15px", background: "#1D9E75", color: "white", border: "none", borderRadius: "10px", cursor: "pointer" }} onClick={() => socket.emit("rematch", { code: room.code })}>🔄 Rematch</button>
@@ -447,7 +429,6 @@ export default function App() {
           <button style={{ flex: 1, padding: "12px", fontSize: "15px", background: "white", color: "#333", border: "1px solid #ccc", borderRadius: "10px", cursor: "pointer" }} onClick={() => window.location.reload()}>Leave</button>
         </div>
 
-        {/* ko-fi */}
         <div style={{ marginBottom: "24px" }}>
           <a href="https://ko-fi.com/chromakala" target="_blank" rel="noopener noreferrer"
             style={{ display: "inline-block", padding: "10px 20px", background: "#4caf50", color: "white", borderRadius: "8px", textDecoration: "none", fontSize: "14px", fontWeight: "500" }}>
@@ -455,7 +436,6 @@ export default function App() {
           </a>
         </div>
 
-        {/* all time scores */}
         {sortedAllTime.length > 0 && (
           <div>
             <p style={{ fontSize: "13px", color: "#999", marginBottom: "10px" }}>📊 All-time this session</p>
