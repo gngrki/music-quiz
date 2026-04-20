@@ -23,7 +23,7 @@ const io = new Server(server, {
 const rooms = {}
 
 function generateRoomCode() {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ"
+  const chars = "abcdefghijklmnopqrstuvwxy"
   let code = ""
   for (let i = 0; i < 4; i++) {
     code += chars.charAt(Math.floor(Math.random() * chars.length))
