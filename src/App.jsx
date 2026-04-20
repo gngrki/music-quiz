@@ -265,6 +265,10 @@ export default function App() {
   }
 
   // LOBBY SCREEN
+if (screen === "lobby") {
+  console.log("lobby rendered, playerName:", playerName, "ref:", playerNameRef.current)
+  {debugMsg && <p style={{ fontSize: "11px", color: "red" }}>{debugMsg}</p>}
+
   if (screen === "lobby") {
     return (
     <div style={{ padding: "80px 20px 24px", width: "400px", maxWidth: "100%", margin: "0 auto", boxSizing: "border-box" }}>
@@ -275,7 +279,6 @@ export default function App() {
             <div style={{ fontSize: "20px", fontWeight: "600", letterSpacing: "0.15em" }}>{room.code}</div>
           </div>
         </div>
-{debugMsg && <p style={{ fontSize: "11px", color: "red" }}>{debugMsg}</p>}
         {!audioUnlocked ? (
           <button
             style={{ display: "block", width: "100%", padding: "12px", fontSize: "15px", background: "#7F77DD", color: "white", border: "none", borderRadius: "10px", cursor: "pointer", marginBottom: "16px" }}
@@ -555,4 +558,4 @@ export default function App() {
       </div>
     )
   }
-}
+}}
