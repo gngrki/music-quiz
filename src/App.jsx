@@ -61,6 +61,7 @@ export default function App() {
   const [allTimeScores, setAllTimeScores] = useState({})
   const [roomCodeSaved, setRoomCodeSaved] = useState(null)
   const [playerNameSaved, setPlayerNameSaved] = useState(null)
+  const [lyricsInput, setLyricsInput] = useState("")
   const timerRef = useRef(null)
   const audioRef = useRef(null)
 
@@ -88,7 +89,7 @@ export default function App() {
     socket.on("game_starting", ({ guessMode }) => { setGuessMode(guessMode); setScreen("game") })
     socket.on("new_question", (data) => {
       setQuestion(data); setSelectedAnswer(null); setReveal(null)
-      setResults(null); setTimeLeft(30); setAnsweredCount(0)
+      setResults(null); setTimeLeft(30); setAnsweredCount(0); setLyricsInput("")
       if (data.previewUrl && audioRef.current) {
         audioRef.current.pause()
         audioRef.current.src = data.previewUrl
@@ -379,24 +380,26 @@ export default function App() {
                   <div style={{ padding: "16px", background: "#f9f9f9", border: "1px solid #eee", borderRadius: "10px", marginBottom: "12px", fontSize: "16px", lineHeight: "1.8" }}>
                     {question.lyricLine}
                   </div>
+
                   <input
-                    placeholder="Fill in the missing word..."
-                    disabled={!!selectedAnswer}
-                    onKeyDown={e => {
-                      if (e.key === "Enter" && e.target.value.trim()) {
-                        const ans = e.target.value.trim().toLowerCase()
-                        setSelectedAnswer(ans)
-                        socket.emit("submit_answer", { code: room.code, answer: ans })
-                      }
-                    }}
-                    style={{ display: "block", width: "100%", padding: "12px", fontSize: "15px", border: "1px solid #ccc", borderRadius: "10px", boxSizing: "border-box", marginBottom: "8px" }}
-                  />
+                  value={lyricsInput}
+                  onChange={e => setLyricsInput(e.target.value)}
+                  placeholder="Fill in the missing word..."
+                  disabled={!!selectedAnswer}
+                  onKeyDown={e => {
+                    if (e.key === "Enter" && lyricsInput.trim()) {
+                      const ans = lyricsInput.trim().toLowerCase()
+                      setSelectedAnswer(ans)
+                      socket.emit("submit_answer", { code: room.code, answer: ans })
+                    }
+                  }}
+                  style={{ display: "block", width: "100%", padding: "12px", fontSize: "15px", border: "1px solid #ccc", borderRadius: "10px", boxSizing: "border-box", marginBottom: "8px" }}
+                />
                   <button
                     disabled={!!selectedAnswer}
-                    onClick={e => {
-                      const input = e.target.previousSibling
-                      if (input.value.trim()) {
-                        const ans = input.value.trim().toLowerCase()
+                    onClick={() => {
+                      if (lyricsInput.trim()) {
+                        const ans = lyricsInput.trim().toLowerCase()
                         setSelectedAnswer(ans)
                         socket.emit("submit_answer", { code: room.code, answer: ans })
                       }
