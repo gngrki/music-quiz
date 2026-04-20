@@ -264,9 +264,16 @@ export default function App() {
                 })
                 setConfirmedGenre(true)
               }}
-              style={{ opacity: loadingGenre ? 0.6 : 1 }}
-            >
-              {loadingGenre ? "⟳ Loading tracks..." : "Confirm"}
+              style={{ opacity: loadingGenre ? 0.6 : 1, cursor: loadingGenre ? "not-allowed" : "pointer" }}
+              >
+              {loadingGenre ? (
+                <span style={{
+                  display: "inline-block",
+                  animation: "spin 1s linear infinite",
+                  marginRight: "6px"
+                }}>⟳</span>
+              ) : null}
+              {loadingGenre ? "Loading tracks..." : "Confirm"}
             </button>
           </div>
         )}
