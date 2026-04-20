@@ -32,6 +32,27 @@ function generateRoomCode() {
   return code
 }
 
+async function fetchLyrics(name, artist) {
+  try {
+    const res = await fetch(`https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(name)}`)
+    const data = await res.json()
+    if (!data.lyrics) return null
+    const lines = data.lyrics
+      .split("\n")
+      .map(l => l.trim())
+      .filter(l => l.length > 20 && !l.includes("(") && !l.includes(")"))
+    if (lines.length < 3) return null
+    const line = lines[Math.floor(Math.random() * lines.length)]
+    const words = line.split(" ").filter(w => w.length > 3)
+    if (words.length === 0) return null
+    const word = words[Math.floor(Math.random() * words.length)]
+    const blanked = line.replace(word, "_____")
+    return { line: blanked, answer: word.toLowerCase().replace(/[^a-z]/g, "") }
+  } catch(e) {
+    return null
+  }
+}
+
 async function startQuestion(io, room) {
   if (room.currentQuestion >= room.totalQuestions) {
     io.to(room.code).emit("game_over", { scores: room.scores, players: room.players })
@@ -83,6 +104,25 @@ async function startQuestion(io, room) {
 
   console.log(`Q${room.currentQuestion + 1}: ${correct.name} - preview: ${previewUrl ? "found" : "none"}`)
 
+  if (room.guessMode === "lyrics") {
+  const lyrics = await fetchLyrics(correct.name, correct.artist)
+  if (!lyrics) {
+    room.currentQuestion++
+    return startQuestion(io, room)
+  }
+  room.currentCorrect = { ...correct, lyricsAnswer: lyrics.answer }
+  io.to(room.code).emit("new_question", {
+    questionNumber: room.currentQuestion + 1,
+    total: room.totalQuestions,
+    correct: { name: correct.name, artist: correct.artist },
+    mode: "lyrics",
+    lyricLine: lyrics.line,
+    answer: lyrics.answer
+  })
+  room.questionTimer = setTimeout(() => {
+    revealAnswer(io, room)
+  }, 30000)
+} else {
   io.to(room.code).emit("new_question", {
     questionNumber: room.currentQuestion + 1,
     total: room.totalQuestions,
@@ -98,12 +138,11 @@ async function startQuestion(io, room) {
       display: room.guessMode === "song" ? t.name : room.guessMode === "artist" ? t.artist : `${t.name} — ${t.artist}`
     }))
   })
-
   room.questionTimer = setTimeout(() => {
     revealAnswer(io, room)
   }, 30000)
 }
-
+}
 function revealAnswer(io, room) {
   clearTimeout(room.questionTimer)
   const results = {}
@@ -229,7 +268,9 @@ io.on("connection", (socket) => {
     if (!room || room.answers[socket.id]) return
     room.answers[socket.id] = answer
     const correct = room.currentCorrect
-    if (answer === correct.name) {
+    if (room.currentCorrect.lyricsAnswer 
+  ? answer.toLowerCase().trim() === room.currentCorrect.lyricsAnswer 
+  : answer === correct.name) {
       const timeBonus = Math.max(0, 1000 - (Date.now() - room.questionStartTime) / 30)
       room.scores[socket.id] = (room.scores[socket.id] || 0) + Math.round(timeBonus)
     }

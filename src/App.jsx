@@ -311,7 +311,7 @@ export default function App() {
             <p style={{ fontSize: "13px", color: "#999", marginBottom: "8px" }}>What to guess?</p>
             {room.players[0].id === socket.id ? (
               <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", justifyContent: "center" }}>
-                {[["both", "🎵 Song + Artist"], ["song", "🎵 Song only"], ["artist", "🎤 Artist only"]].map(([mode, label]) => (
+                  {[["both", "🎵 Song + Artist"], ["song", "🎵 Song only"], ["artist", "🎤 Artist only"], ["lyrics", "📝 Fill in lyrics"]].map(([mode, label]) => (
                   <button key={mode}
                     onClick={() => { setGuessMode(mode); socket.emit("set_guess_mode", { code: room.code, guessMode: mode }) }}
                     style={{ padding: "8px 14px", borderRadius: "8px", fontSize: "13px", cursor: "pointer", border: `1px solid ${guessMode === mode ? "#1D9E75" : "#ccc"}`, background: guessMode === mode ? "#E1F5EE" : "white", color: guessMode === mode ? "#0F6E56" : "#333" }}>
@@ -372,8 +372,42 @@ export default function App() {
             </p>
 
             {/* answer buttons — fixed height to prevent jumping */}
+            {/* answer buttons or lyrics input */}
             <div style={{ marginBottom: "16px" }}>
-              {question.options.map((opt, i) => {
+              {question.mode === "lyrics" ? (
+                <div>
+                  <div style={{ padding: "16px", background: "#f9f9f9", border: "1px solid #eee", borderRadius: "10px", marginBottom: "12px", fontSize: "16px", lineHeight: "1.8" }}>
+                    {question.lyricLine}
+                  </div>
+                  <input
+                    placeholder="Fill in the missing word..."
+                    disabled={!!selectedAnswer}
+                    onKeyDown={e => {
+                      if (e.key === "Enter" && e.target.value.trim()) {
+                        const ans = e.target.value.trim().toLowerCase()
+                        setSelectedAnswer(ans)
+                        socket.emit("submit_answer", { code: room.code, answer: ans })
+                      }
+                    }}
+                    style={{ display: "block", width: "100%", padding: "12px", fontSize: "15px", border: "1px solid #ccc", borderRadius: "10px", boxSizing: "border-box", marginBottom: "8px" }}
+                  />
+                  <button
+                    disabled={!!selectedAnswer}
+                    onClick={e => {
+                      const input = e.target.previousSibling
+                      if (input.value.trim()) {
+                        const ans = input.value.trim().toLowerCase()
+                        setSelectedAnswer(ans)
+                        socket.emit("submit_answer", { code: room.code, answer: ans })
+                      }
+                    }}
+                    style={{ display: "block", width: "100%", padding: "12px", fontSize: "15px", background: selectedAnswer ? "#ccc" : "#1D9E75", color: "white", border: "none", borderRadius: "10px", cursor: selectedAnswer ? "default" : "pointer" }}
+                  >
+                    {selectedAnswer ? "Answered!" : "Submit"}
+                  </button>
+                </div>
+               ) : (
+              question.options.map((opt, i) => {
                 const isSelected = selectedAnswer === opt.name
                 const isCorrect = reveal && opt.name === reveal.name
                 const isWrong = reveal && isSelected && !isCorrect
@@ -399,17 +433,21 @@ export default function App() {
                     {opt.display || `${opt.name} — ${opt.artist}`}
                   </button>
                 )
-              })}
+              })
+               )}
             </div>
 
             {/* reveal — fixed height placeholder to prevent jumping */}
-            <div style={{ minHeight: "52px", marginBottom: "16px" }}>
-              {reveal && (
-                <div style={{ padding: "12px 14px", background: "#E1F5EE", border: "1px solid #1D9E75", borderRadius: "10px" }}>
-                  <p style={{ fontSize: "13px", color: "#0F6E56", margin: 0 }}>✅ Correct: <strong>{reveal.name}</strong> by {reveal.artist}</p>
-                </div>
-              )}
-            </div>
+        <div style={{ minHeight: "52px", marginBottom: "16px" }}>
+            {reveal && (
+              <div style={{ padding: "12px 14px", background: "#E1F5EE", border: "1px solid #1D9E75", borderRadius: "10px" }}>
+                <p style={{ fontSize: "13px", color: "#0F6E56", margin: 0 }}>
+                  ✅ Correct: <strong>{question.mode === "lyrics" ? question.answer : reveal.name}</strong>
+                  {question.mode !== "lyrics" && ` by ${reveal.artist}`}
+                </p>
+              </div>
+            )}
+          </div>
 
             <div style={{ borderTop: "1px solid #eee", paddingTop: "14px" }}>
               <p style={{ fontSize: "13px", color: "#999", marginBottom: "8px" }}>Scoreboard</p>
