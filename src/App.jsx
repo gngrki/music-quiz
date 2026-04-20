@@ -300,7 +300,7 @@ export default function App() {
         </div>
 
         {!confirmedGenre && (
-          <div style={{ marginBottom: "16px" }}>
+          <div style={{ marginBottom: "16px", minHeight: "130px" }}>
             <p style={{ fontSize: "13px", color: "#999", marginBottom: "8px" }}>Pick a genre or artist</p>
             <input
               value={genre}
@@ -326,38 +326,36 @@ export default function App() {
             </button>
           </div>
         )}
-        {confirmedGenre && <p style={{ color: "#1D9E75", fontSize: "13px", marginBottom: "16px" }}>✅ Genre confirmed: {genre}</p>}
+        {confirmedGenre && <p style={{ color: "#1D9E75", fontSize: "13px", marginBottom: "16px", minHeight: "130px" }}>✅ Genre confirmed: {genre}</p>}
+        <div style={{ marginBottom: "16px" }}>
+  <p style={{ fontSize: "13px", color: "#999", marginBottom: "8px" }}>What to guess?</p>
+  {room.players[0].id === socket.id ? (
+    <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", justifyContent: "center" }}>
+      {[["both", "🎵 Song + Artist"], ["song", "🎵 Song only"], ["artist", "🎤 Artist only"], ["lyrics", "📝 Fill in lyrics"]].map(([mode, label]) => (
+        <button key={mode}
+          onClick={() => { setGuessMode(mode); socket.emit("set_guess_mode", { code: room.code, guessMode: mode }) }}
+          style={{ padding: "8px 14px", borderRadius: "8px", fontSize: "13px", cursor: "pointer", border: `1px solid ${guessMode === mode ? "#1D9E75" : "#ccc"}`, background: guessMode === mode ? "#E1F5EE" : "white", color: guessMode === mode ? "#0F6E56" : "#333" }}>
+          {label}
+        </button>
+      ))}
+    </div>
+  ) : (
+    <p style={{ color: "#666", fontSize: "13px" }}>Mode: <strong>{guessMode === "both" ? "Song + Artist" : guessMode === "song" ? "Song only" : guessMode === "artist" ? "Artist only" : "Fill in lyrics"}</strong> (set by host)</p>
+  )}
+</div>
 
-        {room.players.every(p => p.genre) && (
-          <div style={{ marginBottom: "16px" }}>
-            <p style={{ fontSize: "13px", color: "#999", marginBottom: "8px" }}>What to guess?</p>
-            {room.players[0].id === socket.id ? (
-              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", justifyContent: "center" }}>
-                  {[["both", "🎵 Song + Artist"], ["song", "🎵 Song only"], ["artist", "🎤 Artist only"], ["lyrics", "📝 Fill in lyrics"]].map(([mode, label]) => (
-                  <button key={mode}
-                    onClick={() => { setGuessMode(mode); socket.emit("set_guess_mode", { code: room.code, guessMode: mode }) }}
-                    style={{ padding: "8px 14px", borderRadius: "8px", fontSize: "13px", cursor: "pointer", border: `1px solid ${guessMode === mode ? "#1D9E75" : "#ccc"}`, background: guessMode === mode ? "#E1F5EE" : "white", color: guessMode === mode ? "#0F6E56" : "#333" }}>
-                    {label}
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <p style={{ color: "#666", fontSize: "13px" }}>Mode: <strong>{guessMode === "both" ? "Song + Artist" : guessMode === "song" ? "Song only" : "Artist only"}</strong> (set by host)</p>
-            )}
-          </div>
-        )}
-
-        {room.players[0].id === socket.id && (
-          <button
-            style={{ display: "block", width: "100%", padding: "12px", fontSize: "15px", background: room.players.every(p => p.genre) ? "#1D9E75" : "#ccc", color: "white", border: "none", borderRadius: "10px", cursor: room.players.every(p => p.genre) ? "pointer" : "not-allowed", opacity: room.players.every(p => p.genre) ? 1 : 0.6 }}
-            onClick={() => {
-              setError("")
-              socket.emit("start_game", { code: room.code, guessMode })
-            }}
-          >
-            {room.players.every(p => p.genre) ? "Start Game" : "Waiting for all players..."}
-          </button>
-        )}
+{room.players[0].id === socket.id && (
+  <button
+    disabled={!room.players.every(p => p.genre)}
+    style={{ display: "block", width: "100%", padding: "12px", fontSize: "15px", background: room.players.every(p => p.genre) ? "#1D9E75" : "#ccc", color: "white", border: "none", borderRadius: "10px", cursor: room.players.every(p => p.genre) ? "pointer" : "not-allowed", opacity: room.players.every(p => p.genre) ? 1 : 0.5 }}
+    onClick={() => {
+      setError("")
+      socket.emit("start_game", { code: room.code, guessMode })
+    }}
+  >
+    {room.players.every(p => p.genre) ? "Start Game" : "Waiting for all players..."}
+  </button>
+)}
 
         {error && <p style={{ color: "red", fontSize: "13px", marginTop: "8px" }}>{error}</p>}
 
