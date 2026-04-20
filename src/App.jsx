@@ -255,13 +255,19 @@ export default function App() {
   // LOBBY SCREEN
   if (screen === "lobby") {
     return (
-      <div style={{ padding: "80px 20px 24px", width: "400px", maxWidth: "100%", margin: "0 auto", boxSizing: "border-box" }}>
+      <div style={{ padding: "52px 20px 24px", width: "400px", maxWidth: "100%", margin: "0 auto", boxSizing: "border-box" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
           <h1 style={{ fontSize: "26px", margin: 0 }}>Lobby</h1>
           <div style={{ textAlign: "right" }}>
             <p style={{ fontSize: "12px", color: "#999", margin: 0 }}>Room code</p>
             <div style={{ fontSize: "20px", fontWeight: "600", letterSpacing: "0.15em" }}>{room.code}</div>
-            <button onClick={() => window.location.reload()} style={{ fontSize: "12px", color: "#999", background: "none", border: "none", cursor: "pointer", padding: 0, marginTop: "4px" }}>Leave</button>
+          <button onClick={() => {
+            localStorage.removeItem("roomCode")
+            localStorage.removeItem("playerName")
+            roomCodeRef.current = null
+            playerNameRef.current = null
+            window.location.reload()
+          }} style={{ fontSize: "12px", color: "#999", background: "none", border: "none", cursor: "pointer", padding: 0, marginTop: "4px" }}>Leave</button>
           </div>
         </div>
 
