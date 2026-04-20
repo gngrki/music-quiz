@@ -59,12 +59,30 @@ export default function App() {
   const [answeredCount, setAnsweredCount] = useState(0)
   const [audioUnlocked, setAudioUnlocked] = useState(false)
   const [allTimeScores, setAllTimeScores] = useState({})
+  const [roomCodeSaved, setRoomCodeSaved] = useState(null)
+  const [playerNameSaved, setPlayerNameSaved] = useState(null)
   const timerRef = useRef(null)
   const audioRef = useRef(null)
 
   useEffect(() => {
-    socket.on("room_created", ({ code, players }) => { setRoom({ code, players }); setScreen("lobby") })
-    socket.on("room_joined", ({ code, players }) => { setRoom({ code, players }); setScreen("lobby") })
+    socket.on("connect", () => {
+      if (roomCodeSaved && playerNameSaved) {
+        socket.emit("rejoin_room", { code: roomCodeSaved, playerName: playerNameSaved })
+      }
+    })
+    socket.on("room_created", ({ code, players }) => {
+      setRoom({ code, players })
+      setRoomCodeSaved(code)
+      setPlayerNameSaved(playerName)
+      setScreen("lobby")
+    })
+
+    socket.on("room_joined", ({ code, players }) => {
+      setRoom({ code, players })
+      setRoomCodeSaved(code)
+      setPlayerNameSaved(playerName)
+      setScreen("lobby")
+    })
     socket.on("guess_mode_updated", ({ guessMode }) => { setGuessMode(guessMode) })
     socket.on("room_updated", ({ players }) => { setRoom(prev => ({ ...prev, players })) })
     socket.on("game_starting", ({ guessMode }) => { setGuessMode(guessMode); setScreen("game") })
@@ -99,12 +117,18 @@ export default function App() {
       setConfirmedGenre(false); setGenre(""); setAudioUnlocked(false)
       setTimeLeft(30); setAnsweredCount(0)
     })
+    socket.on("connect", () => {
+      console.log("reconnected!")
+    })
+    socket.on("disconnect", () => {
+      console.log("disconnected!")
+    })
     socket.on("error", ({ message }) => { showError(message) })
     return () => {
       socket.off("room_created"); socket.off("room_joined"); socket.off("room_updated")
       socket.off("guess_mode_updated"); socket.off("game_starting"); socket.off("new_question")
       socket.off("answer_count"); socket.off("reveal_answer"); socket.off("game_over")
-      socket.off("rematch_starting"); socket.off("error")
+      socket.off("rematch_starting"); socket.off("error"); socket.off("connect"); socket.off("disconnect")
     }
   }, [])
 
