@@ -189,35 +189,38 @@ export default function App() {
   if (screen === "home") {
     return (
       <div style={{ padding: 20 }}>
-        <h1>🎵 Music Quiz 🎶</h1>
-        <p>What's your name?</p>
+        <div style={{ textAlign: "center", marginBottom: "20px" }}>
+          <div style={{ fontSize: "40px", marginBottom: "2px" }}>🎵🎶🎵</div>
+          <h1 style={{ margin: 0 }}>Music Quiz</h1>
+        </div>
         <input
           value={playerName}
           onChange={e => setPlayerName(e.target.value)}
           placeholder="Enter your name"
           style={{ padding: "8px", marginRight: "8px" }}
         />
-        <br /><br />
-        <button
-          style={{ marginRight: "8px" }}
-          onClick={() => {
-            if (!playerName.trim()) return showError("Enter your name first!")
-            socket.emit("create_room", { playerName })
-          }}
-        >
-          Create Room
-        </button>
-        <button
-          onClick={() => {
-            if (!playerName.trim()) return showError("Enter your name first!")
-            setScreen("join")
-          }}
-        >
-          Join Room
-        </button>
+        <br />
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          <button
+            onClick={() => {
+              if (!playerName.trim()) return showError("Enter your name first!")
+              socket.emit("create_room", { playerName })
+            }}
+          >
+            Create Room
+          </button>
+          <button
+            onClick={() => {
+              if (!playerName.trim()) return showError("Enter your name first!")
+              setScreen("join")
+            }}
+          >
+            Join Room
+          </button>
+        </div>
         {error && <p style={{ color: "red" }}>{error}</p>}
         
-        <p style={{ marginTop: "40px", fontSize: "13px", color: "#1de5e1ff", lineHeight: "1.8" }}>
+        <p style={{ marginTop: "20px", fontSize: "13px", color: "#999", lineHeight: "1.8" }}>
           🎵 no ads, ever, but you can<br />
           <a href="https://ko-fi.com/chromakala" target="_blank" rel="noopener noreferrer" style={{ color: "#999", textDecoration: "underline" }}>buy me a coffee☕</a>
         </p>
