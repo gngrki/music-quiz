@@ -130,14 +130,13 @@ export default function App() {
   // HOME SCREEN
   if (screen === "home") {
     return (
-      <div style={{ padding: "60px 20px 24px", maxWidth: "400px", margin: "0 auto", minHeight: "100vh" }}>
+      <div style={{ padding: "80px 20px 24px", maxWidth: "400px", margin: "0 auto" }}>
 
         <div style={{ textAlign: "center", marginBottom: "32px" }}>
-          <div style={{ fontSize: "40px", marginBottom: "8px" }}>🎵</div>
+          <div style={{ fontSize: "35px", marginBottom: "8px" }}>🎵🎶</div>
           <h1 style={{ margin: 0, fontSize: "26px" }}>Music Quiz</h1>
         </div>
 
-        <p style={{ marginBottom: "6px", fontSize: "14px", color: "#666" }}>What's your name?</p>
         <input
           value={playerName}
           onChange={e => setPlayerName(e.target.value)}
@@ -180,7 +179,7 @@ export default function App() {
   // JOIN SCREEN
   if (screen === "join") {
     return (
-      <div style={{ padding: "60px 20px 24px", maxWidth: "400px", margin: "0 auto", minHeight: "100vh" }}>
+      <div style={{ padding: "80px 20px 24px", maxWidth: "400px", margin: "0 auto" }}>
 
         <h1 style={{ fontSize: "26px", marginBottom: "4px" }}>Join a Room</h1>
         <p style={{ color: "#666", fontSize: "14px", marginBottom: "20px" }}>Enter the room code from your friend</p>
@@ -218,7 +217,7 @@ export default function App() {
   // LOBBY SCREEN
   if (screen === "lobby") {
     return (
-      <div style={{ padding: "60px 20px 24px", maxWidth: "400px", margin: "0 auto", minHeight: "100vh" }}>
+      <div style={{ padding: "80px 20px 24px", maxWidth: "400px", margin: "0 auto" }}>
 
         <h1 style={{ fontSize: "26px", marginBottom: "4px" }}>Lobby</h1>
         <p style={{ fontSize: "13px", color: "#999", marginBottom: "4px" }}>Room code</p>
@@ -287,7 +286,7 @@ export default function App() {
           <div style={{ marginBottom: "16px" }}>
             <p style={{ fontSize: "13px", color: "#999", marginBottom: "8px" }}>What to guess?</p>
             {room.players[0].id === socket.id ? (
-              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", justifyContent: "center" }}>
                 {[["both", "🎵 Song + Artist"], ["song", "🎵 Song only"], ["artist", "🎤 Artist only"]].map(([mode, label]) => (
                   <button key={mode}
                     onClick={() => { setGuessMode(mode); socket.emit("set_guess_mode", { code: room.code, guessMode: mode }) }}
@@ -320,10 +319,10 @@ export default function App() {
     )
   }
 
-  // GAME SCREEN
+  // GAME SCREEN — fixed width container so it never jumps
   if (screen === "game") {
     return (
-      <div style={{ padding: "24px 20px", maxWidth: "400px", margin: "0 auto", minHeight: "100vh" }}>
+      <div style={{ padding: "24px 20px", width: "100%", maxWidth: "400px", margin: "0 auto", boxSizing: "border-box" }}>
 
         {!question && (
           <div style={{ textAlign: "center", paddingTop: "60px" }}>
@@ -348,6 +347,7 @@ export default function App() {
               🎵 {question.previewUrl ? "Now playing" : "No preview"} · {answeredCount}/{room.players.length} answered
             </p>
 
+            {/* answer buttons — fixed height to prevent jumping */}
             <div style={{ marginBottom: "16px" }}>
               {question.options.map((opt, i) => {
                 const isSelected = selectedAnswer === opt.name
@@ -364,11 +364,12 @@ export default function App() {
                       else playSound("wrong")
                     }}
                     style={{
-                      display: "block", width: "100%", padding: "12px 14px", marginBottom: "8px",
+                      display: "block", width: "100%", minHeight: "48px", padding: "12px 14px", marginBottom: "8px",
                       fontSize: "15px", textAlign: "left", borderRadius: "10px", cursor: selectedAnswer ? "default" : "pointer",
                       border: `1px solid ${isCorrect ? "#1D9E75" : isWrong ? "#E24B4A" : "#ccc"}`,
                       background: isCorrect ? "#E1F5EE" : isWrong ? "#FCEBEB" : isSelected ? "#f5f5f5" : "white",
-                      color: isCorrect ? "#0F6E56" : isWrong ? "#A32D2D" : "#333"
+                      color: isCorrect ? "#0F6E56" : isWrong ? "#A32D2D" : "#333",
+                      boxSizing: "border-box", wordBreak: "break-word"
                     }}
                   >
                     {opt.display || `${opt.name} — ${opt.artist}`}
@@ -377,11 +378,14 @@ export default function App() {
               })}
             </div>
 
-            {reveal && (
-              <div style={{ padding: "12px 14px", background: "#E1F5EE", border: "1px solid #1D9E75", borderRadius: "10px", marginBottom: "16px" }}>
-                <p style={{ fontSize: "13px", color: "#0F6E56", margin: 0 }}>✅ Correct: <strong>{reveal.name}</strong> by {reveal.artist}</p>
-              </div>
-            )}
+            {/* reveal — fixed height placeholder to prevent jumping */}
+            <div style={{ minHeight: "52px", marginBottom: "16px" }}>
+              {reveal && (
+                <div style={{ padding: "12px 14px", background: "#E1F5EE", border: "1px solid #1D9E75", borderRadius: "10px" }}>
+                  <p style={{ fontSize: "13px", color: "#0F6E56", margin: 0 }}>✅ Correct: <strong>{reveal.name}</strong> by {reveal.artist}</p>
+                </div>
+              )}
+            </div>
 
             <div style={{ borderTop: "1px solid #eee", paddingTop: "14px" }}>
               <p style={{ fontSize: "13px", color: "#999", marginBottom: "8px" }}>Scoreboard</p>
@@ -407,7 +411,7 @@ export default function App() {
     const sortedPlayers = scores.players.map(p => ({ ...p, score: scores.scores[p.id] || 0 })).sort((a, b) => b.score - a.score)
     const sortedAllTime = Object.entries(allTimeScores).sort((a, b) => b[1] - a[1])
     return (
-      <div style={{ padding: "60px 20px 24px", maxWidth: "400px", margin: "0 auto", minHeight: "100vh" }}>
+      <div style={{ padding: "80px 20px 24px", maxWidth: "400px", margin: "0 auto" }}>
 
         <div style={{ fontSize: "40px", marginBottom: "8px" }}>🏆</div>
         <h1 style={{ fontSize: "26px", marginBottom: "16px" }}>Game over!</h1>
