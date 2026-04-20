@@ -151,7 +151,7 @@ function revealAnswer(io, room) {
   results[p.id] = {
     answered: !!answer,
     correct: room.currentCorrect.lyricsAnswer 
-      ? answer === room.currentCorrect.lyricsAnswer 
+      ? (answer || "").toLowerCase().trim() === room.currentCorrect.lyricsAnswer 
       : answer === room.currentCorrect.name,
     answer: answer || null
   }
