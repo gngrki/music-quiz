@@ -19,6 +19,8 @@ export default function App() {
   const [genre, setGenre] = useState("")
   const [confirmedGenre, setConfirmedGenre] = useState(false)
   const [loadingGenre, setLoadingGenre] = useState(false)
+  const [spinnerFrame, setSpinnerFrame] = useState(0)
+  const spinnerFrames = ["⠋", "⠙", "⠸", "⠴", "⠦", "⠇"]
   const [error, setError] = useState("")
   function showError(msg) {
     setError(msg)
@@ -149,6 +151,14 @@ export default function App() {
     }, 1000)
     return () => clearInterval(timerRef.current)
   }, [question])
+
+  useEffect(() => {
+  if (!loadingGenre) return
+  const interval = setInterval(() => {
+    setSpinnerFrame(prev => (prev + 1) % 6)
+  }, 100)
+  return () => clearInterval(interval)
+}, [loadingGenre])
 
   if (screen === "home") {
     return (
