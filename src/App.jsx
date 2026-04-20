@@ -181,8 +181,8 @@ export default function App() {
         {error && <p style={{ color: "red" }}>{error}</p>}
         
         <p style={{ marginTop: "40px", fontSize: "13px", color: "#1de5e1ff", lineHeight: "1.8" }}>
-          🎵 Music Quiz — no ads, ever<br />
-          but you can <a href="https://ko-fi.com/chromakala" target="_blank" rel="noopener noreferrer" style={{ color: "#999", textDecoration: "underline" }}>buy me a coffee☕</a>
+          🎵 no ads, ever, but you can<br />
+          <a href="https://ko-fi.com/chromakala" target="_blank" rel="noopener noreferrer" style={{ color: "#999", textDecoration: "underline" }}>buy me a coffee☕</a>
         </p>
       </div>
     )
