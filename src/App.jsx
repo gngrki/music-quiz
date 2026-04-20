@@ -179,6 +179,11 @@ export default function App() {
           Join Room
         </button>
         {error && <p style={{ color: "red" }}>{error}</p>}
+        
+        <p style={{ marginTop: "40px", fontSize: "13px", color: "#1de5e1ff", lineHeight: "1.8" }}>
+          🎵 Music Quiz — no ads, ever<br />
+          but you can <a href="https://ko-fi.com/chromakala" target="_blank" rel="noopener noreferrer" style={{ color: "#999", textDecoration: "underline" }}>buy me a coffee☕</a>
+        </p>
       </div>
     )
   }
@@ -202,12 +207,6 @@ export default function App() {
         <br /><br />
         <button onClick={() => setScreen("home")}>Back</button>
         {error && <p style={{ color: "red" }}>{error}</p>}
-      
-        <p style={{ marginTop: "40px", fontSize: "13px", color: "#999", lineHeight: "1.8" }}>
-          🎵 Music Quiz — no ads, ever<br />
-          but you can <a href="https://ko-fi.com/chromakala" target="_blank" rel="noopener noreferrer" style={{ color: "#999", textDecoration: "underline" }}>buy me a coffee☕</a>
-        </p>
-      
       </div>
     )
   }
@@ -479,7 +478,7 @@ export default function App() {
           Leave
         </button>
       
-        <p style={{ marginTop: "40px", fontSize: "13px", color: "#999", lineHeight: "1.8" }}>
+        <p style={{ marginTop: "40px", fontSize: "13px", color: "#1de5e1ff", lineHeight: "1.8" }}>
           🎵 Music Quiz — no ads, ever<br />
           but you can <a href="https://ko-fi.com/chromakala" target="_blank" rel="noopener noreferrer" style={{ color: "#999", textDecoration: "underline" }}>buy me a coffee☕</a>
         </p>
