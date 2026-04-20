@@ -10,6 +10,31 @@ async function getTopTracks(tag) {
   return data.tracks.track.map(t => ({ name: t.name, artist: t.artist.name }))
 }
 
+function playSound(type) {
+  const ctx = new (window.AudioContext || window.webkitAudioContext)()
+  const oscillator = ctx.createOscillator()
+  const gainNode = ctx.createGain()
+  oscillator.connect(gainNode)
+  gainNode.connect(ctx.destination)
+
+  if (type === "correct") {
+    oscillator.frequency.setValueAtTime(523, ctx.currentTime)
+    oscillator.frequency.setValueAtTime(659, ctx.currentTime + 0.1)
+    oscillator.frequency.setValueAtTime(784, ctx.currentTime + 0.2)
+    gainNode.gain.setValueAtTime(0.3, ctx.currentTime)
+    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5)
+    oscillator.start(ctx.currentTime)
+    oscillator.stop(ctx.currentTime + 0.5)
+  } else if (type === "wrong") {
+    oscillator.frequency.setValueAtTime(300, ctx.currentTime)
+    oscillator.frequency.setValueAtTime(200, ctx.currentTime + 0.1)
+    gainNode.gain.setValueAtTime(0.3, ctx.currentTime)
+    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4)
+    oscillator.start(ctx.currentTime)
+    oscillator.stop(ctx.currentTime + 0.4)
+  }
+}
+
 export default function App() {
   const [screen, setScreen] = useState("home")
   const [playerName, setPlayerName] = useState("")
@@ -383,12 +408,17 @@ export default function App() {
                   key={i}
                   disabled={!!selectedAnswer}
                   onClick={() => {
-                    setSelectedAnswer(opt.name)
-                    socket.emit("submit_answer", {
-                      code: room.code,
-                      answer: opt.name
-                    })
-                  }}
+                      setSelectedAnswer(opt.name)
+                      socket.emit("submit_answer", {
+                        code: room.code,
+                        answer: opt.name
+                      })
+                      if (question.correct && opt.name === question.correct.name) {
+                        playSound("correct")
+                      } else {
+                        playSound("wrong")
+                      }
+                    }}
                   style={{
                     display: "block",
                     width: "100%",
