@@ -202,6 +202,12 @@ export default function App() {
         <br /><br />
         <button onClick={() => setScreen("home")}>Back</button>
         {error && <p style={{ color: "red" }}>{error}</p>}
+      
+        <p style={{ marginTop: "40px", fontSize: "13px", color: "#999", lineHeight: "1.8" }}>
+          🎵 Music Quiz — no ads, ever<br />
+          but you can <a href="https://ko-fi.com/chromakala" target="_blank" rel="noopener noreferrer" style={{ color: "#999", textDecoration: "underline" }}>buy me a coffee☕</a>
+        </p>
+      
       </div>
     )
   }
@@ -472,31 +478,12 @@ export default function App() {
         >
           Leave
         </button>
-        <button
-  style={{ marginLeft: "8px" }}
-  onClick={() => window.location.reload()}
->
-  Leave
-</button>
-<div style={{ marginTop: "20px" }}>
-  
-    <a href="https://ko-fi.com/chromakala"
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{
-          display: "inline-block",
-          padding: "10px 20px",
-          background: "#FF5E5B",
-          color: "white",
-          borderRadius: "8px",
-          textDecoration: "none",
-          fontSize: "15px",
-          fontWeight: "500"
-        }}
-  >
-        ☕ Support me on Ko-fi
-      </a>
-</div>
+      
+        <p style={{ marginTop: "40px", fontSize: "13px", color: "#999", lineHeight: "1.8" }}>
+          🎵 Music Quiz — no ads, ever<br />
+          but you can <a href="https://ko-fi.com/chromakala" target="_blank" rel="noopener noreferrer" style={{ color: "#999", textDecoration: "underline" }}>buy me a coffee☕</a>
+        </p>
+     
         {sortedAllTime.length > 0 && (
           <div style={{ marginTop: "32px" }}>
             <h3>📊 All-time scores (this session)</h3>
