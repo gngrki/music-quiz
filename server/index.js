@@ -1,3 +1,4 @@
+const disconnectTimers = {}
 const express = require("express")
 const http = require("http")
 const { Server } = require("socket.io")
@@ -267,32 +268,36 @@ io.on("connection", (socket) => {
   })
 
   socket.on("rejoin_room", ({ code, playerName }) => {
-  const room = rooms[code]
-  if (!room) {
-    socket.emit("error", { message: "Room no longer exists!" })
-    return
-  }
-  const existingPlayer = room.players.find(p => p.name === playerName)
-  if (existingPlayer) {
-    const wasHost = room.host === existingPlayer.id
-    existingPlayer.id = socket.id
-    if (wasHost) room.host = socket.id
-  } else {
-    room.players.push({ id: socket.id, name: playerName, genre: null })
-  }
-  socket.join(code)
-  io.to(code).emit("room_updated", { players: room.players })
-  socket.emit("room_joined", { code, players: room.players })
-  console.log(`${playerName} rejoined room ${code}`)
-})
+    const room = rooms[code]
+    if (!room) {
+      socket.emit("error", { message: "Room no longer exists!" })
+      return
+    }
+    const existingPlayer = room.players.find(p => p.name === playerName)
+    if (existingPlayer) {
+      if (disconnectTimers[existingPlayer.id]) {
+        clearTimeout(disconnectTimers[existingPlayer.id])
+        delete disconnectTimers[existingPlayer.id]
+      }
+      const wasHost = room.host === existingPlayer.id
+      existingPlayer.id = socket.id
+      if (wasHost) room.host = socket.id
+    } else {
+      room.players.push({ id: socket.id, name: playerName, genre: null })
+    }
+    socket.join(code)
+    io.to(code).emit("room_updated", { players: room.players })
+    socket.emit("room_joined", { code, players: room.players })
+    console.log(`${playerName} rejoined room ${code}`)
+  })
 
   socket.on("disconnect", () => {
-    setTimeout(() => {
+    disconnectTimers[socket.id] = setTimeout(() => {
       for (const code in rooms) {
         const room = rooms[code]
-        const stillInRoom = room.players.find(p => p.id === socket.id)
-        if (stillInRoom) {
-          room.players = room.players.filter(p => p.id !== socket.id)
+        const playerIndex = room.players.findIndex(p => p.id === socket.id)
+        if (playerIndex !== -1) {
+          room.players.splice(playerIndex, 1)
           if (room.players.length === 0) {
             delete rooms[code]
             console.log(`room ${code} deleted`)
@@ -304,7 +309,8 @@ io.on("connection", (socket) => {
           }
         }
       }
-    }, 10000)
+      delete disconnectTimers[socket.id]
+    }, 15000)
   })
 })
 
