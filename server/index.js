@@ -346,7 +346,12 @@ io.on("connection", (socket) => {
   socket.emit("room_joined", { code, players: room.players })
   console.log(`${playerName} rejoined room ${code}`)
 })
-
+  socket.on("send_emoji", ({ code, playerName, emoji }) => {
+    const room = rooms[code]
+    if (!room) return
+    const id = Date.now() + Math.random()
+    io.to(code).emit("emoji_reaction", { playerName, emoji, id })
+  })
   socket.on("disconnect", () => {
   for (const code in rooms) {
     const room = rooms[code]

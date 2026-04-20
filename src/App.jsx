@@ -66,10 +66,15 @@ export default function App() {
   const [audioUnlocked, setAudioUnlocked] = useState(false)
   const [allTimeScores, setAllTimeScores] = useState({})
   const [lyricsInput, setLyricsInput] = useState("")
+  const [floatingEmojis, setFloatingEmojis] = useState([])
   const roomCodeRef = useRef(localStorage.getItem("roomCode") || null)
   const playerNameRef = useRef(localStorage.getItem("playerName") || null)
   const timerRef = useRef(null)
   const audioRef = useRef(null)
+
+  function sendEmoji(emoji) {
+    socket.emit("send_emoji", { code: room.code, playerName: playerNameRef.current, emoji })
+  }
 
   useEffect(() => {
     socket.on("player_count", ({ count }) => { setPlayerCount(count) })
@@ -135,7 +140,13 @@ export default function App() {
       setTimeLeft(30); setAnsweredCount(0)
     })
 
-    socket.on("disconnect", () => { console.log("disconnected!") })
+    socket.on("emoji_reaction", ({ playerName, emoji, id }) => {
+      setFloatingEmojis(prev => [...prev, { id, emoji, playerName, x: Math.random() * 60 + 20 }])
+      setTimeout(() => {
+        setFloatingEmojis(prev => prev.filter(e => e.id !== id))
+      }, 2500)
+    })
+
     socket.on("error", ({ message }) => { showError(message) })
 
     return () => {
@@ -143,7 +154,7 @@ export default function App() {
       socket.off("guess_mode_updated"); socket.off("game_starting"); socket.off("new_question")
       socket.off("answer_count"); socket.off("reveal_answer"); socket.off("game_over")
       socket.off("rematch_starting"); socket.off("error"); socket.off("connect")
-      socket.off("disconnect"); socket.off("player_count")
+      socket.off("player_count"); socket.off("emoji_reaction")
     }
   }, [])
 
@@ -165,6 +176,38 @@ export default function App() {
     const interval = setInterval(() => { setSpinnerFrame(prev => (prev + 1) % 6) }, 100)
     return () => clearInterval(interval)
   }, [loadingGenre])
+
+  // EMOJI BUTTONS component
+  const EmojiButtons = () => (
+    <div style={{ display: "flex", justifyContent: "center", gap: "16px", marginTop: "16px" }}>
+      {["💩", "😎", "🤣", "🤬"].map(emoji => (
+        <button key={emoji} onClick={() => sendEmoji(emoji)} style={{ fontSize: "28px", background: "none", border: "none", cursor: "pointer", padding: "4px" }}>
+          {emoji}
+        </button>
+      ))}
+    </div>
+  )
+
+  // FLOATING EMOJIS component
+  const FloatingEmojis = () => (
+    <>
+      {floatingEmojis.map(e => (
+        <div key={e.id} style={{
+          position: "fixed",
+          left: `${e.x}%`,
+          bottom: "20%",
+          fontSize: "36px",
+          animation: "floatUp 2.5s ease-out forwards",
+          pointerEvents: "none",
+          zIndex: 999,
+          textAlign: "center"
+        }}>
+          {e.emoji}
+          <div style={{ fontSize: "10px", color: "#666", background: "white", borderRadius: "8px", padding: "1px 4px" }}>{e.playerName}</div>
+        </div>
+      ))}
+    </>
+  )
 
   // HOME SCREEN
   if (screen === "home") {
@@ -256,18 +299,19 @@ export default function App() {
   if (screen === "lobby") {
     return (
       <div style={{ padding: "52px 20px 24px", width: "400px", maxWidth: "100%", margin: "0 auto", boxSizing: "border-box" }}>
+        <FloatingEmojis />
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
           <h1 style={{ fontSize: "26px", margin: 0 }}>Lobby</h1>
           <div style={{ textAlign: "right" }}>
             <p style={{ fontSize: "12px", color: "#999", margin: 0 }}>Room code</p>
             <div style={{ fontSize: "20px", fontWeight: "600", letterSpacing: "0.15em" }}>{room.code}</div>
-          <button onClick={() => {
-            localStorage.removeItem("roomCode")
-            localStorage.removeItem("playerName")
-            roomCodeRef.current = null
-            playerNameRef.current = null
-            window.location.reload()
-          }} style={{ fontSize: "12px", color: "#999", background: "none", border: "none", cursor: "pointer", padding: 0, marginTop: "4px" }}>Leave</button>
+            <button onClick={() => {
+              localStorage.removeItem("roomCode")
+              localStorage.removeItem("playerName")
+              roomCodeRef.current = null
+              playerNameRef.current = null
+              window.location.reload()
+            }} style={{ fontSize: "12px", color: "#999", background: "none", border: "none", cursor: "pointer", padding: 0, marginTop: "4px" }}>Leave</button>
           </div>
         </div>
 
@@ -360,6 +404,8 @@ export default function App() {
           </button>
         )}
 
+        <EmojiButtons />
+
         {error && <p style={{ color: "red", fontSize: "13px", marginTop: "8px" }}>{error}</p>}
       </div>
     )
@@ -368,7 +414,8 @@ export default function App() {
   // GAME SCREEN
   if (screen === "game") {
     return (
-      <div style={{ padding: "52 px 24px 20px", width: "100%", maxWidth: "400px", margin: "0 auto", boxSizing: "border-box" }}>
+      <div style={{ padding: "52px 20px 24px", width: "100%", maxWidth: "400px", margin: "0 auto", boxSizing: "border-box" }}>
+        <FloatingEmojis />
         {!question && (
           <div style={{ textAlign: "center", paddingTop: "60px" }}>
             <div style={{ fontSize: "48px", marginBottom: "16px" }}>🎵</div>
@@ -454,7 +501,10 @@ export default function App() {
                 })
               )}
             </div>
-            <div style={{ minHeight: "52px", marginBottom: "16px" }}>
+
+            <EmojiButtons />
+
+            <div style={{ minHeight: "52px", marginBottom: "16px", marginTop: "16px" }}>
               {reveal && (
                 <div style={{ padding: "12px 14px", background: "#E1F5EE", border: "1px solid #1D9E75", borderRadius: "10px" }}>
                   <p style={{ fontSize: "13px", color: "#0F6E56", margin: 0 }}>
@@ -509,7 +559,11 @@ export default function App() {
             ? <button style={{ flex: 1, padding: "12px", fontSize: "15px", background: "#1D9E75", color: "white", border: "none", borderRadius: "10px", cursor: "pointer" }} onClick={() => socket.emit("rematch", { code: room.code })}>🔄 Rematch</button>
             : <div style={{ flex: 1, padding: "12px", fontSize: "15px", background: "#f5f5f5", color: "#999", border: "1px solid #eee", borderRadius: "10px", textAlign: "center" }}>⏳ Waiting for host...</div>
           }
-          <button style={{ flex: 1, padding: "12px", fontSize: "15px", background: "white", color: "#333", border: "1px solid #ccc", borderRadius: "10px", cursor: "pointer" }} onClick={() => window.location.reload()}>Leave</button>
+          <button style={{ flex: 1, padding: "12px", fontSize: "15px", background: "white", color: "#333", border: "1px solid #ccc", borderRadius: "10px", cursor: "pointer" }} onClick={() => {
+            localStorage.removeItem("roomCode")
+            localStorage.removeItem("playerName")
+            window.location.reload()
+          }}>Leave</button>
         </div>
         <div style={{ marginBottom: "24px" }}>
           <a href="https://ko-fi.com/chromakala" target="_blank" rel="noopener noreferrer"
