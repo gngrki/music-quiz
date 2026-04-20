@@ -323,35 +323,28 @@ io.on("connection", (socket) => {
   })
 
   socket.on("rejoin_room", ({ code, playerName }) => {
-  console.log(`rejoin attempt: ${playerName} to room ${code}`)
   const room = rooms[code]
   if (!room) {
-    console.log(`room ${code} not found`)
     socket.emit("error", { message: "Room no longer exists!" })
     return
   }
   const timerKey = `${code}:${playerName}`
   if (disconnectTimers[timerKey]) {
-    console.log(`cancelling disconnect timer for ${playerName}`)
     clearTimeout(disconnectTimers[timerKey])
     delete disconnectTimers[timerKey]
-  } else {
-    console.log(`no timer found for ${playerName} - key: ${timerKey}`)
   }
   const existingPlayer = room.players.find(p => p.name === playerName)
   if (existingPlayer) {
     const wasHost = room.host === existingPlayer.id
-    console.log(`found player ${playerName}, wasHost: ${wasHost}`)
     existingPlayer.id = socket.id
     if (wasHost) room.host = socket.id
   } else {
-    console.log(`player ${playerName} not found in room, adding new`)
     room.players.push({ id: socket.id, name: playerName, genre: null })
   }
   socket.join(code)
   io.to(code).emit("room_updated", { players: room.players })
   socket.emit("room_joined", { code, players: room.players })
-  console.log(`${playerName} rejoined room ${code}, host is now: ${room.host}`)
+  console.log(`${playerName} rejoined room ${code}`)
 })
 
   socket.on("disconnect", () => {

@@ -75,7 +75,6 @@ export default function App() {
     socket.on("player_count", ({ count }) => { setPlayerCount(count) })
 
     socket.on("connect", () => {
-      console.log("connect fired! room:", roomCodeRef.current, "name:", playerNameRef.current)
       if (roomCodeRef.current && playerNameRef.current) {
         socket.emit("rejoin_room", { code: roomCodeRef.current, playerName: playerNameRef.current })
       }
@@ -262,6 +261,7 @@ export default function App() {
           <div style={{ textAlign: "right" }}>
             <p style={{ fontSize: "12px", color: "#999", margin: 0 }}>Room code</p>
             <div style={{ fontSize: "20px", fontWeight: "600", letterSpacing: "0.15em" }}>{room.code}</div>
+            <button onClick={() => window.location.reload()} style={{ fontSize: "12px", color: "#999", background: "none", border: "none", cursor: "pointer", padding: 0, marginTop: "4px" }}>Leave</button>
           </div>
         </div>
 
@@ -362,7 +362,7 @@ export default function App() {
   // GAME SCREEN
   if (screen === "game") {
     return (
-      <div style={{ padding: "24px 20px", width: "100%", maxWidth: "400px", margin: "0 auto", boxSizing: "border-box" }}>
+      <div style={{ padding: "52 px 24px 20px", width: "100%", maxWidth: "400px", margin: "0 auto", boxSizing: "border-box" }}>
         {!question && (
           <div style={{ textAlign: "center", paddingTop: "60px" }}>
             <div style={{ fontSize: "48px", marginBottom: "16px" }}>🎵</div>
@@ -373,7 +373,10 @@ export default function App() {
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
               <span style={{ fontSize: "13px", color: "#999" }}>Question {question.questionNumber} of {question.total}</span>
-              <span style={{ fontSize: "20px", fontWeight: "600", color: timeLeft <= 5 ? "#E24B4A" : timeLeft <= 10 ? "#EF9F27" : "#1D9E75" }}>{timeLeft}s</span>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <button onClick={() => window.location.reload()} style={{ fontSize: "12px", color: "#999", background: "none", border: "none", cursor: "pointer", padding: 0 }}>Leave</button>
+                <span style={{ fontSize: "20px", fontWeight: "600", color: timeLeft <= 5 ? "#E24B4A" : timeLeft <= 10 ? "#EF9F27" : "#1D9E75" }}>{timeLeft}s</span>
+              </div>
             </div>
             <div style={{ height: "6px", background: "#eee", borderRadius: "4px", marginBottom: "12px", overflow: "hidden" }}>
               <div style={{ height: "100%", width: `${(timeLeft / 30) * 100}%`, background: timeLeft <= 5 ? "#E24B4A" : timeLeft <= 10 ? "#EF9F27" : "#1D9E75", borderRadius: "4px", transition: "width 1s linear" }} />
