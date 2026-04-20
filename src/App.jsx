@@ -189,9 +189,10 @@ export default function App() {
           <button
             style={{ width: "200px", padding: "12px", fontSize: "15px", background: "#1D9E75", color: "white", border: "none", borderRadius: "10px", cursor: "pointer" }}
             onClick={() => {
-              if (!playerName.trim()) return showError("Enter your name first!")
-              socket.emit("create_room", { playerName })
-            }}
+            if (!playerName.trim()) return showError("Enter your name first!")
+            playerNameRef.current = playerName
+            socket.emit("create_room", { playerName })
+          }}
           >
             Create Room
           </button>
@@ -239,9 +240,10 @@ export default function App() {
         <button
           style={{ display: "block", width: "100%", padding: "12px", fontSize: "15px", background: "#1D9E75", color: "white", border: "none", borderRadius: "10px", cursor: "pointer", marginBottom: "8px" }}
           onClick={() => {
-            if (!roomCode.trim()) return showError("Enter a room code!")
-            socket.emit("join_room", { code: roomCode, playerName })
-          }}
+          if (!roomCode.trim()) return showError("Enter a room code!")
+          playerNameRef.current = playerName
+          socket.emit("join_room", { code: roomCode, playerName })
+        }}
         >
           Join
         </button>
