@@ -103,11 +103,11 @@ export default function App() {
     })
     socket.on("guess_mode_updated", ({ guessMode }) => { setGuessMode(guessMode) })
     socket.on("room_updated", ({ players }) => { setRoom(prev => ({ ...prev, players })) })
-    socket.on("game_starting", ({ guessMode }) => { setGuessMode(guessMode); setScreen("game") })
+    socket.on("game_starting", ({ guessMode }) => { setGuessMode(guessMode); setScreen("game"); window.scrollTo(0, 0) })
 
     socket.on("new_question", (data) => {
       setQuestion(data); setSelectedAnswer(null); setReveal(null)
-      setResults(null); setTimeLeft(30); setAnsweredCount(0); setLyricsInput("")
+      setResults(null); setTimeLeft(30); setAnsweredCount(0); setLyricsInput(""); window.scrollTo(0, 0)
       if (data.previewUrl && audioRef.current) {
         audioRef.current.pause()
         audioRef.current.src = data.previewUrl
