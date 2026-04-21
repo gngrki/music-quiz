@@ -281,7 +281,7 @@ io.on("connection", (socket) => {
     room.scores = {}
     room.players.forEach(p => room.scores[p.id] = 0)
     room.currentQuestion = 0
-    room.totalQuestions = Math.min(questionCount && questionCount > 0 ? questionCount : 20, unique.length)
+    room.totalQuestions = Math.min(questionCount && questionCount > 0 ? questionCount : 10, unique.length)
     room.guessMode = guessMode || "both"
 
     io.to(code).emit("game_starting", { guessMode: room.guessMode })
