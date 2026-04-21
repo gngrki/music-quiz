@@ -422,8 +422,10 @@ export default function App() {
         {question && (
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px", position: "relative" }}>
-              <span style={{ fontSize: "13px", color: "#999" }}>Question {question.questionNumber} of {question.total}</span>
-              <span style={{ fontSize: "12px", color: "#999", position: "absolute", left: "50%", transform: "translateX(-50%)" }}>🎵 Now playing 🎵</span>
+              <span style={{ fontSize: "11px", color: "#999" }}>Question {question.questionNumber} of {question.total}</span>
+              <span style={{ fontSize: "13px", color: "#999", position: "absolute", left: "50%", transform: "translateX(-50%)" }}>
+                {question.previewUrl ? "🎵 Now playing" : "No preview"}
+              </span>
               <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                 <button onClick={() => {
                   if (audioRef.current) { audioRef.current.pause(); audioRef.current.src = "" }
@@ -437,8 +439,8 @@ export default function App() {
             <div style={{ height: "6px", background: "#eee", borderRadius: "4px", marginBottom: "12px", overflow: "hidden" }}>
               <div style={{ height: "100%", width: `${(timeLeft / 30) * 100}%`, background: timeLeft <= 5 ? "#E24B4A" : timeLeft <= 10 ? "#EF9F27" : "#1D9E75", borderRadius: "4px", transition: "width 1s linear" }} />
             </div>
-            <p style={{ fontSize: "13px", color: "#999", marginBottom: "14px" }}>
-              🎵 {question.previewUrl ? "Now playing" : "No preview"} · {answeredCount}/{room.players.length} answered
+            <p style={{ fontSize: "11px", color: "#999", marginBottom: "12px" }}>
+              {answeredCount}/{room.players.length} answered
             </p>
             <div style={{ marginBottom: "16px" }}>
               {question.mode === "lyrics" ? (
