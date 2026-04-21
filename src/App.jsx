@@ -527,7 +527,6 @@ export default function App() {
               )}
             </div>
             <div style={{ borderTop: "1px solid #eee", paddingTop: "14px" }}>
-              <p style={{ fontSize: "13px", color: "#999", marginBottom: "8px" }}>Scoreboard</p>
               {(scores ? scores.players.map(p => ({ ...p, score: scores.scores[p.id] || 0 })) : room.players.map(p => ({ ...p, score: 0 })))
                 .sort((a, b) => b.score - a.score)
                 .map((p, i) => (
