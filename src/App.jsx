@@ -482,7 +482,14 @@ export default function App() {
                   >
                     {selectedAnswer ? "Answered!" : "Submit"}
                   </button>
-                </div>
+                  {question.mode === "lyrics" && reveal && (
+                    <div style={{ padding: "12px 14px", background: "#E1F5EE", border: "1px solid #1D9E75", borderRadius: "10px", marginTop: "8px" }}>
+                      <p style={{ fontSize: "13px", color: "#0F6E56", margin: 0 }}>
+                        ✅ Correct: <strong>{question.answer}</strong>
+                      </p>
+                    </div>
+                  )}
+                  </div>
               ) : (
                 question.options.map((opt, i) => {
                   const isSelected = selectedAnswer === opt.name
@@ -517,11 +524,10 @@ export default function App() {
             <EmojiButtons />
 
             <div style={{ minHeight: "52px", marginBottom: "8px", marginTop: "8px" }}>
-              {reveal && (
+              {reveal && question.mode !== "lyrics" && (
                 <div style={{ padding: "12px 14px", background: "#E1F5EE", border: "1px solid #1D9E75", borderRadius: "10px" }}>
                   <p style={{ fontSize: "13px", color: "#0F6E56", margin: 0 }}>
-                    ✅ Correct: <strong>{question.mode === "lyrics" ? question.answer : reveal.name}</strong>
-                    {question.mode !== "lyrics" && ` by ${reveal.artist}`}
+                    ✅ Correct: <strong>{reveal.name}</strong> by {reveal.artist}
                   </p>
                 </div>
               )}
