@@ -451,24 +451,25 @@ export default function App() {
             </p>
             <div style={{ marginBottom: "16px" }}>
               {question.mode === "lyrics" ? (
-                <div>
-                  <div style={{ padding: "16px", background: "#f9f9f9", border: "1px solid #eee", borderRadius: "10px", marginBottom: "12px", fontSize: "15px", lineHeight: "1.8", whiteSpace: "pre-line" }}>
-                    {question.lyricLine}
-                  </div>
-                  <input
-                    value={lyricsInput}
-                    onChange={e => setLyricsInput(e.target.value)}
-                    placeholder="Fill in the missing word..."
-                    disabled={!!selectedAnswer}
-                    onKeyDown={e => {
-                      if (e.key === "Enter" && lyricsInput.trim()) {
-                        const ans = lyricsInput.trim().toLowerCase()
-                        setSelectedAnswer(ans)
-                        socket.emit("submit_answer", { code: room.code, answer: ans })
-                      }
-                    }}
-                    style={{ display: "block", width: "100%", padding: "12px", fontSize: "15px", border: "1px solid #ccc", borderRadius: "10px", boxSizing: "border-box", marginBottom: "8px" }}
-                  />
+              <div>
+                <div style={{ padding: "16px", background: "#f9f9f9", border: "1px solid #eee", borderRadius: "10px", marginBottom: "12px", fontSize: "15px", lineHeight: "1.8", whiteSpace: "pre-line" }}>
+                  {question.lyricLine}
+                </div>
+                <input
+                  value={lyricsInput}
+                  onChange={e => setLyricsInput(e.target.value)}
+                  placeholder="Fill in the missing word..."
+                  disabled={!!selectedAnswer}
+                  onKeyDown={e => {
+                    if (e.key === "Enter" && lyricsInput.trim()) {
+                      const ans = lyricsInput.trim().toLowerCase()
+                      setSelectedAnswer(ans)
+                      socket.emit("submit_answer", { code: room.code, answer: ans })
+                    }
+                  }}
+                  style={{ display: "block", width: "100%", padding: "12px", fontSize: "15px", border: "1px solid #ccc", borderRadius: "10px", boxSizing: "border-box", marginBottom: "8px" }}
+                />
+                <div style={{ position: "relative" }}>
                   <button
                     disabled={!!selectedAnswer}
                     onClick={() => {
@@ -482,15 +483,14 @@ export default function App() {
                   >
                     {selectedAnswer ? "Answered!" : "Submit"}
                   </button>
-                  {question.mode === "lyrics" && reveal && (
-                    <div style={{ padding: "12px 14px", background: "#E1F5EE", border: "1px solid #1D9E75", borderRadius: "10px", marginTop: "8px" }}>
-                      <p style={{ fontSize: "13px", color: "#0F6E56", margin: 0 }}>
-                        ✅ Correct: <strong>{question.answer}</strong>
-                      </p>
+                  {reveal && (
+                    <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "#E1F5EE", border: "1px solid #1D9E75", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <p style={{ fontSize: "13px", color: "#0F6E56", margin: 0 }}>✅ Correct: <strong>{question.answer}</strong></p>
                     </div>
                   )}
-                  </div>
-              ) : (
+                </div>
+              </div>
+            ) : (
                 question.options.map((opt, i) => {
                   const isSelected = selectedAnswer === opt.name
                   const isCorrect = reveal && opt.name === reveal.name
@@ -523,15 +523,13 @@ export default function App() {
 
             <EmojiButtons />
 
-            <div style={{ minHeight: "52px", marginBottom: "8px", marginTop: "8px" }}>
-              {reveal && question.mode !== "lyrics" && (
-                <div style={{ padding: "12px 14px", background: "#E1F5EE", border: "1px solid #1D9E75", borderRadius: "10px" }}>
-                  <p style={{ fontSize: "13px", color: "#0F6E56", margin: 0 }}>
-                    ✅ Correct: <strong>{reveal.name}</strong> by {reveal.artist}
-                  </p>
-                </div>
-              )}
-            </div>
+            {reveal && question.mode !== "lyrics" && (
+              <div style={{ padding: "12px 14px", background: "#E1F5EE", border: "1px solid #1D9E75", borderRadius: "10px", marginBottom: "8px", marginTop: "8px" }}>
+                <p style={{ fontSize: "13px", color: "#0F6E56", margin: 0 }}>
+                  ✅ Correct: <strong>{reveal.name}</strong> by {reveal.artist}
+                </p>
+              </div>
+            )}
             <div style={{ borderTop: "1px solid #eee", paddingTop: "14px" }}>
               {(scores ? scores.players.map(p => ({ ...p, score: scores.scores[p.id] || 0 })) : room.players.map(p => ({ ...p, score: 0 })))
                 .sort((a, b) => b.score - a.score)
