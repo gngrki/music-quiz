@@ -452,7 +452,7 @@ export default function App() {
             <div style={{ marginBottom: "16px" }}>
               {question.mode === "lyrics" ? (
                 <div>
-                  <div style={{ padding: "16px", background: "#f9f9f9", border: "1px solid #eee", borderRadius: "10px", marginBottom: "12px", fontSize: "16px", lineHeight: "1.8" }}>
+                  <div style={{ padding: "16px", background: "#f9f9f9", border: "1px solid #eee", borderRadius: "10px", marginBottom: "12px", fontSize: "15px", lineHeight: "1.8", whiteSpace: "pre-line" }}>
                     {question.lyricLine}
                   </div>
                   <input

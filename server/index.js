@@ -42,12 +42,16 @@ async function fetchLyrics(name, artist) {
       .map(l => l.trim())
       .filter(l => l.length > 20 && !l.includes("(") && !l.includes(")"))
     if (lines.length < 3) return null
-    const line = lines[Math.floor(Math.random() * lines.length)]
+    const idx = Math.floor(Math.random() * lines.length)
+    const line = lines[idx]
     const words = line.split(" ").filter(w => w.length > 3)
     if (words.length === 0) return null
     const word = words[Math.floor(Math.random() * words.length)]
     const blanked = line.replace(word, "_____")
-    return { line: blanked, answer: word.toLowerCase().replace(/[^a-z]/g, "") }
+    const before = idx > 0 ? lines[idx - 1] : ""
+    const after = idx < lines.length - 1 ? lines[idx + 1] : ""
+    const display = [before, blanked, after].filter(l => l).join("\n")
+    return { line: display, answer: word.toLowerCase().replace(/[^a-z]/g, "") }
   } catch(e) {
     return null
   }
