@@ -66,7 +66,6 @@ export default function App() {
   const [audioUnlocked, setAudioUnlocked] = useState(false)
   const [allTimeScores, setAllTimeScores] = useState({})
   const [lyricsInput, setLyricsInput] = useState("")
-  const [floatingEmojis, setFloatingEmojis] = useState([])
   const roomCodeRef = useRef(localStorage.getItem("roomCode") || null)
   const playerNameRef = useRef(localStorage.getItem("playerName") || null)
   const timerRef = useRef(null)
@@ -140,12 +139,26 @@ export default function App() {
       setTimeLeft(30); setAnsweredCount(0)
     })
 
-    socket.on("emoji_reaction", ({ playerName, emoji, id }) => {
-      setFloatingEmojis(prev => [...prev, { id, emoji, playerName, x: Math.random() * 60 + 20 }])
-      setTimeout(() => {
-        setFloatingEmojis(prev => prev.filter(e => e.id !== id))
-      }, 2500)
-    })
+    socket.on("emoji_reaction", ({ playerName, emoji }) => {
+  const el = document.createElement("div")
+  el.style.cssText = `
+    position: fixed;
+    left: ${Math.random() * 60 + 20}%;
+    bottom: 20%;
+    font-size: 36px;
+    animation-name: floatUp;
+    animation-duration: 2.5s;
+    animation-timing-function: ease-out;
+    animation-fill-mode: forwards;
+    animation-iteration-count: 1;
+    pointer-events: none;
+    z-index: 999;
+    text-align: center;
+  `
+  el.innerHTML = `${emoji}<div style="font-size:10px;color:#666;background:white;border-radius:8px;padding:1px 4px">${playerName}</div>`
+  document.body.appendChild(el)
+  setTimeout(() => el.remove(), 2500)
+})
 
     socket.on("error", ({ message }) => { showError(message) })
 
@@ -302,7 +315,6 @@ export default function App() {
   if (screen === "lobby") {
     return (
       <div style={{ padding: "52px 20px 24px", width: "400px", maxWidth: "100%", margin: "0 auto", boxSizing: "border-box" }}>
-        <FloatingEmojis />
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
           <h1 style={{ fontSize: "26px", margin: 0 }}>Lobby</h1>
           <div style={{ textAlign: "right" }}>
@@ -418,7 +430,6 @@ export default function App() {
   if (screen === "game") {
     return (
       <div style={{ padding: "52px 20px 24px", width: "100%", maxWidth: "400px", margin: "0 auto", boxSizing: "border-box" }}>
-        <FloatingEmojis />
         {!question && (
           <div style={{ textAlign: "center", paddingTop: "60px" }}>
             <div style={{ fontSize: "48px", marginBottom: "16px" }}>🎵</div>
