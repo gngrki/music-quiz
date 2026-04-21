@@ -446,7 +446,7 @@ export default function App() {
               <div style={{ height: "100%", width: `${(timeLeft / 30) * 100}%`, background: timeLeft <= 5 ? "#E24B4A" : timeLeft <= 10 ? "#EF9F27" : "#1D9E75", borderRadius: "4px", transition: "width 1s linear" }} />
             </div>
             <p style={{ fontSize: "11px", color: "#999", marginBottom: "12px" }}>
-                {lastAnswered && <span style={{ marginRight: "6px", transition: "opacity 0.5s" }}>{lastAnswered} ✓ ·</span>}
+                {lastAnswered && <span style={{ marginRight: "6px", transition: "opacity 0.5s" }}>{lastAnswered}  ···</span>}
               {answeredCount}/{room.players.length} answered
             </p>
             <div style={{ marginBottom: "16px" }}>
