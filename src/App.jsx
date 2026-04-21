@@ -201,7 +201,7 @@ export default function App() {
 
   // EMOJI BUTTONS component
   const EmojiButtons = () => (
-    <div style={{ display: "flex", justifyContent: "center", gap: "16px", marginTop: "8px", marginBottom: "0px" }}>
+    <div style={{ display: "flex", justifyContent: "center", gap: "16px", marginTop: "0px", marginBottom: "0px" }}>
       {["💩", "😎", "🤣", "🤬"].map(emoji => (
         <button key={emoji} onClick={() => sendEmoji(emoji)} style={{ fontSize: "28px", background: "none", border: "none", cursor: "pointer", padding: "4px" }}>
           {emoji}
@@ -523,13 +523,6 @@ export default function App() {
 
             <EmojiButtons />
 
-            {reveal && question.mode !== "lyrics" && (
-              <div style={{ padding: "12px 14px", background: "#E1F5EE", border: "1px solid #1D9E75", borderRadius: "10px", marginBottom: "8px", marginTop: "8px" }}>
-                <p style={{ fontSize: "13px", color: "#0F6E56", margin: 0 }}>
-                  ✅ Correct: <strong>{reveal.name}</strong> by {reveal.artist}
-                </p>
-              </div>
-            )}
             <div style={{ borderTop: "1px solid #eee", paddingTop: "14px" }}>
               {(scores ? scores.players.map(p => ({ ...p, score: scores.scores[p.id] || 0 })) : room.players.map(p => ({ ...p, score: 0 })))
                 .sort((a, b) => b.score - a.score)
