@@ -321,7 +321,9 @@ io.on("connection", (socket) => {
     room.scores = {}
     room.answers = {}
     room.usedTrackNames = new Set()
+    room.audioReady = new Set()
     io.to(code).emit("rematch_starting")
+    
   })
 
   socket.on("set_guess_mode", ({ code, guessMode }) => {
@@ -361,6 +363,13 @@ io.on("connection", (socket) => {
     if (!room) return
     const id = Date.now() + Math.random()
     io.to(code).emit("emoji_reaction", { playerName, emoji, id })
+  })
+  socket.on("audio_ready", ({ code }) => {
+    const room = rooms[code]
+    if (!room) return
+    if (!room.audioReady) room.audioReady = new Set()
+    room.audioReady.add(socket.id)
+    io.to(code).emit("audio_ready_update", { count: room.audioReady.size, total: room.players.length })
   })
   socket.on("disconnect", () => {
   for (const code in rooms) {

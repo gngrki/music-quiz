@@ -66,6 +66,7 @@ export default function App() {
   const [audioUnlocked, setAudioUnlocked] = useState(false)
   const [allTimeScores, setAllTimeScores] = useState({})
   const [lyricsInput, setLyricsInput] = useState("")
+  const [audioReadyCount, setAudioReadyCount] = useState(0)
   const roomCodeRef = useRef(localStorage.getItem("roomCode") || null)
   const playerNameRef = useRef(localStorage.getItem("playerName") || null)
   const timerRef = useRef(null)
@@ -97,7 +98,9 @@ export default function App() {
       localStorage.setItem("roomCode", code)
       setScreen("lobby")
     })
-
+    socket.on("audio_ready_update", ({ count, total }) => {
+      setAudioReadyCount(count)
+    })
     socket.on("guess_mode_updated", ({ guessMode }) => { setGuessMode(guessMode) })
     socket.on("room_updated", ({ players }) => { setRoom(prev => ({ ...prev, players })) })
     socket.on("game_starting", ({ guessMode }) => { setGuessMode(guessMode); setScreen("game") })
@@ -167,7 +170,7 @@ export default function App() {
       socket.off("guess_mode_updated"); socket.off("game_starting"); socket.off("new_question")
       socket.off("answer_count"); socket.off("reveal_answer"); socket.off("game_over")
       socket.off("rematch_starting"); socket.off("error"); socket.off("connect")
-      socket.off("player_count"); socket.off("emoji_reaction")
+      socket.off("player_count"); socket.off("emoji_reaction"); socket.off("audio_ready_update")
     }
   }, [])
 
@@ -201,30 +204,6 @@ export default function App() {
     </div>
   )
 
-  // FLOATING EMOJIS component
-  const FloatingEmojis = () => (
-  <>
-    {floatingEmojis.map(e => (
-      <div key={e.id} style={{
-        position: "fixed",
-        left: `${e.x}%`,
-        bottom: "20%",
-        fontSize: "36px",
-        animationName: "floatUp",
-        animationDuration: "2.5s",
-        animationTimingFunction: "ease-out",
-        animationFillMode: "forwards",
-        animationIterationCount: 1,
-        pointerEvents: "none",
-        zIndex: 999,
-        textAlign: "center"
-      }}>
-        {e.emoji}
-        <div style={{ fontSize: "10px", color: "#666", background: "white", borderRadius: "8px", padding: "1px 4px" }}>{e.playerName}</div>
-      </div>
-    ))}
-  </>
-)
   // HOME SCREEN
   if (screen === "home") {
     return (
@@ -313,6 +292,7 @@ export default function App() {
 
   // LOBBY SCREEN
   if (screen === "lobby") {
+    const allAudioReady = audioReadyCount >= room.players.length
     return (
       <div style={{ padding: "52px 20px 24px", width: "400px", maxWidth: "100%", margin: "0 auto", boxSizing: "border-box" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
@@ -340,6 +320,7 @@ export default function App() {
               audioRef.current = audio
               audio.play().catch(() => {})
               setAudioUnlocked(true)
+              socket.emit("audio_ready", { code: room.code })
             }}
           >
             🎵 Tap to enable music 🎵
@@ -409,14 +390,14 @@ export default function App() {
 
         {room.players[0].id === socket.id && (
           <button
-            disabled={!room.players.every(p => p.genre)}
-            style={{ display: "block", width: "100%", padding: "12px", fontSize: "15px", background: room.players.every(p => p.genre) ? "#1D9E75" : "#ccc", color: "white", border: "none", borderRadius: "10px", cursor: room.players.every(p => p.genre) ? "pointer" : "not-allowed", opacity: room.players.every(p => p.genre) ? 1 : 0.5 }}
+            disabled={!room.players.every(p => p.genre) || !allAudioReady}
+            style={{ display: "block", width: "100%", padding: "12px", fontSize: "15px", background: room.players.every(p => p.genre) && allAudioReady ? "#1D9E75" : "#ccc", color: "white", border: "none", borderRadius: "10px", cursor: room.players.every(p => p.genre) && allAudioReady ? "pointer" : "not-allowed", opacity: room.players.every(p => p.genre) && allAudioReady ? 1 : 0.5 }}
             onClick={() => {
               setError("")
               socket.emit("start_game", { code: room.code, guessMode })
             }}
           >
-            {room.players.every(p => p.genre) ? "Start Game" : "Waiting for all players..."}
+            {!room.players.every(p => p.genre) ? "Waiting for all players..." : !allAudioReady ? `Waiting for music (${audioReadyCount}/${room.players.length})` : "Start Game"}
           </button>
         )}
 
