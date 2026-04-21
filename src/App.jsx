@@ -144,7 +144,7 @@ export default function App() {
   el.style.cssText = `
     position: fixed;
     left: ${Math.random() * 60 + 20}%;
-    bottom: 20%;
+    top: 20%;
     font-size: 36px;
     animation-name: floatUp;
     animation-duration: 2.5s;

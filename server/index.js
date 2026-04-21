@@ -58,6 +58,11 @@ async function startQuestion(io, room) {
     io.to(room.code).emit("game_over", { scores: room.scores, players: room.players })
     return
   }
+  if (room.players.length === 0) {
+    delete rooms[room.code]
+    console.log(`room ${room.code} deleted - no players left`)
+    return
+  }
 
   const tracks = room.tracks
   const available = tracks.filter(t => !room.usedTrackNames.has(t.name))
@@ -146,6 +151,11 @@ async function startQuestion(io, room) {
 }
 function revealAnswer(io, room) {
   clearTimeout(room.questionTimer)
+  if (room.players.length === 0) {
+    delete rooms[room.code]
+    console.log(`room ${room.code} deleted - no players left`)
+    return
+  }
   const results = {}
   room.players.forEach(p => {
   const answer = room.answers[p.id]
