@@ -412,7 +412,7 @@ export default function App() {
   // GAME SCREEN
   if (screen === "game") {
     return (
-      <div style={{ padding: "52px 20px 24px", width: "100%", maxWidth: "400px", margin: "0 auto", boxSizing: "border-box" }}>
+      <div style={{ padding: "20px 24px", width: "100%", maxWidth: "400px", margin: "0 auto", boxSizing: "border-box" }}>
         {!question && (
           <div style={{ textAlign: "center", paddingTop: "60px" }}>
             <div style={{ fontSize: "48px", marginBottom: "16px" }}>🎵</div>
@@ -421,8 +421,9 @@ export default function App() {
         )}
         {question && (
           <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px", position: "relative" }}>
               <span style={{ fontSize: "13px", color: "#999" }}>Question {question.questionNumber} of {question.total}</span>
+              <span style={{ fontSize: "12px", color: "#999", position: "absolute", left: "50%", transform: "translateX(-50%)" }}>🎵 Now playing 🎵</span>
               <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                 <button onClick={() => {
                   if (audioRef.current) { audioRef.current.pause(); audioRef.current.src = "" }
