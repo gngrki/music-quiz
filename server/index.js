@@ -301,7 +301,8 @@ io.on("connection", (socket) => {
     }
 
     const answeredCount = Object.keys(room.answers).length
-    io.to(code).emit("answer_count", { count: answeredCount })
+    const answeredPlayer = room.players.find(p => p.id === socket.id)
+    io.to(code).emit("answer_count", { count: answeredCount, playerName: answeredPlayer ? answeredPlayer.name : "" })
 
     if (answeredCount >= room.players.length) {
       clearTimeout(room.questionTimer)

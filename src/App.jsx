@@ -49,6 +49,7 @@ export default function App() {
   const [genre, setGenre] = useState("")
   const [confirmedGenre, setConfirmedGenre] = useState(false)
   const [loadingGenre, setLoadingGenre] = useState(false)
+  const [lastAnswered, setLastAnswered] = useState("")
   const [spinnerFrame, setSpinnerFrame] = useState(0)
   const spinnerFrames = ["⠋", "⠙", "⠸", "⠴", "⠦", "⠇"]
   const [error, setError] = useState("")
@@ -117,8 +118,13 @@ export default function App() {
       }
     })
 
-    socket.on("answer_count", ({ count }) => { setAnsweredCount(count) })
-
+    socket.on("answer_count", ({ count, playerName }) => { 
+      setAnsweredCount(count)
+      if (playerName) {
+        setLastAnswered(playerName)
+        setTimeout(() => setLastAnswered(""), 2000)
+      }
+    })
     socket.on("reveal_answer", ({ correct, scores, players, results }) => {
       setReveal(correct); setScores({ scores, players }); setResults(results)
       if (timerRef.current) clearInterval(timerRef.current)
@@ -138,7 +144,7 @@ export default function App() {
     socket.on("rematch_starting", () => {
       setScreen("lobby"); setQuestion(null); setSelectedAnswer(null)
       setReveal(null); setResults(null); setScores(null)
-      setConfirmedGenre(false); setGenre("")
+      setConfirmedGenre(false); setGenre(""); setAudioUnlocked(false)
       setTimeLeft(30); setAnsweredCount(0)
     })
 
@@ -440,6 +446,7 @@ export default function App() {
               <div style={{ height: "100%", width: `${(timeLeft / 30) * 100}%`, background: timeLeft <= 5 ? "#E24B4A" : timeLeft <= 10 ? "#EF9F27" : "#1D9E75", borderRadius: "4px", transition: "width 1s linear" }} />
             </div>
             <p style={{ fontSize: "11px", color: "#999", marginBottom: "12px" }}>
+                {lastAnswered && <span style={{ marginRight: "6px", transition: "opacity 0.5s" }}>{lastAnswered} ✓ ·</span>}
               {answeredCount}/{room.players.length} answered
             </p>
             <div style={{ marginBottom: "16px" }}>
