@@ -415,7 +415,7 @@ export default function App() {
       <div style={{ padding: "20px 24px", width: "100%", maxWidth: "400px", margin: "0 auto", boxSizing: "border-box" }}>
         {!question && (
           <div style={{ textAlign: "center"}}>
-            <div style={{ fontSize: "48px", marginBottom: "16px" }}>🎵</div>
+            <div style={{ fontSize: "48px", marginBottom: "16px", marginTop: "60px" }}>🎵</div>
             <h1 style={{ fontSize: "24px" }}>Get ready...</h1>
           </div>
         )}
