@@ -200,7 +200,7 @@ io.on("connection", (socket) => {
   console.log("player connected:", socket.id)
 
   socket.on("create_room", ({ playerName }) => {
-    if (!playerName || playerName.length > 20) return
+    if (!playerName || playerName.length > 7) return
     let code = generateRoomCode()
     while (rooms[code]) code = generateRoomCode()
     rooms[code] = {
@@ -214,6 +214,7 @@ io.on("connection", (socket) => {
   })
 
   socket.on("join_room", ({ code, playerName }) => {
+    if (!playerName || playerName.length > 7) return
     const room = rooms[code]
     if (!room) {
       socket.emit("error", { message: "Room not found!" })
@@ -384,6 +385,7 @@ io.on("connection", (socket) => {
         if (idx !== -1) {
           r.players.splice(idx, 1)
           if (r.players.length === 0) {
+            clearTimeout(r.questionTimer)
             delete rooms[code]
             console.log(`room ${code} deleted`)
           } else {

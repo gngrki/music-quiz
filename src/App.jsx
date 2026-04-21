@@ -147,10 +147,10 @@ export default function App() {
   el.style.cssText = `
     position: fixed;
     left: ${Math.random() * 60 + 20}%;
-    top: 20%;
+    bottom: 20%;
     font-size: 36px;
     animation-name: floatUp;
-    animation-duration: 2.5s;
+    animation-duration: 2s;
     animation-timing-function: ease-out;
     animation-fill-mode: forwards;
     animation-iteration-count: 1;
@@ -216,6 +216,7 @@ export default function App() {
           value={playerName}
           onChange={e => setPlayerName(e.target.value)}
           placeholder="Enter your name"
+           maxLength={7}
           style={{ display: "block", width: "100%", padding: "10px 12px", fontSize: "15px", border: "1px solid #ccc", borderRadius: "8px", marginBottom: "16px", boxSizing: "border-box" }}
         />
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
@@ -423,7 +424,12 @@ export default function App() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
               <span style={{ fontSize: "13px", color: "#999" }}>Question {question.questionNumber} of {question.total}</span>
               <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <button onClick={() => window.location.reload()} style={{ fontSize: "12px", color: "#999", background: "none", border: "none", cursor: "pointer", padding: 0 }}>Leave</button>
+                <button onClick={() => {
+                  if (audioRef.current) { audioRef.current.pause(); audioRef.current.src = "" }
+                  localStorage.removeItem("roomCode")
+                  localStorage.removeItem("playerName")
+                  window.location.reload()
+                }} style={{ fontSize: "12px", color: "#999", background: "none", border: "none", cursor: "pointer", padding: 0 }}>Leave</button>
                 <span style={{ fontSize: "20px", fontWeight: "600", color: timeLeft <= 5 ? "#E24B4A" : timeLeft <= 10 ? "#EF9F27" : "#1D9E75" }}>{timeLeft}s</span>
               </div>
             </div>
