@@ -150,7 +150,7 @@ export default function App() {
     bottom: 20%;
     font-size: 36px;
     animation-name: floatUp;
-    animation-duration: 2s;
+    animation-duration: 1.5s;
     animation-timing-function: ease-out;
     animation-fill-mode: forwards;
     animation-iteration-count: 1;
@@ -398,7 +398,7 @@ export default function App() {
               socket.emit("start_game", { code: room.code, guessMode })
             }}
           >
-            {!room.players.every(p => p.genre) ? "Waiting for all players..." : !allAudioReady ? `Waiting for music (${audioReadyCount}/${room.players.length})` : "Start Game"}
+            {!room.players.every(p => p.genre) ? "Waiting for all players..." : !allAudioReady ? `Players ready... (${audioReadyCount}/${room.players.length})` : "Start Game"}
           </button>
         )}
 
@@ -492,7 +492,7 @@ export default function App() {
                         display: "block", width: "100%", minHeight: "48px", padding: "12px 14px", marginBottom: "8px",
                         fontSize: "15px", textAlign: "left", borderRadius: "10px", cursor: selectedAnswer ? "default" : "pointer",
                         border: `1px solid ${isCorrect ? "#1D9E75" : isWrong ? "#E24B4A" : isSelected ? "#5cd8f1ff" : "#ccc"}`,
-                        background: isCorrect ? "#E1F5EE" : isWrong ? "#FCEBEB" : isSelected ? "#f5f5f5" : "white",
+                        background: isCorrect ? "#E1F5EE" : isWrong ? "#FCEBEB" : isSelected ? "#97dbe8ff" : "white",
                         color: isCorrect ? "#0F6E56" : isWrong ? "#A32D2D" : "#333",
                         boxSizing: "border-box", wordBreak: "break-word"
                       }}
