@@ -503,7 +503,7 @@ export default function App() {
                       style={{
                         display: "block", width: "100%", minHeight: "48px", padding: "12px 14px", marginBottom: "8px",
                         fontSize: "15px", textAlign: "left", borderRadius: "10px", cursor: selectedAnswer ? "default" : "pointer",
-                        border: `1px solid ${isCorrect ? "#1D9E75" : isWrong ? "#E24B4A" : "#ccc"}`,
+                        border: `1px solid ${isCorrect ? "#1D9E75" : isWrong ? "#E24B4A" : isSelected ? "#575757" : "#ccc"}`,
                         background: isCorrect ? "#E1F5EE" : isWrong ? "#FCEBEB" : isSelected ? "#f5f5f5" : "white",
                         color: isCorrect ? "#0F6E56" : isWrong ? "#A32D2D" : "#333",
                         boxSizing: "border-box", wordBreak: "break-word"
