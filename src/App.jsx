@@ -138,7 +138,7 @@ export default function App() {
     socket.on("rematch_starting", () => {
       setScreen("lobby"); setQuestion(null); setSelectedAnswer(null)
       setReveal(null); setResults(null); setScores(null)
-      setConfirmedGenre(false); setGenre(""); setAudioUnlocked(false)
+      setConfirmedGenre(false); setGenre("")
       setTimeLeft(30); setAnsweredCount(0)
     })
 
