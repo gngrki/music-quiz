@@ -295,7 +295,7 @@ export default function App() {
   if (screen === "lobby") {
     const allAudioReady = audioReadyCount >= room.players.length
     return (
-      <div style={{ padding: "52px 20px 24px", width: "400px", maxWidth: "100%", margin: "0 auto", boxSizing: "border-box" }}>
+      <div style={{ padding: "20px 24px", width: "400px", maxWidth: "100%", margin: "0 auto", boxSizing: "border-box" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
           <h1 style={{ fontSize: "26px", margin: 0 }}>Lobby</h1>
           <div style={{ textAlign: "right" }}>
@@ -414,7 +414,7 @@ export default function App() {
     return (
       <div style={{ padding: "20px 24px", width: "100%", maxWidth: "400px", margin: "0 auto", boxSizing: "border-box" }}>
         {!question && (
-          <div style={{ textAlign: "center", paddingTop: "60px" }}>
+          <div style={{ textAlign: "center"}}>
             <div style={{ fontSize: "48px", marginBottom: "16px" }}>🎵</div>
             <h1 style={{ fontSize: "24px" }}>Get ready...</h1>
           </div>
