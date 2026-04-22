@@ -301,10 +301,17 @@ io.on("connection", (socket) => {
   ? answer.toLowerCase().trim() === room.currentCorrect.lyricsAnswer 
   : answer === correct.name) {
     const timeBonus = Math.max(0, 250 - (Date.now() - room.questionStartTime) / 120)
-    const flatBonus = 250
-    room.scores[socket.id] = (room.scores[socket.id] || 0) + Math.round(timeBonus) + flatBonus
-  }
-    const answeredCount = Object.keys(room.answers).length
+const flatBonus = 250
+const correctSoFar = Object.values(room.answers).filter(a => 
+  room.currentCorrect.lyricsAnswer
+    ? a.toLowerCase().trim() === room.currentCorrect.lyricsAnswer
+    : a === room.currentCorrect.name
+).length
+const totalPlayers = room.players.length
+const positionBonus = Math.round(20 * (1 - correctSoFar / totalPlayers))
+room.scores[socket.id] = (room.scores[socket.id] || 0) + Math.round(timeBonus) + flatBonus + positionBonus
+    }
+const answeredCount = Object.keys(room.answers).length
     const answeredPlayer = room.players.find(p => p.id === socket.id)
     io.to(code).emit("answer_count", { count: answeredCount, playerName: answeredPlayer ? answeredPlayer.name : "" })
 
