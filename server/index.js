@@ -300,8 +300,8 @@ io.on("connection", (socket) => {
     if (room.currentCorrect.lyricsAnswer 
   ? answer.toLowerCase().trim() === room.currentCorrect.lyricsAnswer 
   : answer === correct.name) {
-    const timeBonus = Math.max(0, 500 - (Date.now() - room.questionStartTime) / 30)
-    const flatBonus = 500
+    const timeBonus = Math.max(0, 250 - (Date.now() - room.questionStartTime) / 30)
+    const flatBonus = 250
     room.scores[socket.id] = (room.scores[socket.id] || 0) + Math.round(timeBonus) + flatBonus
   }
     const answeredCount = Object.keys(room.answers).length
