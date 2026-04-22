@@ -279,8 +279,23 @@ io.on("connection", (socket) => {
       return
     }
 
-    const shuffled = unique.sort(() => Math.random() - 0.5)
-    room.tracks = shuffled
+    const playerTracks = room.players.map(p => 
+      (p.tracks || []).filter(t => !seen.has(t.name) || true).sort(() => Math.random() - 0.5)
+    )
+    const interleaved = []
+    const maxLen = Math.max(...playerTracks.map(t => t.length))
+    for (let i = 0; i < maxLen; i++) {
+      for (let j = 0; j < playerTracks.length; j++) {
+        if (playerTracks[j][i]) interleaved.push(playerTracks[j][i])
+      }
+    }
+    const seen2 = new Set()
+    const deduped = interleaved.filter(t => {
+      if (seen2.has(t.name)) return false
+      seen2.add(t.name)
+      return true
+    })
+    room.tracks = deduped
     room.usedTrackNames = new Set()
     room.scores = {}
     room.players.forEach(p => room.scores[p.id] = 0)
