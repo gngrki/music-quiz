@@ -44,9 +44,9 @@ async function fetchLyrics(name, artist) {
     if (lines.length < 2) return null
     const idx = Math.floor(Math.random() * lines.length)
     const line = lines[idx]
-    const words = line.split(" ").filter(w => w.length > 3)
+    const words = line.split(" ").filter(w => w.length > 2)
     if (words.length === 0) return null
-    const word = words[Math.floor(Math.random() * words.length)]
+    const word = words[words.length - 1]
     const blanked = line.replace(word, "_____")
     const before = idx > 0 ? lines[idx - 1] : ""
     const after = idx < lines.length - 1 ? lines[idx + 1] : ""
@@ -300,10 +300,10 @@ io.on("connection", (socket) => {
     if (room.currentCorrect.lyricsAnswer 
   ? answer.toLowerCase().trim() === room.currentCorrect.lyricsAnswer 
   : answer === correct.name) {
-      const timeBonus = Math.max(0, 1000 - (Date.now() - room.questionStartTime) / 30)
-      room.scores[socket.id] = (room.scores[socket.id] || 0) + Math.round(timeBonus)
-    }
-
+    const timeBonus = Math.max(0, 500 - (Date.now() - room.questionStartTime) / 30)
+    const flatBonus = 500
+    room.scores[socket.id] = (room.scores[socket.id] || 0) + Math.round(timeBonus) + flatBonus
+  }
     const answeredCount = Object.keys(room.answers).length
     const answeredPlayer = room.players.find(p => p.id === socket.id)
     io.to(code).emit("answer_count", { count: answeredCount, playerName: answeredPlayer ? answeredPlayer.name : "" })
