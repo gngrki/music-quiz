@@ -51,6 +51,7 @@ export default function App() {
   const [loadingGenre, setLoadingGenre] = useState(false)
   const [lastAnswered, setLastAnswered] = useState("")
   const [spinnerFrame, setSpinnerFrame] = useState(0)
+  const [questionCount, setQuestionCount] = useState(15)
   const spinnerFrames = ["⠋", "⠙", "⠸", "⠴", "⠦", "⠇"]
   const [error, setError] = useState("")
   function showError(msg) {
@@ -118,7 +119,7 @@ export default function App() {
       }
     })
 
-    socket.on("answer_count", ({ count, playerName }) => { 
+    socket.on("answer_count", ({ count, playerName }) => {
       setAnsweredCount(count)
       if (playerName) {
         setLastAnswered(playerName)
@@ -149,25 +150,25 @@ export default function App() {
     })
 
     socket.on("emoji_reaction", ({ playerName, emoji }) => {
-  const el = document.createElement("div")
-  el.style.cssText = `
-    position: fixed;
-    left: ${Math.random() * 60 + 20}%;
-    bottom: 20%;
-    font-size: 36px;
-    animation-name: floatUp;
-    animation-duration: 1.5s;
-    animation-timing-function: ease-out;
-    animation-fill-mode: forwards;
-    animation-iteration-count: 1;
-    pointer-events: none;
-    z-index: 999;
-    text-align: center;
-  `
-  el.innerHTML = `${emoji}<div style="font-size:10px;color:#666;background:white;border-radius:8px;padding:1px 4px">${playerName}</div>`
-  document.body.appendChild(el)
-  setTimeout(() => el.remove(), 2500)
-})
+      const el = document.createElement("div")
+      el.style.cssText = `
+        position: fixed;
+        left: ${Math.random() * 60 + 20}%;
+        bottom: 20%;
+        font-size: 36px;
+        animation-name: floatUp;
+        animation-duration: 1.5s;
+        animation-timing-function: ease-out;
+        animation-fill-mode: forwards;
+        animation-iteration-count: 1;
+        pointer-events: none;
+        z-index: 999;
+        text-align: center;
+      `
+      el.innerHTML = `${emoji}<div style="font-size:10px;color:#666;background:white;border-radius:8px;padding:1px 4px">${playerName}</div>`
+      document.body.appendChild(el)
+      setTimeout(() => el.remove(), 2500)
+    })
 
     socket.on("error", ({ message }) => { showError(message) })
 
@@ -199,7 +200,6 @@ export default function App() {
     return () => clearInterval(interval)
   }, [loadingGenre])
 
-  // EMOJI BUTTONS component
   const EmojiButtons = () => (
     <div style={{ display: "flex", justifyContent: "center", gap: "16px", marginTop: "0px", marginBottom: "0px" }}>
       {["💩", "😎", "🤣", "🤬"].map(emoji => (
@@ -222,7 +222,7 @@ export default function App() {
           value={playerName}
           onChange={e => setPlayerName(e.target.value)}
           placeholder="Enter your name"
-           maxLength={7}
+          maxLength={7}
           style={{ display: "block", width: "100%", padding: "10px 12px", fontSize: "15px", border: "1px solid #ccc", borderRadius: "8px", marginBottom: "16px", boxSizing: "border-box" }}
         />
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
@@ -319,8 +319,7 @@ export default function App() {
 
         {!audioUnlocked ? (
           <button
-            style={{ display: "block", width: "100%", padding: "12px", fontSize: "15px", background: "#5cd8f1ff", color: "white", border: "none", borderRadius: "10px", cursor: "pointer", marginBottom: "16px", animation: "pulse 1.5s ease-in-out infinite"
- }}
+            style={{ display: "block", width: "100%", padding: "12px", fontSize: "15px", background: "#5cd8f1ff", color: "white", border: "none", borderRadius: "10px", cursor: "pointer", marginBottom: "16px", animation: "pulse 1.5s ease-in-out infinite" }}
             onClick={() => {
               const audio = new Audio()
               audio.volume = 1
@@ -396,12 +395,27 @@ export default function App() {
         </div>
 
         {room.players[0].id === socket.id && (
+          <div style={{ marginBottom: "12px" }}>
+            <p style={{ fontSize: "13px", color: "#999", marginBottom: "8px" }}>Number of questions</p>
+            <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
+              {[10, 15, 20].map(n => (
+                <button key={n}
+                  onClick={() => setQuestionCount(n)}
+                  style={{ padding: "8px 18px", borderRadius: "8px", fontSize: "13px", cursor: "pointer", border: `1px solid ${questionCount === n ? "#1D9E75" : "#ccc"}`, background: questionCount === n ? "#E1F5EE" : "white", color: questionCount === n ? "#0F6E56" : "#333" }}>
+                  {n}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {room.players[0].id === socket.id && (
           <button
             disabled={!room.players.every(p => p.genre) || !allAudioReady}
             style={{ display: "block", width: "100%", padding: "12px", fontSize: "15px", background: room.players.every(p => p.genre) && allAudioReady ? "#1D9E75" : "#ccc", color: "white", border: "none", borderRadius: "10px", cursor: room.players.every(p => p.genre) && allAudioReady ? "pointer" : "not-allowed", opacity: room.players.every(p => p.genre) && allAudioReady ? 1 : 0.5 }}
             onClick={() => {
               setError("")
-              socket.emit("start_game", { code: room.code, guessMode })
+              socket.emit("start_game", { code: room.code, guessMode, questionCount })
             }}
           >
             {!room.players.every(p => p.genre) ? "Waiting for all players..." : !allAudioReady ? `Players ready... (${audioReadyCount}/${room.players.length})` : "Start Game"}
@@ -420,7 +434,7 @@ export default function App() {
     return (
       <div style={{ padding: "20px 24px", width: "100%", maxWidth: "400px", margin: "0 auto", boxSizing: "border-box" }}>
         {!question && (
-          <div style={{ textAlign: "center"}}>
+          <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: "48px", marginBottom: "16px", marginTop: "60px" }}>🎵</div>
             <h1 style={{ fontSize: "24px" }}>Get ready...</h1>
           </div>
@@ -446,51 +460,51 @@ export default function App() {
               <div style={{ height: "100%", width: `${(timeLeft / 30) * 100}%`, background: timeLeft <= 5 ? "#E24B4A" : timeLeft <= 10 ? "#EF9F27" : "#1D9E75", borderRadius: "4px", transition: "width 1s linear" }} />
             </div>
             <p style={{ fontSize: "11px", color: "#999", marginBottom: "12px" }}>
-                {lastAnswered && <span style={{ marginRight: "6px", transition: "opacity 0.5s" }}>{lastAnswered}  ···</span>}
+              {lastAnswered && <span style={{ marginRight: "6px", transition: "opacity 0.5s" }}>{lastAnswered}  ···</span>}
               {answeredCount}/{room.players.length} answered
             </p>
             <div style={{ marginBottom: "16px" }}>
               {question.mode === "lyrics" ? (
-              <div>
-                <div style={{ padding: "16px", background: "#f9f9f9", border: "1px solid #eee", borderRadius: "10px", marginBottom: "12px", fontSize: "15px", lineHeight: "1.8", whiteSpace: "pre-line" }}>
-                  {question.lyricLine}
-                </div>
-                <input
-                  value={lyricsInput}
-                  onChange={e => setLyricsInput(e.target.value)}
-                  placeholder="Fill in the missing word..."
-                  disabled={!!selectedAnswer}
-                  onKeyDown={e => {
-                    if (e.key === "Enter" && lyricsInput.trim()) {
-                      const ans = lyricsInput.trim().toLowerCase()
-                      setSelectedAnswer(ans)
-                      socket.emit("submit_answer", { code: room.code, answer: ans })
-                    }
-                  }}
-                  style={{ display: "block", width: "100%", padding: "12px", fontSize: "15px", border: "1px solid #ccc", borderRadius: "10px", boxSizing: "border-box", marginBottom: "8px" }}
-                />
-                <div style={{ position: "relative" }}>
-                  <button
+                <div>
+                  <div style={{ padding: "16px", background: "#f9f9f9", border: "1px solid #eee", borderRadius: "10px", marginBottom: "12px", fontSize: "15px", lineHeight: "1.8", whiteSpace: "pre-line" }}>
+                    {question.lyricLine}
+                  </div>
+                  <input
+                    value={lyricsInput}
+                    onChange={e => setLyricsInput(e.target.value)}
+                    placeholder="Fill in the missing word..."
                     disabled={!!selectedAnswer}
-                    onClick={() => {
-                      if (lyricsInput.trim()) {
+                    onKeyDown={e => {
+                      if (e.key === "Enter" && lyricsInput.trim()) {
                         const ans = lyricsInput.trim().toLowerCase()
                         setSelectedAnswer(ans)
                         socket.emit("submit_answer", { code: room.code, answer: ans })
                       }
                     }}
-                    style={{ display: "block", width: "100%", padding: "12px", fontSize: "15px", background: selectedAnswer ? "#ccc" : "#1D9E75", color: "white", border: "none", borderRadius: "10px", cursor: selectedAnswer ? "default" : "pointer" }}
-                  >
-                    {selectedAnswer ? "Answered!" : "Submit"}
-                  </button>
-                  {reveal && (
-                    <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "#E1F5EE", border: "1px solid #1D9E75", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <p style={{ fontSize: "13px", color: "#0F6E56", margin: 0 }}>✅ Correct: <strong>{question.answer}</strong></p>
-                    </div>
-                  )}
+                    style={{ display: "block", width: "100%", padding: "12px", fontSize: "15px", border: "1px solid #ccc", borderRadius: "10px", boxSizing: "border-box", marginBottom: "8px" }}
+                  />
+                  <div style={{ position: "relative" }}>
+                    <button
+                      disabled={!!selectedAnswer}
+                      onClick={() => {
+                        if (lyricsInput.trim()) {
+                          const ans = lyricsInput.trim().toLowerCase()
+                          setSelectedAnswer(ans)
+                          socket.emit("submit_answer", { code: room.code, answer: ans })
+                        }
+                      }}
+                      style={{ display: "block", width: "100%", padding: "12px", fontSize: "15px", background: selectedAnswer ? "#ccc" : "#1D9E75", color: "white", border: "none", borderRadius: "10px", cursor: selectedAnswer ? "default" : "pointer" }}
+                    >
+                      {selectedAnswer ? "Answered!" : "Submit"}
+                    </button>
+                    {reveal && (
+                      <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "#E1F5EE", border: "1px solid #1D9E75", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <p style={{ fontSize: "13px", color: "#0F6E56", margin: 0 }}>✅ Correct: <strong>{question.answer}</strong></p>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ) : (
+              ) : (
                 question.options.map((opt, i) => {
                   const isSelected = selectedAnswer === opt.name
                   const isCorrect = reveal && opt.name === reveal.name
@@ -574,7 +588,7 @@ export default function App() {
           }}>Leave</button>
         </div>
         <div style={{ marginBottom: "24px" }}>
-          <a href="https://ko-fi.com/chromakala" target="_blank" rel="noopener noreferrer"
+          <a href="https.//ko-fi.com/chromakala" target="_blank" rel="noopener noreferrer"
             style={{ display: "inline-block", padding: "10px 20px", background: "#4caf50", color: "white", borderRadius: "8px", textDecoration: "none", fontSize: "14px", fontWeight: "500" }}>
             Support a late night coder ☕
           </a>
