@@ -200,6 +200,46 @@ export default function App() {
     return () => clearInterval(interval)
   }, [loadingGenre])
 
+  const CountdownMessage = () => {
+  const [step, setStep] = useState(0)
+  const [visible, setVisible] = useState(false)
+  const steps = [
+    { number: "3", text: "Warming up the speakers..." },
+    { number: "2", text: "Bribing the DJ..." },
+    { number: "1", text: "Party time!" }
+  ]
+
+  useEffect(() => {
+    const show = setTimeout(() => setVisible(true), 100)
+    const hide = setTimeout(() => setVisible(false), 800)
+    const next = setTimeout(() => {
+      setVisible(false)
+      if (step < 2) {
+        setTimeout(() => {
+          setStep(s => s + 1)
+          setVisible(true)
+        }, 300)
+      }
+    }, 800)
+    return () => { clearTimeout(show); clearTimeout(hide); clearTimeout(next) }
+  }, [step])
+
+  return (
+    <div style={{ marginTop: "40px", minHeight: "60px", textAlign: "center" }}>
+      <div style={{
+        opacity: visible ? 1 : 0,
+        transition: "opacity 0.3s ease",
+      }}>
+        <div style={{ fontSize: "28px", fontWeight: "600", color: "#1D9E75", marginBottom: "8px" }}>
+          {steps[step].number}
+        </div>
+        <div style={{ fontSize: "14px", color: "#999" }}>
+          {steps[step].text}
+        </div>
+      </div>
+    </div>
+  )
+}
   const EmojiButtons = () => (
     <div style={{ display: "flex", justifyContent: "center", gap: "16px", marginTop: "0px", marginBottom: "0px" }}>
       {["💩", "😎", "🤣", "🤬"].map(emoji => (
@@ -434,9 +474,10 @@ export default function App() {
     return (
       <div style={{ padding: "20px 24px", width: "100%", maxWidth: "400px", margin: "0 auto", boxSizing: "border-box" }}>
         {!question && (
-          <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: "48px", marginBottom: "16px", marginTop: "60px" }}>🎵</div>
-            <h1 style={{ fontSize: "24px" }}>Get ready...</h1>
+          <div style={{ textAlign: "center", marginTop: "60px" }}>
+            <div style={{ fontSize: "48px", marginBottom: "16px" }}>🎵</div>
+            <h1 style={{ fontSize: "24px", animation: "pulse 1.5s ease-in-out infinite" }}>Get ready...</h1>
+            <CountdownMessage />
           </div>
         )}
         {question && (
