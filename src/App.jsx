@@ -98,7 +98,7 @@ export default function App() {
       setRoom({ code, players })
       roomCodeRef.current = code
       localStorage.setItem("roomCode", code)
-      setScreen("lobby")
+      setScreen(prev => prev === "game" || prev === "gameover" ? prev : "lobby")
     })
     socket.on("audio_ready_update", ({ count, total }) => {
       setAudioReadyCount(count)
