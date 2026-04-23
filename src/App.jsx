@@ -267,7 +267,7 @@ if (screen === "home") {
         <input
           value={roomCode}
           onChange={e => setRoomCode(e.target.value.toLowerCase())}
-          placeholder="Room code"
+          placeholder="ROOM CODE"
           maxLength={4}
           style={{ display: "block", width: "200px", padding: "10px 12px", fontSize: "15px", border: "1px solid #ccc", borderRadius: "8px", boxSizing: "border-box", textAlign: "center" }}
         />
@@ -317,7 +317,7 @@ if (screen === "home") {
           <input
             value={playerName}
             onChange={e => setPlayerName(e.target.value)}
-            placeholder="Your name"
+            placeholder="YOUR NAME"
             maxLength={7}
             style={{ display: "block", width: "200px", padding: "10px 12px", fontSize: "15px", border: "1px solid #ccc", borderRadius: "8px", boxSizing: "border-box", textAlign: "center" }}
           />
@@ -380,7 +380,7 @@ if (screen === "home") {
               socket.emit("audio_ready", { code: room.code })
             }}
           >
-            🎵 Tap to enable music 🎵
+            🎵 Tap here to enable music 🎵
           </button>
         ) : (
           <p style={{ color: "#1D9E75", fontSize: "13px", marginBottom: "12px" }}>✅ Music enabled!</p>
