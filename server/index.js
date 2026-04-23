@@ -56,6 +56,38 @@ async function fetchLyrics(name, artist) {
     return null
   }
 }
+  async function prefetchNext(room, tracks) {
+    const available = tracks.filter(t => !room.usedTrackNames.has(t.name))
+    const pool = available.length >= 4 ? available : tracks
+    const attempted = new Set()
+
+    while (attempted.size < pool.length) {
+      const candidate = pool[Math.floor(Math.random() * pool.length)]
+      if (attempted.has(candidate.name)) continue
+      attempted.add(candidate.name)
+
+      try {
+        const q = encodeURIComponent(`${candidate.name} ${candidate.artist}`)
+        const res = await fetch(`https://api.deezer.com/search?q=${q}&limit=1`)
+        const data = await res.json()
+        if (!data.data || !data.data.length || !data.data[0].preview) continue
+
+        const previewUrl = data.data[0].preview
+
+        if (room.guessMode === "lyrics") {
+          const lyrics = await fetchLyrics(candidate.name, candidate.artist)
+          if (!lyrics) continue
+          room.prefetched = { correct: candidate, previewUrl, lyrics }
+        } else {
+          room.prefetched = { correct: candidate, previewUrl }
+        }
+        room.usedTrackNames.add(candidate.name)
+        return
+      } catch(e) {
+        continue
+      }
+    }
+  }
 
 async function startQuestion(io, room) {
   if (room.currentQuestion >= room.totalQuestions) {
@@ -69,37 +101,55 @@ async function startQuestion(io, room) {
   }
 
   const tracks = room.tracks
-  const available = tracks.filter(t => !room.usedTrackNames.has(t.name))
-  if (available.length < 4) {
-    room.usedTrackNames = new Set()
-  }
-  const pool = available.length >= 4 ? available : tracks
-  let correct = null
-  let previewUrl = null
-  const attempted = new Set()
+  let correct, previewUrl, lyrics
 
-  while (!previewUrl && attempted.size < pool.length) {
-    const candidate = pool[Math.floor(Math.random() * pool.length)]
-    if (attempted.has(candidate.name)) continue
-    attempted.add(candidate.name)
-    try {
-      const q = encodeURIComponent(`${candidate.name} ${candidate.artist}`)
-      const res = await fetch(`https://api.deezer.com/search?q=${q}&limit=1`)
-      const data = await res.json()
-      if (data.data && data.data.length > 0 && data.data[0].preview) {
-        correct = candidate
-        previewUrl = data.data[0].preview
+  if (room.prefetched) {
+    // use prefetched data
+    correct = room.prefetched.correct
+    previewUrl = room.prefetched.previewUrl
+    lyrics = room.prefetched.lyrics
+    room.prefetched = null
+  } else {
+    // first question — fetch normally
+    const available = tracks.filter(t => !room.usedTrackNames.has(t.name))
+    if (available.length < 4) room.usedTrackNames = new Set()
+    const pool = available.length >= 4 ? available : tracks
+    const attempted = new Set()
+
+    while (!previewUrl && attempted.size < pool.length) {
+      const candidate = pool[Math.floor(Math.random() * pool.length)]
+      if (attempted.has(candidate.name)) continue
+      attempted.add(candidate.name)
+      try {
+        const q = encodeURIComponent(`${candidate.name} ${candidate.artist}`)
+        const res = await fetch(`https://api.deezer.com/search?q=${q}&limit=1`)
+        const data = await res.json()
+        if (data.data && data.data.length > 0 && data.data[0].preview) {
+          correct = candidate
+          previewUrl = data.data[0].preview
+        }
+      } catch(e) {
+        console.error("Deezer fetch failed", e)
       }
-    } catch(e) {
-      console.error("Deezer fetch failed", e)
+    }
+
+    if (!correct) {
+      correct = pool[Math.floor(Math.random() * pool.length)]
+    }
+
+    room.usedTrackNames.add(correct.name)
+
+    if (room.guessMode === "lyrics") {
+      lyrics = await fetchLyrics(correct.name, correct.artist)
+      if (!lyrics) {
+        return startQuestion(io, room)
+      }
     }
   }
 
-  if (!correct) {
-    correct = pool[Math.floor(Math.random() * pool.length)]
-  }
+  // kick off prefetch for next question in background
+  prefetchNext(room, tracks)
 
-  room.usedTrackNames.add(correct.name)
   const wrong = tracks
     .filter(t => t.name !== correct.name)
     .sort(() => Math.random() - 0.5)
@@ -114,45 +164,41 @@ async function startQuestion(io, room) {
   console.log(`Q${room.currentQuestion + 1}: ${correct.name} - preview: ${previewUrl ? "found" : "none"}`)
 
   if (room.guessMode === "lyrics") {
-  const lyrics = await fetchLyrics(correct.name, correct.artist)
-  if (!lyrics) {
-    room.currentQuestion++
-    return startQuestion(io, room)
+    room.currentCorrect = { ...correct, lyricsAnswer: lyrics.answer }
+    io.to(room.code).emit("new_question", {
+      questionNumber: room.currentQuestion + 1,
+      total: room.totalQuestions,
+      correct: { name: correct.name, artist: correct.artist },
+      mode: "lyrics",
+      lyricLine: lyrics.line,
+      answer: lyrics.answer,
+      previewUrl
+    })
+  } else {
+    io.to(room.code).emit("new_question", {
+      questionNumber: room.currentQuestion + 1,
+      total: room.totalQuestions,
+      correct: {
+        name: correct.name,
+        artist: correct.artist,
+        display: room.guessMode === "song" ? correct.name : room.guessMode === "artist" ? correct.artist : `${correct.name} — ${correct.artist}`
+      },
+      previewUrl,
+      options: options.map(t => ({
+        name: t.name,
+        artist: t.artist,
+        display: room.guessMode === "song" ? t.name : room.guessMode === "artist" ? t.artist : `${t.name} — ${t.artist}`
+      }))
+    })
   }
-  room.currentCorrect = { ...correct, lyricsAnswer: lyrics.answer }
-  io.to(room.code).emit("new_question", {
-    questionNumber: room.currentQuestion + 1,
-    total: room.totalQuestions,
-    correct: { name: correct.name, artist: correct.artist },
-    mode: "lyrics",
-    lyricLine: lyrics.line,
-    answer: lyrics.answer,
-    previewUrl
-  })
-  room.questionTimer = setTimeout(() => {
-    revealAnswer(io, room)
-  }, 30000)
-} else {
-  io.to(room.code).emit("new_question", {
-    questionNumber: room.currentQuestion + 1,
-    total: room.totalQuestions,
-    correct: {
-      name: correct.name,
-      artist: correct.artist,
-      display: room.guessMode === "song" ? correct.name : room.guessMode === "artist" ? correct.artist : `${correct.name} — ${correct.artist}`
-    },
-    previewUrl,
-    options: options.map(t => ({
-      name: t.name,
-      artist: t.artist,
-      display: room.guessMode === "song" ? t.name : room.guessMode === "artist" ? t.artist : `${t.name} — ${t.artist}`
-    }))
-  })
+
+  room.currentQuestion++
+
   room.questionTimer = setTimeout(() => {
     revealAnswer(io, room)
   }, 30000)
 }
-}
+
 function revealAnswer(io, room) {
   clearTimeout(room.questionTimer)
   if (room.players.length === 0) {
@@ -178,7 +224,6 @@ function revealAnswer(io, room) {
     players: room.players,
     results
   })
-  room.currentQuestion++
   setTimeout(() => startQuestion(io, room), 3000)
 }
 
