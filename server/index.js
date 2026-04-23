@@ -50,6 +50,29 @@ function isCloseEnough(answer, correct) {
   if (c + "es" === a) return 0.5
   return 0
 }
+const fillerWords = new Set([
+  "yeah", "yea", "ohh", "ooh", "ahh", "aah", "hey", "woah", "whoa",
+  "mmm", "hmm", "ugh", "nah", "yep", "nope", "woo", "hoo", "boo",
+  "aye", "ole", "sha", "bam", "pow", "wow", "aww", "awww", "huh",
+  "mhm", "ugh", "brr", "shh", "psst", "tsk", "yay", "wee", "whee"
+])
+
+function isRepetition(word) {
+  for (let len = 1; len <= Math.floor(word.length / 2); len++) {
+    const unit = word.slice(0, len)
+    const repeated = unit.repeat(Math.ceil(word.length / len)).slice(0, word.length)
+    if (repeated === word) return true
+  }
+  return false
+}
+
+function isValidLyricWord(word) {
+  const w = word.toLowerCase().replace(/[^a-zõäöü]/g, "")
+  if (w.length <= 2) return false
+  if (fillerWords.has(w)) return false
+  if (isRepetition(w)) return false
+  return true
+}
 
 async function fetchLyrics(name, artist) {
   try {
@@ -63,9 +86,9 @@ async function fetchLyrics(name, artist) {
     if (lines.length < 2) return null
     const idx = Math.floor(Math.random() * lines.length)
     const line = lines[idx]
-    const words = line.split(" ").filter(w => w.length > 2)
+    const words = line.split(" ").filter(w => isValidLyricWord(w))
     if (words.length === 0) return null
-    const word = words[words.length - 1]
+    const word = words[Math.floor(Math.random() * words.length)]
     const blanked = line.replace(word, "_____")
     const before = idx > 0 ? lines[idx - 1] : ""
     const after = idx < lines.length - 1 ? lines[idx + 1] : ""
