@@ -31,14 +31,23 @@ function generateRoomCode() {
   }
   return code
 }
+function normalizeEstonian(str) {
+  return str
+    .toLowerCase()
+    .trim()
+    .replace(/õ/g, "o")
+    .replace(/ä/g, "a")
+    .replace(/ö/g, "o")
+    .replace(/ü/g, "u")
+}
 function isCloseEnough(answer, correct) {
-  answer = answer.toLowerCase().trim()
-  correct = correct.toLowerCase().trim()
-  if (answer === correct) return 1
-  if (answer + "s" === correct) return 0.5
-  if (correct + "s" === answer) return 0.5
-  if (answer + "es" === correct) return 0.5
-  if (correct + "es" === answer) return 0.5
+  const a = normalizeEstonian(answer)
+  const c = normalizeEstonian(correct)
+  if (a === c) return 1
+  if (a + "s" === c) return 0.5
+  if (c + "s" === a) return 0.5
+  if (a + "es" === c) return 0.5
+  if (c + "es" === a) return 0.5
   return 0
 }
 
@@ -61,7 +70,7 @@ async function fetchLyrics(name, artist) {
     const before = idx > 0 ? lines[idx - 1] : ""
     const after = idx < lines.length - 1 ? lines[idx + 1] : ""
     const display = [before, blanked].filter(l => l).join("\n")
-    return { line: display, answer: word.toLowerCase().replace(/[^a-z]/g, "") }
+    return { line: display, answer: word.toLowerCase().replace(/[^a-zõäöü]/g, ""), answerDisplay: word.toLowerCase() }
   } catch(e) {
     return null
   }
@@ -182,6 +191,7 @@ async function startQuestion(io, room) {
       mode: "lyrics",
       lyricLine: lyrics.line,
       answer: lyrics.answer,
+      answerDisplay: lyrics.answerDisplay,
       previewUrl
     })
   } else {

@@ -540,7 +540,7 @@ export default function App() {
                     </button>
                     {reveal && (
                       <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "#E1F5EE", border: "1px solid #1D9E75", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <p style={{ fontSize: "13px", color: "#0F6E56", margin: 0 }}>✅ Correct: <strong>{question.answer}</strong></p>
+                        <p style={{ fontSize: "13px", color: "#0F6E56", margin: 0 }}>✅ Correct: <strong>{question.answerDisplay || question.answer}</strong></p>
                       </div>
                     )}
                   </div>
