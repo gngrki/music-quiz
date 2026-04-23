@@ -81,7 +81,11 @@ export default function App() {
 
   useEffect(() => {
     socket.on("player_count", ({ count }) => { setPlayerCount(count) })
-
+    socket.on("room_valid", () => {
+      setPlayerName("")
+      setScreen("name")
+      setJoinMode(true)
+    })
     socket.on("connect", () => {
       if (roomCodeRef.current && playerNameRef.current) {
         socket.emit("rejoin_room", { code: roomCodeRef.current, playerName: playerNameRef.current })
@@ -179,6 +183,7 @@ export default function App() {
       socket.off("answer_count"); socket.off("reveal_answer"); socket.off("game_over")
       socket.off("rematch_starting"); socket.off("error"); socket.off("connect")
       socket.off("player_count"); socket.off("emoji_reaction"); socket.off("audio_ready_update")
+      socket.off("room_valid")
     }
   }, [])
 
@@ -269,10 +274,9 @@ if (screen === "home") {
         <button
           style={{ width: "200px", padding: "12px", fontSize: "15px", background: "#1D9E75", color: "white", border: "none", borderRadius: "10px", cursor: "pointer" }}
           onClick={() => {
-            if (!roomCode.trim()) return showError("Enter a room code!")
-            setScreen("name")
-            setJoinMode(true)
-          }}
+          if (!roomCode.trim()) return showError("Enter a room code!")
+          socket.emit("check_room", { code: roomCode })
+        }}
         >
           Join
         </button>

@@ -306,7 +306,18 @@ io.on("connection", (socket) => {
     socket.emit("room_created", { code, players: rooms[code].players })
     console.log(`room ${code} created by ${playerName}`)
   })
-
+  socket.on("check_room", ({ code }) => {
+    const room = rooms[code]
+    if (!room) {
+      socket.emit("error", { message: "Room not found!" })
+      return
+    }
+    if (room.players.length >= 6) {
+      socket.emit("error", { message: "Room is full!" })
+      return
+    }
+    socket.emit("room_valid")
+  })
   socket.on("join_room", ({ code, playerName }) => {
     if (!playerName || playerName.length > 7) return
     const room = rooms[code]
