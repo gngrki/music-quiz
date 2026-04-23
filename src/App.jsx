@@ -69,6 +69,7 @@ export default function App() {
   const [allTimeScores, setAllTimeScores] = useState({})
   const [lyricsInput, setLyricsInput] = useState("")
   const [audioReadyCount, setAudioReadyCount] = useState(0)
+  const [joinMode, setJoinMode] = useState(false)
   const roomCodeRef = useRef(localStorage.getItem("roomCode") || null)
   const playerNameRef = useRef(localStorage.getItem("playerName") || null)
   const timerRef = useRef(null)
@@ -250,88 +251,95 @@ export default function App() {
   )
 
   // HOME SCREEN
-  if (screen === "home") {
-    return (
-      <div style={{ padding: "80px 20px 24px", maxWidth: "400px", margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: "32px" }}>
-          <div style={{ fontSize: "35px", marginBottom: "8px" }}>🎵🎶</div>
-          <h1 style={{ margin: 0, fontSize: "26px" }}>Music Quiz</h1>
-        </div>
-        <input
-          value={playerName}
-          onChange={e => setPlayerName(e.target.value)}
-          placeholder="Enter your name"
-          maxLength={7}
-          style={{ display: "block", width: "100%", padding: "10px 12px", fontSize: "15px", border: "1px solid #ccc", borderRadius: "8px", marginBottom: "16px", boxSizing: "border-box" }}
-        />
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
-          <button
-            style={{ width: "200px", padding: "12px", fontSize: "15px", background: "#1D9E75", color: "white", border: "none", borderRadius: "10px", cursor: "pointer" }}
-            onClick={() => {
-              if (!playerName.trim()) return showError("Enter your name first!")
-              playerNameRef.current = playerName
-              localStorage.setItem("playerName", playerName)
-              socket.emit("create_room", { playerName })
-            }}
-          >
-            Create Room
-          </button>
-          <button
-            style={{ width: "200px", padding: "12px", fontSize: "15px", background: "white", color: "#333", border: "1px solid #ccc", borderRadius: "10px", cursor: "pointer" }}
-            onClick={() => {
-              if (!playerName.trim()) return showError("Enter your name first!")
-              playerNameRef.current = playerName
-              localStorage.setItem("playerName", playerName)
-              setScreen("join")
-            }}
-          >
-            Join Room
-          </button>
-        </div>
-        {error && <p style={{ color: "red", fontSize: "13px", marginTop: "8px", textAlign: "center" }}>{error}</p>}
-        <p style={{ marginTop: "40px", fontSize: "12px", color: "#999", lineHeight: "1.8", textAlign: "center" }}>
-          🎵 no ads, ever, but you can<br />
-          <a href="https://ko-fi.com/chromakala" target="_blank" rel="noopener noreferrer" style={{ color: "#999", textDecoration: "underline" }}>buy me a coffee ☕</a>
-        </p>
-        {playerCount > 0 && (
-          <p style={{ marginTop: "16px", fontSize: "12px", color: "#999", textAlign: "center" }}>
-            🟢 {playerCount} {playerCount === 1 ? "person" : "people"} currently playing
-          </p>
-        )}
+if (screen === "home") {
+  return (
+    <div style={{ padding: "80px 20px 24px", maxWidth: "400px", margin: "0 auto" }}>
+      <div style={{ textAlign: "center", marginBottom: "40px" }}>
+        <div style={{ fontSize: "35px", marginBottom: "8px" }}>🎵🎶</div>
+        <h1 style={{ margin: 0, fontSize: "26px" }}>Music Quiz</h1>
       </div>
-    )
-  }
-
-  // JOIN SCREEN
-  if (screen === "join") {
-    return (
-      <div style={{ padding: "80px 20px 24px", maxWidth: "400px", margin: "0 auto" }}>
-        <h1 style={{ fontSize: "26px", marginBottom: "4px" }}>Join a Room</h1>
-        <p style={{ color: "#666", fontSize: "14px", marginBottom: "20px" }}>Enter the room code from your friend</p>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
         <input
           value={roomCode}
           onChange={e => setRoomCode(e.target.value.toLowerCase())}
           placeholder="Room code"
-          style={{ display: "block", width: "100%", padding: "10px 12px", fontSize: "15px", border: "1px solid #ccc", borderRadius: "8px", marginBottom: "10px", boxSizing: "border-box" }}
+          maxLength={4}
+          style={{ display: "block", width: "200px", padding: "10px 12px", fontSize: "15px", border: "1px solid #ccc", borderRadius: "8px", boxSizing: "border-box", textAlign: "center" }}
         />
         <button
-          style={{ display: "block", width: "100%", padding: "12px", fontSize: "15px", background: "#1D9E75", color: "white", border: "none", borderRadius: "10px", cursor: "pointer", marginBottom: "8px" }}
+          style={{ width: "200px", padding: "12px", fontSize: "15px", background: "#1D9E75", color: "white", border: "none", borderRadius: "10px", cursor: "pointer" }}
           onClick={() => {
             if (!roomCode.trim()) return showError("Enter a room code!")
-            playerNameRef.current = playerName
-            localStorage.setItem("playerName", playerName)
-            socket.emit("join_room", { code: roomCode, playerName })
+            setScreen("name")
+            setJoinMode(true)
           }}
         >
           Join
         </button>
+        <div style={{ height: "20px" }} />
         <button
-          style={{ display: "block", width: "100%", padding: "12px", fontSize: "15px", background: "white", color: "#333", border: "1px solid #ccc", borderRadius: "10px", cursor: "pointer" }}
-          onClick={() => setScreen("home")}
+          style={{ width: "200px", padding: "12px", fontSize: "15px", background: "white", color: "#333", border: "1px solid #ccc", borderRadius: "10px", cursor: "pointer" }}
+          onClick={() => {
+            setScreen("name")
+            setJoinMode(false)
+          }}
         >
-          Back
+          Create a Room
         </button>
-        {error && <p style={{ color: "red", fontSize: "13px", marginTop: "8px" }}>{error}</p>}
+      </div>
+      {error && <p style={{ color: "red", fontSize: "13px", marginTop: "8px", textAlign: "center" }}>{error}</p>}
+      <p style={{ marginTop: "40px", fontSize: "12px", color: "#999", lineHeight: "1.8", textAlign: "center" }}>
+        🎵 no ads, ever, but you can<br />
+        <a href="https://ko-fi.com/chromakala" target="_blank" rel="noopener noreferrer" style={{ color: "#999", textDecoration: "underline" }}>buy me a coffee ☕</a>
+      </p>
+      {playerCount > 0 && (
+        <p style={{ marginTop: "16px", fontSize: "12px", color: "#999", textAlign: "center" }}>
+          🟢 {playerCount} {playerCount === 1 ? "person" : "people"} currently playing
+        </p>
+      )}
+    </div>
+  )
+}
+
+// NAME SCREEN
+  if (screen === "name") {
+    return (
+      <div style={{ padding: "80px 20px 24px", maxWidth: "400px", margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: "40px" }}>
+          <div style={{ fontSize: "35px", marginBottom: "8px" }}>🎵🎶</div>
+          <h1 style={{ margin: 0, fontSize: "26px" }}>Music Quiz</h1>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
+          <input
+            value={playerName}
+            onChange={e => setPlayerName(e.target.value)}
+            placeholder="Your name"
+            maxLength={7}
+            style={{ display: "block", width: "200px", padding: "10px 12px", fontSize: "15px", border: "1px solid #ccc", borderRadius: "8px", boxSizing: "border-box", textAlign: "center" }}
+          />
+          <button
+            style={{ width: "200px", padding: "12px", fontSize: "15px", background: "#1D9E75", color: "white", border: "none", borderRadius: "10px", cursor: "pointer" }}
+            onClick={() => {
+              if (!playerName.trim()) return showError("Enter your name!")
+              playerNameRef.current = playerName
+              localStorage.setItem("playerName", playerName)
+              if (joinMode) {
+                socket.emit("join_room", { code: roomCode, playerName })
+              } else {
+                socket.emit("create_room", { playerName })
+              }
+            }}
+          >
+            Enter
+          </button>
+          <button
+            style={{ width: "200px", padding: "12px", fontSize: "15px", background: "white", color: "#333", border: "1px solid #ccc", borderRadius: "10px", cursor: "pointer" }}
+            onClick={() => setScreen("home")}
+          >
+            Back
+          </button>
+        </div>
+        {error && <p style={{ color: "red", fontSize: "13px", marginTop: "8px", textAlign: "center" }}>{error}</p>}
       </div>
     )
   }
