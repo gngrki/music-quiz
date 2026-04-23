@@ -371,7 +371,7 @@ io.on("connection", (socket) => {
     room.guessMode = guessMode || "both"
 
     io.to(code).emit("game_starting", { guessMode: room.guessMode })
-    startQuestion(io, room)
+    setTimeout(() => startQuestion(io, room), 3000)
   })
 
   socket.on("submit_answer", ({ code, answer }) => {

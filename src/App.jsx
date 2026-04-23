@@ -206,15 +206,16 @@ export default function App() {
   const steps = [
     { number: "3", text: "Warming up the speakers..." },
     { number: "2", text: "Bribing the DJ..." },
-    { number: "1", text: "Party time!" }
+    { number: "1", text: "Party time!" },
+    { number: "", text: "Still fetching some data..." }
   ]
 
   useEffect(() => {
     const show = setTimeout(() => setVisible(true), 100)
-    const hide = step < 2 ? setTimeout(() => setVisible(false), 800) : null
+    const hide = step < 3 ? setTimeout(() => setVisible(false), 800) : null
     const next = setTimeout(() => {
       setVisible(false)
-      if (step < 2) {
+      if (step < 3) {
         setTimeout(() => {
           setStep(s => s + 1)
           setVisible(true)
