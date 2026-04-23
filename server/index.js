@@ -31,6 +31,16 @@ function generateRoomCode() {
   }
   return code
 }
+function isCloseEnough(answer, correct) {
+  answer = answer.toLowerCase().trim()
+  correct = correct.toLowerCase().trim()
+  if (answer === correct) return 1
+  if (answer + "s" === correct) return 0.5
+  if (correct + "s" === answer) return 0.5
+  if (answer + "es" === correct) return 0.5
+  if (correct + "es" === answer) return 0.5
+  return 0
+}
 
 async function fetchLyrics(name, artist) {
   try {
@@ -212,7 +222,7 @@ function revealAnswer(io, room) {
   results[p.id] = {
     answered: !!answer,
     correct: room.currentCorrect.lyricsAnswer 
-      ? (answer || "").toLowerCase().trim() === room.currentCorrect.lyricsAnswer 
+      ? isCloseEnough(answer || "", room.currentCorrect.lyricsAnswer) > 0
       : answer === room.currentCorrect.name,
     answer: answer || null
   }
@@ -357,19 +367,21 @@ io.on("connection", (socket) => {
     if (!room || room.answers[socket.id]) return
     room.answers[socket.id] = answer
     const correct = room.currentCorrect
-    if (room.currentCorrect.lyricsAnswer 
-  ? answer.toLowerCase().trim() === room.currentCorrect.lyricsAnswer 
-  : answer === correct.name) {
-    const timeBonus = Math.max(0, 250 - (Date.now() - room.questionStartTime) / 120)
-const flatBonus = 250
-const correctSoFar = Object.values(room.answers).filter(a => 
-  room.currentCorrect.lyricsAnswer
-    ? a.toLowerCase().trim() === room.currentCorrect.lyricsAnswer
-    : a === room.currentCorrect.name
-).length
-const totalPlayers = room.players.length
-const positionBonus = Math.round(20 * (1 - correctSoFar / totalPlayers))
-room.scores[socket.id] = (room.scores[socket.id] || 0) + Math.round(timeBonus) + flatBonus + positionBonus
+    const lyricMatch = room.currentCorrect.lyricsAnswer 
+      ? isCloseEnough(answer, room.currentCorrect.lyricsAnswer)
+      : (answer === correct.name ? 1 : 0)
+
+    if (lyricMatch > 0) {
+      const timeBonus = Math.max(0, 250 - (Date.now() - room.questionStartTime) / 120)
+      const flatBonus = Math.round(250 * lyricMatch)
+      const correctSoFar = Object.values(room.answers).filter(a => 
+        room.currentCorrect.lyricsAnswer
+          ? isCloseEnough(a, room.currentCorrect.lyricsAnswer) > 0
+          : a === room.currentCorrect.name
+      ).length
+      const totalPlayers = room.players.length
+      const positionBonus = Math.round(20 * (1 - correctSoFar / totalPlayers))
+      room.scores[socket.id] = (room.scores[socket.id] || 0) + Math.round(timeBonus) + flatBonus + positionBonus
     }
 const answeredCount = Object.keys(room.answers).length
     const answeredPlayer = room.players.find(p => p.id === socket.id)
