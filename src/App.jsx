@@ -146,7 +146,7 @@ export default function App() {
       setScreen("lobby"); setQuestion(null); setSelectedAnswer(null)
       setReveal(null); setResults(null); setScores(null)
       setConfirmedGenre(false); setGenre(""); setAudioUnlocked(false)
-      setTimeLeft(30); setAnsweredCount(0)
+      setTimeLeft(30); setAnsweredCount(0); setAudioReadyCount(0)
     })
 
     socket.on("emoji_reaction", ({ playerName, emoji }) => {
