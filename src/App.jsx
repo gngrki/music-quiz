@@ -213,16 +213,14 @@ export default function App() {
   useEffect(() => {
     const show = setTimeout(() => setVisible(true), 100)
     const hide = step < 3 ? setTimeout(() => setVisible(false), 800) : null
-    const next = setTimeout(() => {
+    const next = step < 3 ? setTimeout(() => {
       setVisible(false)
-      if (step < 3) {
-        setTimeout(() => {
-          setStep(s => s + 1)
-          setVisible(true)
-        }, 300)
-      }
-    }, 800)
-    return () => { clearTimeout(show); if (hide) clearTimeout(hide); clearTimeout(next) }
+      setTimeout(() => {
+        setStep(s => s + 1)
+        setVisible(true)
+      }, 300)
+    }, 800) : null
+    return () => { clearTimeout(show); if (hide) clearTimeout(hide); if (next) clearTimeout(next) }
   }, [step])
 
   return (
