@@ -96,9 +96,11 @@ async function fetchLyrics(name, artist) {
         if (room.guessMode === "lyrics") {
           const lyrics = await fetchLyrics(candidate.name, candidate.artist)
           if (!lyrics) continue
-          room.prefetched = { correct: candidate, previewUrl, lyrics }
+          if (!room.prefetched) room.prefetched = []
+          room.prefetched.push({ correct: candidate, previewUrl, lyrics })
         } else {
-          room.prefetched = { correct: candidate, previewUrl }
+        if (!room.prefetched) room.prefetched = []
+        room.prefetched.push({ correct: candidate, previewUrl })
         }
         room.usedTrackNames.add(candidate.name)
         return
@@ -122,12 +124,11 @@ async function startQuestion(io, room) {
   const tracks = room.tracks
   let correct, previewUrl, lyrics
 
-  if (room.prefetched) {
-    // use prefetched data
-    correct = room.prefetched.correct
-    previewUrl = room.prefetched.previewUrl
-    lyrics = room.prefetched.lyrics
-    room.prefetched = null
+  if (room.prefetched && room.prefetched.length > 0) {
+    const next = room.prefetched.shift()
+    correct = next.correct
+    previewUrl = next.previewUrl
+    lyrics = next.lyrics
   } else {
     // first question — fetch normally
     const available = tracks.filter(t => !room.usedTrackNames.has(t.name))
@@ -167,6 +168,7 @@ async function startQuestion(io, room) {
   }
 
   // kick off prefetch for next question in background
+  prefetchNext(room, tracks)
   prefetchNext(room, tracks)
 
   const wrong = tracks
@@ -369,7 +371,7 @@ io.on("connection", (socket) => {
     room.guessMode = guessMode || "both"
 
     io.to(code).emit("game_starting", { guessMode: room.guessMode })
-    setTimeout(() => startQuestion(io, room), 3000)
+    startQuestion(io, room)
   })
 
   socket.on("submit_answer", ({ code, answer }) => {
@@ -417,6 +419,7 @@ const answeredCount = Object.keys(room.answers).length
     room.answers = {}
     room.usedTrackNames = new Set()
     room.audioReady = new Set()
+    room.prefetched = []
     io.to(code).emit("rematch_starting")
     
   })

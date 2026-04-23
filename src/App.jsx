@@ -211,7 +211,7 @@ export default function App() {
 
   useEffect(() => {
     const show = setTimeout(() => setVisible(true), 100)
-    const hide = setTimeout(() => setVisible(false), 800)
+    const hide = step < 2 ? setTimeout(() => setVisible(false), 800) : null
     const next = setTimeout(() => {
       setVisible(false)
       if (step < 2) {
@@ -221,7 +221,7 @@ export default function App() {
         }, 300)
       }
     }, 800)
-    return () => { clearTimeout(show); clearTimeout(hide); clearTimeout(next) }
+    return () => { clearTimeout(show); if (hide) clearTimeout(hide); clearTimeout(next) }
   }, [step])
 
   return (
@@ -629,7 +629,7 @@ export default function App() {
           }}>Leave</button>
         </div>
         <div style={{ marginBottom: "24px" }}>
-          <a href="https.//ko-fi.com/chromakala" target="_blank" rel="noopener noreferrer"
+          <a href="https://ko-fi.com/chromakala" target="_blank" rel="noopener noreferrer"
             style={{ display: "inline-block", padding: "10px 20px", background: "#4caf50", color: "white", borderRadius: "8px", textDecoration: "none", fontSize: "14px", fontWeight: "500" }}>
             Support a late night coder ☕
           </a>
