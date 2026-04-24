@@ -84,6 +84,7 @@ export default function App() {
   const [lyricsInput, setLyricsInput] = useState("")
   const [audioReadyCount, setAudioReadyCount] = useState(0)
   const [joinMode, setJoinMode] = useState(false)
+  const [hostOverride, setHostOverride] = useState(null)
   const roomCodeRef = useRef(localStorage.getItem("roomCode") || null)
   const playerNameRef = useRef(localStorage.getItem("playerName") || null)
   const timerRef = useRef(null)
@@ -118,6 +119,9 @@ export default function App() {
       roomCodeRef.current = code
       localStorage.setItem("roomCode", code)
       setScreen(prev => prev === "game" || prev === "gameover" ? prev : "lobby")
+    })
+    socket.on("host_override_updated", ({ hostOverride }) => {
+      setHostOverride(hostOverride)
     })
     socket.on("audio_ready_update", ({ count, total }) => {
       setAudioReadyCount(count)
@@ -166,6 +170,7 @@ export default function App() {
       setReveal(null); setResults(null); setScores(null)
       setConfirmedGenre(false); setGenre(""); setAudioUnlocked(false)
       setTimeLeft(30); setAnsweredCount(0); setAudioReadyCount(0)
+      setHostOverride(null)
     })
 
     socket.on("emoji_reaction", ({ playerName, emoji }) => {
@@ -197,7 +202,7 @@ export default function App() {
       socket.off("answer_count"); socket.off("reveal_answer"); socket.off("game_over")
       socket.off("rematch_starting"); socket.off("error"); socket.off("connect")
       socket.off("player_count"); socket.off("emoji_reaction"); socket.off("audio_ready_update")
-      socket.off("room_valid")
+      socket.off("room_valid"); socket.off("host_override_updated")
     }
   }, [])
 
@@ -420,15 +425,47 @@ if (screen === "home") {
 
         <p style={{ fontSize: "13px", color: "#999", marginBottom: "8px" }}>Players ({room.players.length}/6)</p>
         <div style={{ marginBottom: "16px" }}>
-          {room.players.map((p, i) => (
-            <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid #eee" }}>
-              <span style={{ fontSize: "15px" }}>{p.name}</span>
-              {p.genre
-                ? <span style={{ fontSize: "12px", background: "#E1F5EE", color: "#0F6E56", borderRadius: "20px", padding: "3px 10px" }}>{p.genre} ✓</span>
-                : <span style={{ fontSize: "13px", color: "#999" }}>picking...</span>
-              }
-            </div>
-          ))}
+          {room.players.map((p, i) => {
+            const isHost = room.players[0].id === socket.id
+            const isOverridden = hostOverride === p.id
+            const someoneOverridden = !!hostOverride
+            const showHostPick = someoneOverridden && !isOverridden
+
+            return (
+              <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid #eee" }}>
+                <span style={{ fontSize: "15px" }}>{p.name}</span>
+                {p.genre ? (
+                  isHost && p.id !== socket.id && p.id !== room.players[0].id ? (
+                    <span
+                      onClick={() => socket.emit("host_override", { code: room.code, playerId: p.id })}
+                      style={{
+                        fontSize: "12px",
+                        background: isOverridden ? "#E1F5EE" : showHostPick ? "#FFF3E0" : "#E1F5EE",
+                        color: isOverridden ? "#0F6E56" : showHostPick ? "#E65100" : "#0F6E56",
+                        borderRadius: "20px",
+                        padding: "3px 10px",
+                        cursor: "pointer"
+                      }}
+                    >
+                      {showHostPick ? "🎯 host pick" : `${p.genre} ✓`}
+                    </span>
+                  ) : (
+                    <span style={{
+                      fontSize: "12px",
+                      background: showHostPick && p.id === socket.id ? "#FFF3E0" : "#E1F5EE",
+                      color: showHostPick && p.id === socket.id ? "#E65100" : "#0F6E56",
+                      borderRadius: "20px",
+                      padding: "3px 10px"
+                    }}>
+                      {showHostPick && p.id !== room.players[0].id ? "🎯 host pick" : `${p.genre} ✓`}
+                    </span>
+                  )
+                ) : (
+                  <span style={{ fontSize: "13px", color: "#999" }}>picking...</span>
+                )}
+              </div>
+            )
+          })}
         </div>
 
         {!confirmedGenre && (

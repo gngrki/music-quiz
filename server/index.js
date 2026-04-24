@@ -233,6 +233,8 @@ async function startQuestion(io, room) {
   .sort(() => Math.random() - 0.5)
   .slice(0, 3)
 
+  const options = [...wrong, correct].sort(() => Math.random() - 0.5)
+
   room.currentCorrect = correct
   room.questionStartTime = Date.now()
   room.answers = {}
@@ -381,6 +383,17 @@ io.on("connection", (socket) => {
     }
   })
 
+  socket.on("host_override", ({ code, playerId }) => {
+    const room = rooms[code]
+    if (!room || room.host !== socket.id) return
+    if (room.hostOverride === playerId) {
+      room.hostOverride = null
+    } else {
+      room.hostOverride = playerId
+    }
+    io.to(code).emit("host_override_updated", { hostOverride: room.hostOverride })
+  })
+
   socket.on("start_game", ({ code, questionCount, guessMode }) => {
     const room = rooms[code]
     if (!room) return
@@ -392,9 +405,16 @@ io.on("connection", (socket) => {
     }
 
     let allTracks = []
-    for (const player of room.players) {
-      if (player.tracks) {
-        allTracks = allTracks.concat(player.tracks)
+    if (room.hostOverride) {
+      const overriddenPlayer = room.players.find(p => p.id === room.hostOverride)
+      if (overriddenPlayer && overriddenPlayer.tracks) {
+        allTracks = overriddenPlayer.tracks
+      }
+    } else {
+      for (const player of room.players) {
+        if (player.tracks) {
+          allTracks = allTracks.concat(player.tracks)
+        }
       }
     }
 
@@ -486,6 +506,7 @@ const answeredCount = Object.keys(room.answers).length
     room.usedTrackNames = new Set()
     room.audioReady = new Set()
     room.prefetched = []
+    room.hostOverride = null
     io.to(code).emit("rematch_starting")
     
   })
