@@ -281,6 +281,12 @@ if (screen === "home") {
         <input
           value={roomCode}
           onChange={e => setRoomCode(e.target.value.toLowerCase())}
+          onKeyDown={e => {
+            if (e.key === "Enter") {
+              if (!roomCode.trim()) return showError("Enter a room code!")
+              socket.emit("check_room", { code: roomCode })
+            }
+          }}
           placeholder="ROOM CODE"
           maxLength={4}
           style={{ display: "block", width: "200px", padding: "10px 12px", fontSize: "15px", border: "1px solid #ccc", borderRadius: "8px", boxSizing: "border-box", textAlign: "center" }}
@@ -331,6 +337,18 @@ if (screen === "home") {
           <input
             value={playerName}
             onChange={e => setPlayerName(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === "Enter") {
+                if (!playerName.trim()) return showError("Enter your name!")
+                playerNameRef.current = playerName
+                localStorage.setItem("playerName", playerName)
+                if (joinMode) {
+                  socket.emit("join_room", { code: roomCode, playerName })
+                } else {
+                  socket.emit("create_room", { playerName })
+                }
+              }
+            }}
             placeholder="YOUR NAME"
             maxLength={7}
             style={{ display: "block", width: "200px", padding: "10px 12px", fontSize: "15px", border: "1px solid #ccc", borderRadius: "8px", boxSizing: "border-box", textAlign: "center" }}
@@ -419,6 +437,19 @@ if (screen === "home") {
             <input
               value={genre}
               onChange={e => setGenre(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === "Enter" && !loadingGenre) {
+                  if (!genre.trim()) return showError("Enter a genre or artist!")
+                  setError("")
+                  setLoadingGenre(true)
+                  getTopTracks(genre).then(tracks => {
+                    setLoadingGenre(false)
+                    if (!tracks || tracks.length < 4) return showError("Couldn't find enough tracks! Try a different genre.")
+                    socket.emit("select_genre", { code: room.code, genre, tracks })
+                    setConfirmedGenre(true)
+                  })
+                }
+              }}
               placeholder="..80s, ABBA, pop, rock.."
               style={{ display: "block", width: "100%", padding: "10px 12px", fontSize: "15px", border: "1px solid #ccc", borderRadius: "8px", marginBottom: "10px", boxSizing: "border-box" }}
             />

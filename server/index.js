@@ -228,11 +228,10 @@ async function startQuestion(io, room) {
   prefetchNext(room, tracks)
 
   const wrong = tracks
-    .filter(t => t.name !== correct.name)
-    .sort(() => Math.random() - 0.5)
-    .slice(0, 3)
-
-  const options = [...wrong, correct].sort(() => Math.random() - 0.5)
+  .filter(t => t.name !== correct.name && t.artist !== correct.artist)
+  .filter((t, i, arr) => arr.findIndex(x => x.artist === t.artist) === i) // dedupe by artist
+  .sort(() => Math.random() - 0.5)
+  .slice(0, 3)
 
   room.currentCorrect = correct
   room.questionStartTime = Date.now()
