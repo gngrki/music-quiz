@@ -10,9 +10,23 @@ const socket = io("https://music-quiz-production-b8f9.up.railway.app", {
 const LASTFM_KEY = "5ae7aaa16891fc49403d389293103d97"
 
 async function getTopTracks(tag) {
+  if (tag.trim().toLowerCase() === "haunted echo skies") {
+    const first = await fetch(`https://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user=Ggriki&api_key=${LASTFM_KEY}&format=json&limit=200&page=1`)
+    const firstData = await first.json()
+    const totalPages = parseInt(firstData.lovedtracks["@attr"].totalPages)
+    const randomPage = Math.floor(Math.random() * totalPages) + 1
+    const res = await fetch(`https://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user=Ggriki&api_key=${LASTFM_KEY}&format=json&limit=200&page=${randomPage}`)
+    const data = await res.json()
+    return data.lovedtracks.track
+      .map(t => ({ name: t.name, artist: t.artist.name }))
+      .sort(() => Math.random() - 0.5)
+  }
+
   const res = await fetch(`https://ws.audioscrobbler.com/2.0/?method=tag.gettoptracks&tag=${encodeURIComponent(tag)}&api_key=${LASTFM_KEY}&format=json&limit=200`)
   const data = await res.json()
-  return data.tracks.track.map(t => ({ name: t.name, artist: t.artist.name }))
+  return data.tracks.track
+    .map(t => ({ name: t.name, artist: t.artist.name }))
+    .sort(() => Math.random() - 0.5)
 }
 
 function playSound(type) {
