@@ -41,14 +41,47 @@ function normalizeEstonian(str) {
     .replace(/ü/g, "u")
 }
 function isCloseEnough(answer, correct) {
-  const a = normalizeEstonian(answer)
-  const c = normalizeEstonian(correct)
+  const a = normalizeContractions(normalizeEstonian(answer))
+  const c = normalizeContractions(normalizeEstonian(correct))
   if (a === c) return 1
   if (a + "s" === c) return 0.5
   if (c + "s" === a) return 0.5
   if (a + "es" === c) return 0.5
   if (c + "es" === a) return 0.5
   return 0
+}
+function normalizeContractions(str) {
+  return str
+    .replace(/can't/g, "cannot")
+    .replace(/cannot/g, "cannot")
+    .replace(/won't/g, "will not")
+    .replace(/don't/g, "do not")
+    .replace(/doesn't/g, "does not")
+    .replace(/didn't/g, "did not")
+    .replace(/isn't/g, "is not")
+    .replace(/aren't/g, "are not")
+    .replace(/wasn't/g, "was not")
+    .replace(/weren't/g, "were not")
+    .replace(/i'm/g, "i am")
+    .replace(/i've/g, "i have")
+    .replace(/i'll/g, "i will")
+    .replace(/i'd/g, "i would")
+    .replace(/you're/g, "you are")
+    .replace(/you've/g, "you have")
+    .replace(/you'll/g, "you will")
+    .replace(/they're/g, "they are")
+    .replace(/they've/g, "they have")
+    .replace(/we're/g, "we are")
+    .replace(/we've/g, "we have")
+    .replace(/it's/g, "it is")
+    .replace(/that's/g, "that is")
+    .replace(/there's/g, "there is")
+    .replace(/wouldn't/g, "would not")
+    .replace(/couldn't/g, "could not")
+    .replace(/shouldn't/g, "should not")
+    .replace(/haven't/g, "have not")
+    .replace(/hadn't/g, "had not")
+    .replace(/mustn't/g, "must not")
 }
 const fillerWords = new Set([
   "yeah", "yea", "ohh", "ooh", "ahh", "aah", "hey", "woah", "whoa",
