@@ -1,6 +1,7 @@
 # [🎵 Music Quiz (link)](https://music-quiz-zeta.vercel.app)
-A real-time online multiplayer music quiz game built with React, Node.js, and Socket.IO.
-Built by me with a help of Claude AI.
+A real-time online multiplayer music quiz game built with React, Node.js, and Socket.IO.  
+Built by me and used AI tools to speed up development.  
+*I made all architectural decisions and debugged issues myself. I understand how the system works end-to-end.* :)
 
 ### Features
 > * Up to 6 players per room
