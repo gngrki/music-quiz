@@ -132,6 +132,9 @@ export default function App() {
       playerNameRef.current = null
       setRoom(null)
       setScreen("home")
+      setAudioUnlocked(false)
+      setConfirmedGenre(false)
+      setGenre("")
     })
     socket.on("audio_ready_update", ({ count, total }) => {
       setAudioReadyCount(count)
