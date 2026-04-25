@@ -132,7 +132,7 @@ export default function App() {
 
     socket.on("new_question", (data) => {
       setQuestion(data); setSelectedAnswer(null); setReveal(null)
-      setResults(null); setTimeLeft(30); setAnsweredCount(0); setLyricsInput(""); window.scrollTo(0, 0)
+      setTimeLeft(30); setAnsweredCount(0); setLyricsInput(""); window.scrollTo(0, 0)
       if (data.previewUrl && audioRef.current) {
         audioRef.current.pause()
         audioRef.current.src = data.previewUrl
@@ -411,37 +411,25 @@ if (screen === "home") {
             const isHost = room.players[0].id === socket.id
             const isOverridden = hostOverride === p.id
             const someoneOverridden = !!hostOverride
-            const showHostPick = someoneOverridden && !isOverridden
+            const isClickable = isHost && p.id !== socket.id && p.genre
 
             return (
               <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid #eee" }}>
                 <span style={{ fontSize: "15px" }}>{p.name}</span>
                 {p.genre ? (
-                  isHost && p.id !== socket.id && p.id !== room.players[0].id ? (
-                    <span
-                      onClick={() => socket.emit("host_override", { code: room.code, playerId: p.id })}
-                      style={{
-                        fontSize: "12px",
-                        background: isOverridden ? "#E1F5EE" : showHostPick ? "#FFF3E0" : "#E1F5EE",
-                        color: isOverridden ? "#0F6E56" : showHostPick ? "#E65100" : "#0F6E56",
-                        borderRadius: "20px",
-                        padding: "3px 10px",
-                        cursor: "pointer"
-                      }}
-                    >
-                      {showHostPick ? "🎯 host pick" : `${p.genre} ✓`}
-                    </span>
-                  ) : (
-                    <span style={{
+                  <span
+                    onClick={() => isClickable && socket.emit("host_override", { code: room.code, playerId: p.id })}
+                    style={{
                       fontSize: "12px",
-                      background: showHostPick && p.id === socket.id ? "#FFF3E0" : "#E1F5EE",
-                      color: showHostPick && p.id === socket.id ? "#E65100" : "#0F6E56",
+                      background: someoneOverridden && !isOverridden ? "#FFF3E0" : "#E1F5EE",
+                      color: someoneOverridden && !isOverridden ? "#E65100" : "#0F6E56",
                       borderRadius: "20px",
-                      padding: "3px 10px"
-                    }}>
-                      {isOverridden ? `${p.genre} ✓` : "🎯 host pick"}
-                    </span>
-                  )
+                      padding: "3px 10px",
+                      cursor: isClickable ? "pointer" : "default"
+                    }}
+                  >
+                    {someoneOverridden && !isOverridden ? "🎯 host pick" : `${p.genre} ✓`}
+                  </span>
                 ) : (
                   <span style={{ fontSize: "13px", color: "#999" }}>picking...</span>
                 )}
