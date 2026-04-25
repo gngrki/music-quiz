@@ -122,11 +122,6 @@ export default function App() {
       localStorage.setItem("roomCode", code)
       setScreen(prev => prev === "game" || prev === "gameover" ? prev : "lobby")
     })
-    socket.on("kicked", () => {
-      localStorage.removeItem("roomCode")
-      localStorage.removeItem("playerName")
-      window.location.reload()
-    })
     socket.on("host_override_updated", ({ hostOverride }) => {
       setHostOverride(hostOverride)
     })
@@ -210,7 +205,6 @@ export default function App() {
       socket.off("rematch_starting"); socket.off("error"); socket.off("connect")
       socket.off("player_count"); socket.off("emoji_reaction"); socket.off("audio_ready_update")
       socket.off("room_valid"); socket.off("host_override_updated")
-      socket.off("kicked")
     }
   }, [])
 
@@ -436,17 +430,7 @@ if (screen === "home") {
 
             return (
               <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid #eee" }}>
-                <span style={{ fontSize: "15px" }}>
-                  {p.name}
-                  {room.players[0].id === socket.id && p.id !== socket.id && (
-                    <span
-                      onClick={() => socket.emit("kick_player", { code: room.code, playerId: p.id })}
-                      style={{ fontSize: "11px", color: "#ccc", marginLeft: "6px", cursor: "pointer" }}
-                    >
-                      (kick)
-                    </span>
-                  )}
-                </span>
+                <span style={{ fontSize: "15px" }}>{p.name}</span>
                 {p.genre ? (
                   <span
                     onClick={() => isClickable && socket.emit("host_override", { code: room.code, playerId: p.id })}
@@ -595,27 +579,25 @@ if (screen === "home") {
         )}
         {question && (
           <div>
-            <div style={{ position: "fixed", top: 0, left: 0, right: 0, background: "white", padding: "8px 24px", zIndex: 100, boxSizing: "border-box" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px", position: "relative" }}>
-                <span style={{ fontSize: "11px", color: "#999" }}>Question {question.questionNumber} of {question.total}</span>
-                <span style={{ fontSize: "13px", color: "#999", position: "absolute", left: "50%", transform: "translateX(-50%)" }}>
-                  {question.previewUrl ? "🎵 Now playing" : "No preview"}
-                </span>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <button onClick={() => {
-                    if (audioRef.current) { audioRef.current.pause(); audioRef.current.src = "" }
-                    localStorage.removeItem("roomCode")
-                    localStorage.removeItem("playerName")
-                    window.location.reload()
-                  }} style={{ fontSize: "12px", color: "#999", background: "none", border: "none", cursor: "pointer", padding: 0 }}>Leave</button>
-                  <span style={{ fontSize: "20px", fontWeight: "600", color: timeLeft <= 5 ? "#E24B4A" : timeLeft <= 10 ? "#EF9F27" : "#1D9E75" }}>{timeLeft}s</span>
-                </div>
-              </div>
-              <div style={{ height: "6px", background: "#eee", borderRadius: "4px", marginBottom: "4px", overflow: "hidden" }}>
-                <div style={{ height: "100%", width: `${(timeLeft / 30) * 100}%`, background: timeLeft <= 5 ? "#E24B4A" : timeLeft <= 10 ? "#EF9F27" : "#1D9E75", borderRadius: "4px", transition: "width 1s linear" }} />
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px", position: "relative" }}>
+              <span style={{ fontSize: "11px", color: "#999" }}>Question {question.questionNumber} of {question.total}</span>
+              <span style={{ fontSize: "13px", color: "#999", position: "absolute", left: "50%", transform: "translateX(-50%)" }}>
+                {question.previewUrl ? "🎵 Now playing" : "No preview"}
+              </span>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <button onClick={() => {
+                  if (audioRef.current) { audioRef.current.pause(); audioRef.current.src = "" }
+                  localStorage.removeItem("roomCode")
+                  localStorage.removeItem("playerName")
+                  window.location.reload()
+                }} style={{ fontSize: "12px", color: "#999", background: "none", border: "none", cursor: "pointer", padding: 0 }}>Leave</button>
+                <span style={{ fontSize: "20px", fontWeight: "600", color: timeLeft <= 5 ? "#E24B4A" : timeLeft <= 10 ? "#EF9F27" : "#1D9E75" }}>{timeLeft}s</span>
               </div>
             </div>
-            <p style={{ fontSize: "11px", color: "#999", marginBottom: "12px", paddingTop: "70px" }}>
+            <div style={{ height: "6px", background: "#eee", borderRadius: "4px", marginBottom: "12px", overflow: "hidden" }}>
+              <div style={{ height: "100%", width: `${(timeLeft / 30) * 100}%`, background: timeLeft <= 5 ? "#E24B4A" : timeLeft <= 10 ? "#EF9F27" : "#1D9E75", borderRadius: "4px", transition: "width 1s linear" }} />
+            </div>
+            <p style={{ fontSize: "11px", color: "#999", marginBottom: "12px" }}>
               {lastAnswered && <span style={{ marginRight: "6px", transition: "opacity 0.5s" }}>{lastAnswered}  ···</span>}
               {answeredCount}/{room.players.length} answered
             </p>
