@@ -439,7 +439,7 @@ if (screen === "home") {
                       borderRadius: "20px",
                       padding: "3px 10px"
                     }}>
-                      {showHostPick && p.id !== room.players[0].id ? "🎯 host pick" : `${p.genre} ✓`}
+                      {isOverridden ? `${p.genre} ✓` : "🎯 host pick"}
                     </span>
                   )
                 ) : (
