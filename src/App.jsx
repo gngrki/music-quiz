@@ -82,12 +82,13 @@ export default function App() {
   const [audioUnlocked, setAudioUnlocked] = useState(false)
   const [allTimeScores, setAllTimeScores] = useState({})
   const [lyricsInput, setLyricsInput] = useState("")
-  const lyricsInputRef = useRef(null)
   const [audioReadyCount, setAudioReadyCount] = useState(0)
   const [joinMode, setJoinMode] = useState(false)
   const [hostOverride, setHostOverride] = useState(null)
   const roomCodeRef = useRef(localStorage.getItem("roomCode") || null)
   const playerNameRef = useRef(localStorage.getItem("playerName") || null)
+  const lyricsInputRef = useRef(null)
+  const nameInputRef = useRef(null)
   const timerRef = useRef(null)
   const audioRef = useRef(null)
 
@@ -225,6 +226,12 @@ export default function App() {
     const interval = setInterval(() => { setSpinnerFrame(prev => (prev + 1) % 6) }, 100)
     return () => clearInterval(interval)
   }, [loadingGenre])
+
+  useEffect(() => {
+    if (screen === "name" && nameInputRef.current) {
+      nameInputRef.current.focus()
+    }
+  }, [screen])
   
   useEffect(() => {
     if (question?.mode === "lyrics" && lyricsInputRef.current) {
@@ -347,9 +354,9 @@ if (screen === "home") {
         </div>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
           <input
+            ref={nameInputRef}
             value={playerName}
             onChange={e => setPlayerName(e.target.value)}
-            autoFocus
             onKeyDown={e => {
               if (e.key === "Enter") {
                 if (!playerName.trim()) return showError("Enter your name!")
