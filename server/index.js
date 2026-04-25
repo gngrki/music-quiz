@@ -448,7 +448,7 @@ io.on("connection", (socket) => {
       seen2.add(t.name)
       return true
     })
-    room.tracks = deduped
+    room.tracks = room.hostOverride ? allTracks.sort(() => Math.random() - 0.5) : deduped
     room.usedTrackNames = new Set()
     room.scores = {}
     room.players.forEach(p => room.scores[p.id] = 0)
