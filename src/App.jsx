@@ -405,24 +405,6 @@ if (screen === "home") {
           </div>
         </div>
 
-        {!audioUnlocked ? (
-          <button
-            style={{ display: "block", width: "100%", padding: "12px", fontSize: "15px", background: "#5cd8f1ff", color: "white", border: "none", borderRadius: "10px", cursor: "pointer", marginBottom: "16px", animation: "pulse 1.5s ease-in-out infinite" }}
-            onClick={() => {
-              const audio = new Audio()
-              audio.volume = 1
-              audioRef.current = audio
-              audio.play().catch(() => {})
-              setAudioUnlocked(true)
-              socket.emit("audio_ready", { code: room.code })
-            }}
-          >
-            🎵 Tap here to enable music 🎵
-          </button>
-        ) : (
-          <p style={{ color: "#1D9E75", fontSize: "13px", marginBottom: "12px" }}>✅ Music enabled!</p>
-        )}
-
         <p style={{ fontSize: "13px", color: "#999", marginBottom: "8px" }}>Players ({room.players.length}/6)</p>
         <div style={{ marginBottom: "16px" }}>
           {room.players.map((p, i) => {
@@ -467,6 +449,24 @@ if (screen === "home") {
             )
           })}
         </div>
+
+        {!audioUnlocked ? (
+          <button
+            style={{ display: "block", width: "100%", padding: "12px", fontSize: "15px", background: "#5cd8f1ff", color: "white", border: "none", borderRadius: "10px", cursor: "pointer", marginBottom: "16px", animation: "pulse 1.5s ease-in-out infinite" }}
+            onClick={() => {
+              const audio = new Audio()
+              audio.volume = 1
+              audioRef.current = audio
+              audio.play().catch(() => {})
+              setAudioUnlocked(true)
+              socket.emit("audio_ready", { code: room.code })
+            }}
+          >
+            🎵 Tap here to enable music 🎵
+          </button>
+        ) : (
+          <p style={{ color: "#1D9E75", fontSize: "13px", marginBottom: "12px" }}>✅ Music enabled!</p>
+        )}
 
         {!confirmedGenre && (
           <div style={{ marginBottom: "16px", minHeight: "130px" }}>
