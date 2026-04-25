@@ -371,6 +371,16 @@ io.on("connection", (socket) => {
     socket.emit("room_joined", { code, players: room.players })
     console.log(`${playerName} joined room ${code}`)
   })
+  socket.on("kick_player", ({ code, playerId }) => {
+    const room = rooms[code]
+    if (!room || room.host !== socket.id) return
+    const idx = room.players.findIndex(p => p.id === playerId)
+    if (idx === -1) return
+    room.players.splice(idx, 1)
+    const kickedSocket = io.sockets.sockets.get(playerId)
+    if (kickedSocket) kickedSocket.emit("kicked")
+    io.to(code).emit("room_updated", { players: room.players })
+  })
 
   socket.on("select_genre", ({ code, genre, tracks }) => {
     if (!genre || genre.length > 50) return

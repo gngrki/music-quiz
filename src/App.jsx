@@ -125,6 +125,14 @@ export default function App() {
     socket.on("host_override_updated", ({ hostOverride }) => {
       setHostOverride(hostOverride)
     })
+    socket.on("kicked", () => {
+      localStorage.removeItem("roomCode")
+      localStorage.removeItem("playerName")
+      roomCodeRef.current = null
+      playerNameRef.current = null
+      setRoom(null)
+      setScreen("home")
+    })
     socket.on("audio_ready_update", ({ count, total }) => {
       setAudioReadyCount(count)
     })
@@ -205,6 +213,7 @@ export default function App() {
       socket.off("rematch_starting"); socket.off("error"); socket.off("connect")
       socket.off("player_count"); socket.off("emoji_reaction"); socket.off("audio_ready_update")
       socket.off("room_valid"); socket.off("host_override_updated")
+      socket.off("kicked")
     }
   }, [])
 
@@ -430,7 +439,17 @@ if (screen === "home") {
 
             return (
               <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid #eee" }}>
-                <span style={{ fontSize: "15px" }}>{p.name}</span>
+                <span style={{ fontSize: "15px" }}>
+                  {p.name}
+                  {room.players[0].id === socket.id && p.id !== socket.id && (
+                    <span
+                      onClick={() => socket.emit("kick_player", { code: room.code, playerId: p.id })}
+                      style={{ fontSize: "11px", color: "#ccc", marginLeft: "6px", cursor: "pointer" }}
+                    >
+                      (kick)
+                    </span>
+                  )}
+                </span>
                 {p.genre ? (
                   <span
                     onClick={() => isClickable && socket.emit("host_override", { code: room.code, playerId: p.id })}
