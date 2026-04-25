@@ -668,7 +668,7 @@ if (screen === "home") {
                       {results && results[p.id] ? results[p.id].correct ? "✅ " : results[p.id].answered ? "❌ " : "⏱️ " : ""}
                       {i + 1}. {p.name}
                       {results && results[p.id] && results[p.id].answer && !results[p.id].correct
-                        ? <span style={{ fontSize: "12px", color: "#999", marginLeft: "6px" }}>"{results[p.id].answer}"</span>
+                        ? <span style={{ fontSize: "12px", color: "#999", marginLeft: "6px" }}>"{results[p.id].artistAnswer || results[p.id].answer}"</span>
                         : null
                       }
                     </span>

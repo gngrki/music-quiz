@@ -287,15 +287,17 @@ function revealAnswer(io, room) {
   }
   const results = {}
   room.players.forEach(p => {
-  const answer = room.answers[p.id]
-  results[p.id] = {
-    answered: !!answer,
-    correct: room.currentCorrect.lyricsAnswer 
-      ? isCloseEnough(answer || "", room.currentCorrect.lyricsAnswer) > 0
-      : answer === room.currentCorrect.name,
-    answer: answer || null
-  }
-})
+    const answer = room.answers[p.id]
+    const answeredOption = answer ? room.tracks.find(t => t.name === answer) : null
+    results[p.id] = {
+      answered: !!answer,
+      correct: room.currentCorrect.lyricsAnswer 
+        ? isCloseEnough(answer || "", room.currentCorrect.lyricsAnswer) > 0
+        : answer === room.currentCorrect.name,
+      answer: answer || null,
+      artistAnswer: room.guessMode === "artist" && answeredOption ? answeredOption.artist : null
+    }
+  })
 
   io.to(room.code).emit("reveal_answer", {
     correct: { name: room.currentCorrect.name, artist: room.currentCorrect.artist },
