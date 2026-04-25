@@ -457,7 +457,7 @@ if (screen === "home") {
         )}
 
         {!confirmedGenre && (
-          <div style={{ marginBottom: "16px", minHeight: "130px" }}>
+          <div style={{ marginBottom: "16px" }}>
             <p style={{ fontSize: "13px", color: "#999", marginBottom: "8px" }}>Pick a genre or artist</p>
             <input
               value={genre}
@@ -496,7 +496,7 @@ if (screen === "home") {
             </button>
           </div>
         )}
-        {confirmedGenre && <p style={{ color: "#1D9E75", fontSize: "13px", marginBottom: "16px", minHeight: "130px" }}>✅ Genre confirmed: {genre}</p>}
+        {confirmedGenre && <p style={{ color: "#1D9E75", fontSize: "13px", marginBottom: "16px" }}>✅ Genre confirmed: {genre}</p>}
 
         <div style={{ marginBottom: "16px" }}>
           <p style={{ fontSize: "13px", color: "#999", marginBottom: "8px" }}>What to guess?</p>
