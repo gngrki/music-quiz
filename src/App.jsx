@@ -596,6 +596,7 @@ if (screen === "home") {
                     onChange={e => setLyricsInput(e.target.value)}
                     placeholder="Fill in the missing word..."
                     disabled={!!selectedAnswer}
+                    autoFocus
                     onKeyDown={e => {
                       if (e.key === "Enter" && lyricsInput.trim()) {
                         const ans = lyricsInput.trim().toLowerCase()
