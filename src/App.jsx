@@ -99,7 +99,6 @@ export default function App() {
   useEffect(() => {
     socket.on("player_count", ({ count }) => { setPlayerCount(count) })
     socket.on("room_valid", () => {
-      setPlayerName("")
       setScreen("name")
       setJoinMode(true)
     })
