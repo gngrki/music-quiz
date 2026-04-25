@@ -376,6 +376,8 @@ io.on("connection", (socket) => {
     if (!room || room.host !== socket.id) return
     const idx = room.players.findIndex(p => p.id === playerId)
     if (idx === -1) return
+    if (!room.kickedPlayers) room.kickedPlayers = new Set()
+    room.kickedPlayers.add(room.players[idx].name)
     room.players.splice(idx, 1)
     const kickedSocket = io.sockets.sockets.get(playerId)
     if (kickedSocket) kickedSocket.emit("kicked")
@@ -546,7 +548,12 @@ const answeredCount = Object.keys(room.answers).length
   if (existingPlayer) {
     const wasHost = room.host === existingPlayer.id
     existingPlayer.id = socket.id
-    if (wasHost) room.host = socket.id
+  if (room.kickedPlayers && room.kickedPlayers.has(playerName)) {
+    existingPlayer.genre = null
+    existingPlayer.tracks = null
+    room.kickedPlayers.delete(playerName)
+  }
+  if (wasHost) room.host = socket.id
   } else {
     room.players.push({ id: socket.id, name: playerName, genre: null })
   }
