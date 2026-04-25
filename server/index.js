@@ -396,6 +396,20 @@ io.on("connection", (socket) => {
     io.to(code).emit("host_override_updated", { hostOverride: room.hostOverride })
   })
 
+  socket.on("kick_player", ({ code, playerId }) => {
+    const room = rooms[code]
+    if (!room || room.host !== socket.id) return
+    const idx = room.players.findIndex(p => p.id === playerId)
+    if (idx === -1) return
+    room.players.splice(idx, 1)
+    if (room.hostOverride === playerId) {
+      room.hostOverride = null
+      io.to(code).emit("host_override_updated", { hostOverride: null })
+    }
+    io.to(playerId).emit("kicked")
+    io.to(code).emit("room_updated", { players: room.players })
+  })
+
   socket.on("start_game", ({ code, questionCount, guessMode }) => {
     const room = rooms[code]
     if (!room) return
