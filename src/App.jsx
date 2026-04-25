@@ -82,6 +82,7 @@ export default function App() {
   const [audioUnlocked, setAudioUnlocked] = useState(false)
   const [allTimeScores, setAllTimeScores] = useState({})
   const [lyricsInput, setLyricsInput] = useState("")
+  const lyricsInputRef = useRef(null)
   const [audioReadyCount, setAudioReadyCount] = useState(0)
   const [joinMode, setJoinMode] = useState(false)
   const [hostOverride, setHostOverride] = useState(null)
@@ -224,6 +225,12 @@ export default function App() {
     const interval = setInterval(() => { setSpinnerFrame(prev => (prev + 1) % 6) }, 100)
     return () => clearInterval(interval)
   }, [loadingGenre])
+  
+  useEffect(() => {
+    if (question?.mode === "lyrics" && lyricsInputRef.current) {
+      lyricsInputRef.current.focus()
+    }
+  }, [question])
 
   const CountdownMessage = () => {
   const [step, setStep] = useState(0)
@@ -342,6 +349,7 @@ if (screen === "home") {
           <input
             value={playerName}
             onChange={e => setPlayerName(e.target.value)}
+            autoFocus
             onKeyDown={e => {
               if (e.key === "Enter") {
                 if (!playerName.trim()) return showError("Enter your name!")
@@ -462,6 +470,7 @@ if (screen === "home") {
             <input
               value={genre}
               onChange={e => setGenre(e.target.value)}
+              autoFocus
               onKeyDown={e => {
                 if (e.key === "Enter" && !loadingGenre) {
                   if (!genre.trim()) return showError("Enter a genre or artist!")
@@ -592,11 +601,11 @@ if (screen === "home") {
                     {question.lyricLine}
                   </div>
                   <input
+                    ref={lyricsInputRef}
                     value={lyricsInput}
                     onChange={e => setLyricsInput(e.target.value)}
                     placeholder="Fill in the missing word..."
                     disabled={!!selectedAnswer}
-                    autoFocus
                     onKeyDown={e => {
                       if (e.key === "Enter" && lyricsInput.trim()) {
                         const ans = lyricsInput.trim().toLowerCase()
