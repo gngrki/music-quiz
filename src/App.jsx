@@ -342,10 +342,7 @@ if (screen === "home") {
         </button>
       </div>
       {error && <p style={{ color: "red", fontSize: "13px", marginTop: "8px", textAlign: "center" }}>{error}</p>}
-      <p style={{ marginTop: "40px", fontSize: "12px", color: "#999", lineHeight: "1.8", textAlign: "center" }}>
-        🎵 no ads, ever, but you can<br />
-        <a href="https://ko-fi.com/chromakala" target="_blank" rel="noopener noreferrer" style={{ color: "#999", textDecoration: "underline" }}>buy me a coffee ☕</a>
-      </p>
+      
       {playerCount > 0 && (
         <p style={{ marginTop: "16px", fontSize: "12px", color: "#999", textAlign: "center" }}>
           🟢 {playerCount} {playerCount === 1 ? "person" : "people"} currently playing
@@ -747,12 +744,7 @@ if (screen === "home") {
             window.location.reload()
           }}>Leave</button>
         </div>
-        <div style={{ marginBottom: "24px" }}>
-          <a href="https://ko-fi.com/chromakala" target="_blank" rel="noopener noreferrer"
-            style={{ display: "inline-block", padding: "10px 20px", background: "#4caf50", color: "white", borderRadius: "8px", textDecoration: "none", fontSize: "14px", fontWeight: "500" }}>
-            Support a late night coder ☕
-          </a>
-        </div>
+        
         {sortedAllTime.length > 0 && (
           <div>
             <p style={{ fontSize: "16px", color: "#999", marginBottom: "10px" }}>📊 All-time scores this session</p>
