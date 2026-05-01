@@ -309,7 +309,7 @@ if (screen === "home") {
       </div>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
         <input
-          autoComplete="off"
+          autoComplete="new-password"
           value={roomCode}
           onChange={e => setRoomCode(e.target.value.toLowerCase())}
           onKeyDown={e => {
@@ -364,7 +364,7 @@ if (screen === "home") {
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
           <input
             ref={nameInputRef}
-            autoComplete="off"
+            autoComplete="new-password"
             value={playerName}
             onChange={e => setPlayerName(e.target.value)}
             onKeyDown={e => {
@@ -495,7 +495,7 @@ if (screen === "home") {
           <div style={{ marginBottom: "16px" }}>
             <p style={{ fontSize: "13px", color: "#999", marginBottom: "8px" }}>Pick a genre or artist</p>
             <input
-              autoComplete="off"
+              autoComplete="new-password"
               value={genre}
               onChange={e => setGenre(e.target.value)}
               autoFocus
@@ -630,7 +630,7 @@ if (screen === "home") {
                   </div>
                   <input
                     ref={lyricsInputRef}
-                    autoComplete="off"
+                    autoComplete="new-password"
                     value={lyricsInput}
                     onChange={e => setLyricsInput(e.target.value)}
                     placeholder="Fill in the missing word..."
