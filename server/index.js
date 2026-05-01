@@ -275,7 +275,7 @@ async function startQuestion(io, room) {
 
   room.questionTimer = setTimeout(() => {
     revealAnswer(io, room)
-  }, 30000)
+  }, 31500)
 }
 
 function revealAnswer(io, room) {
