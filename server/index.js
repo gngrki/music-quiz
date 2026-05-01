@@ -365,7 +365,19 @@ io.on("connection", (socket) => {
       socket.emit("error", { message: "Room is full!" })
       return
     }
-    room.players.push({ id: socket.id, name: playerName, genre: null })
+    const timerKey = `${code}:${playerName}`
+    if (disconnectTimers[timerKey]) {
+      clearTimeout(disconnectTimers[timerKey])
+      delete disconnectTimers[timerKey]
+    }
+    const existing = room.players.find(p => p.name === playerName)
+    if (existing) {
+      existing.id = socket.id
+      existing.genre = null
+      existing.tracks = null
+    } else {
+      room.players.push({ id: socket.id, name: playerName, genre: null })
+    }
     socket.join(code)
     io.to(code).emit("room_updated", { players: room.players })
     socket.emit("room_joined", { code, players: room.players })

@@ -362,9 +362,9 @@ if (screen === "home") {
           <h1 style={{ margin: 0, fontSize: "26px" }}>Music Quiz</h1>
         </div>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
-          <form autoComplete="off" onSubmit={e => e.preventDefault()}>
           <input
             ref={nameInputRef}
+            autoComplete="new-password"
             value={playerName}
             onChange={e => setPlayerName(e.target.value)}
             onKeyDown={e => {
@@ -383,7 +383,6 @@ if (screen === "home") {
             maxLength={7}
             style={{ display: "block", width: "200px", padding: "10px 12px", fontSize: "15px", border: "1px solid #ccc", borderRadius: "8px", boxSizing: "border-box", textAlign: "center" }}
           />
-          </form>
           <button
             style={{ width: "200px", padding: "12px", fontSize: "15px", background: "#1D9E75", color: "white", border: "none", borderRadius: "10px", cursor: "pointer" }}
             onClick={() => {
