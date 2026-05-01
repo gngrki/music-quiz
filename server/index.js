@@ -420,6 +420,15 @@ io.on("connection", (socket) => {
     io.to(code).emit("host_override_updated", { hostOverride: room.hostOverride })
   })
 
+  socket.on("claim_host", ({ code }) => {
+    const room = rooms[code]
+    if (!room) return
+    if (room.players[0].id === socket.id) {
+      room.host = socket.id
+      io.to(code).emit("room_updated", { players: room.players })
+    }
+  })
+
   socket.on("start_game", ({ code, questionCount, guessMode }) => {
     const room = rooms[code]
     if (!room) return

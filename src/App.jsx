@@ -568,6 +568,7 @@ if (screen === "home") {
         )}
 
         {room.players[0].id === socket.id && (
+          <>
           <button
             disabled={!room.players.every(p => p.genre) || !allAudioReady}
             style={{ display: "block", width: "100%", padding: "12px", fontSize: "15px", background: room.players.every(p => p.genre) && allAudioReady ? "#1D9E75" : "#ccc", color: "white", border: "none", borderRadius: "10px", cursor: room.players.every(p => p.genre) && allAudioReady ? "pointer" : "not-allowed", opacity: room.players.every(p => p.genre) && allAudioReady ? 1 : 0.5 }}
@@ -578,6 +579,13 @@ if (screen === "home") {
           >
             {!room.players.every(p => p.genre) ? "Waiting for all players..." : !allAudioReady ? `Players ready... (${audioReadyCount}/${room.players.length})` : "Start Game"}
           </button>
+          <button
+            onClick={() => socket.emit("claim_host", { code: room.code })}
+            style={{ display: "block", width: "100%", padding: "8px", fontSize: "12px", color: "#999", background: "none", border: "1px solid #eee", borderRadius: "10px", cursor: "pointer", marginTop: "8px" }}
+          >
+            Claim host controls
+          </button>
+          </>
         )}
 
         <EmojiButtons />
