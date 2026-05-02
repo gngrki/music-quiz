@@ -580,10 +580,13 @@ if (screen === "home") {
             {!room.players.every(p => p.genre) ? "Waiting for all players..." : !allAudioReady ? `Players ready... (${audioReadyCount}/${room.players.length})` : "Start Game"}
           </button>
           <button
-            onClick={() => socket.emit("claim_host", { code: room.code })}
+            onClick={() => {
+              socket.emit("claim_host", { code: room.code })
+              socket.emit("set_guess_mode", { code: room.code, guessMode })
+            }}
             style={{ display: "block", width: "100%", padding: "8px", fontSize: "12px", color: "#999", background: "none", border: "1px solid #eee", borderRadius: "10px", cursor: "pointer", marginTop: "8px" }}
           >
-            Claim host controls
+            Game not starting? Click here first
           </button>
           </>
         )}
